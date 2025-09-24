@@ -21,13 +21,18 @@ export function CharacterListSkeleton() {
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead className="w-[64px]">Icon</TableHead>
               <TableHead className="w-[200px]">Character</TableHead>
               <TableHead>How They Match</TableHead>
+              <TableHead className="w-[100px]">Link</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {[...Array(5)].map((_, i) => (
+            {[...Array(10)].map((_, i) => (
               <TableRow key={i}>
+                <TableCell>
+                  <Skeleton className="h-10 w-10 rounded-full" />
+                </TableCell>
                 <TableCell>
                   <Skeleton className="h-5 w-3/4" />
                 </TableCell>
@@ -36,6 +41,9 @@ export function CharacterListSkeleton() {
                     <Skeleton className="h-4 w-full" />
                     <Skeleton className="h-4 w-5/6" />
                   </div>
+                </TableCell>
+                <TableCell>
+                  <Skeleton className="h-5 w-16" />
                 </TableCell>
               </TableRow>
             ))}
