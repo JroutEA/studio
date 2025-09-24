@@ -44,7 +44,7 @@ You will identify 10 characters from SWGOH that best match these characteristics
 
 For each character, provide:
 1. The character's name.
-2. The URL for the character's icon on swgoh.gg.
+2. The URL for the character's small, public icon on swgoh.gg. This is usually found on character list pages.
 3. The URL for the character's page on swgoh.gg.
 4. A brief description of how they satisfy the user's query.
 
