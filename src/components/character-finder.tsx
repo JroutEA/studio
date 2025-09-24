@@ -1,7 +1,7 @@
 'use client';
 
-import { useFormState, useFormStatus } from 'react-dom';
-import { useEffect } from 'react';
+import { useActionState, useEffect, useState } from 'react';
+import { useFormStatus } from 'react-dom';
 import { findCharacters, type FormState } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import { Label } from '@/components/ui/label';
@@ -43,7 +43,7 @@ function SubmitButton() {
 }
 
 export function CharacterFinder() {
-  const [state, formAction] = useFormState(findCharacters, initialState);
+  const [state, formAction] = useActionState(findCharacters, initialState);
   const { pending } = useFormStatus();
   const { toast } = useToast();
 
