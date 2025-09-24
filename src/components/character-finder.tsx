@@ -111,7 +111,7 @@ export function CharacterFinder() {
             <Sheet open={isHistoryOpen} onOpenChange={setIsHistoryOpen}>
               <SheetTrigger asChild>
                 <Button variant="outline" size="icon">
-                  <History className="h-4 w-4" />
+                  <History className="h-4 w-4" suppressHydrationWarning />
                   <span className="sr-only">View query history</span>
                 </Button>
               </SheetTrigger>
