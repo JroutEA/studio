@@ -2,7 +2,7 @@
 
 import { useActionState, useEffect } from 'react';
 import { useFormStatus } from 'react-dom';
-import { findCharacters, type FormState } from '@/app/actions';
+import { findCharacters, type FormState, type StreamMessage } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -17,6 +17,8 @@ import {
 import { WandSparkles, LoaderCircle } from 'lucide-react';
 import { CharacterList } from './character-list';
 import { CharacterListSkeleton } from './character-list-skeleton';
+import type { StreamableValue } from 'ai/rsc';
+
 
 const initialState: FormState = {
   message: '',
@@ -60,8 +62,7 @@ export function CharacterFinder() {
     }
   }, [state, toast]);
 
-  // @ts-ignore
-  const stream = state.stream;
+  const stream = state.stream as StreamableValue<StreamMessage[]> | undefined;
 
   return (
     <div className="space-y-12">

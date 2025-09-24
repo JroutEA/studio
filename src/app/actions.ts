@@ -25,6 +25,7 @@ const schema = z.object({
 export type FormState = {
   message: string;
   characters?: CharacterMatchingAIOutput['characters'];
+  stream?: ReturnType<typeof createStreamableValue<StreamMessage[]>>['value'];
 };
 
 export type StreamMessage = {
@@ -36,8 +37,7 @@ export type StreamMessage = {
 export async function findCharacters(
   prevState: FormState,
   formData: FormData
-) {
-  'use server';
+): Promise<FormState> {
   const validatedFields = schema.safeParse({
     query: formData.get('query'),
   });
@@ -51,32 +51,39 @@ export async function findCharacters(
   }
 
   const query = validatedFields.data.query;
-  const stream = createStreamableValue<StreamMessage[]>([]);
+  const stream = createStreamableValue<StreamMessage[]>();
 
+  // Use an IIFE to kick off the async streaming work
+  // without blocking the initial response.
   (async () => {
+    let initialCharacters: CharacterMatchingAIOutput['characters'] = [];
     try {
-      const result = await characterMatchingAI({
-        query: query,
-      });
+      // 1. First, get the list of matching characters.
+      const result = await characterMatchingAI({ query });
       if (!result.characters || result.characters.length === 0) {
-        // This case is handled on the client, but good to have
+        // This case is handled in the main function body, but good to have a safeguard.
+        stream.done();
         return;
       }
+      initialCharacters = result.characters;
 
-      const initialStream: StreamMessage[] = result.characters.map(
+      // 2. Stream an update to the client to show we are generating details.
+      const generatingStream: StreamMessage[] = initialCharacters.map(
         (character) => ({
           status: 'generating',
           characterName: character.name,
         })
       );
-      stream.update(initialStream);
+      stream.update(generatingStream);
 
+      // 3. Get the detailed explanations for each character.
       const explanations = await explainCharacterMatches({
         query,
-        characterNames: result.characters.map((c) => c.name),
+        characterNames: initialCharacters.map((c) => c.name),
       });
 
-      const finalStream: StreamMessage[] = result.characters.map(
+      // 4. Stream the final, complete state.
+      const finalStream: StreamMessage[] = initialCharacters.map(
         (character) => {
           const explanation = explanations.find(
             (e) => e.characterName === character.name
@@ -90,33 +97,33 @@ export async function findCharacters(
       );
       stream.done(finalStream);
     } catch (e) {
-      console.error(e);
-      // We can optionally stream an error message back to the client
-      // For now, we'll rely on the client-side error handling
+      console.error('Error during streaming:', e);
+      // Optionally, stream an error state back to the client.
+      // For now, we signal completion to prevent hanging.
+      stream.done();
     }
   })();
 
   try {
-    const result = await characterMatchingAI({
-      query: validatedFields.data.query,
-    });
-    if (!result.characters || result.characters.length === 0) {
+    // We still need to get the initial character list for the immediate response.
+    // This call is cached and will be very fast if the streaming IIFE has already run it.
+    const initialResult = await characterMatchingAI({ query });
+
+    if (!initialResult.characters || initialResult.characters.length === 0) {
       return {
-        message:
-          'Could not find any matching characters. Please try a different query.',
+        message: 'Could not find any matching characters. Please try a different query.',
       };
     }
+
     return {
       message: 'success',
-      characters: result.characters,
-      // @ts-ignore
+      characters: initialResult.characters,
       stream: stream.value,
     };
   } catch (e) {
-    console.error(e);
+    console.error('Error in findCharacters action:', e);
     return {
-      message:
-        'An error occurred while searching for characters. Please try again later.',
+      message: 'An error occurred while searching for characters. Please try again later.',
     };
   }
 }
