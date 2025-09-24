@@ -38,14 +38,14 @@ export function CharacterList({ characters }: CharacterListProps) {
           <TableBody>
             {characters.map((character, index) => (
               <TableRow key={index}>
-                <TableCell>
+                <TableCell className="relative h-10 w-10">
                   {character.imageUrl && (
                     <Image
                       src={character.imageUrl}
                       alt={character.name}
                       width={40}
                       height={40}
-                      className="rounded-full"
+                      className="rounded-full object-cover"
                     />
                   )}
                 </TableCell>
