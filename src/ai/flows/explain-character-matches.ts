@@ -35,7 +35,7 @@ const explainCharacterMatchesPrompt = ai.definePrompt({
 
   Query: {{{query}}}
 
-You are given a list of character names. For each character, explain how they match the query. Be brief and to the point.
+You are given a list of character names. For each character, explain in detail how they match the query. Be specific and cover all aspects of the query.
 
   Characters: {{characterNames}}
 

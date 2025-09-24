@@ -1,5 +1,5 @@
 import { config } from 'dotenv';
 config();
 
-import '@/ai/flows/explain-character-matches.ts';
-import '@/ai/flows/character-matching-ai.ts';
+import '@/ai/flows/explain-character-matches';
+import '@/ai/flows/character-matching-ai';

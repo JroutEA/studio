@@ -60,6 +60,9 @@ export function CharacterFinder() {
     }
   }, [state, toast]);
 
+  // @ts-ignore
+  const stream = state.stream;
+
   return (
     <div className="space-y-12">
       <Card className="max-w-3xl mx-auto shadow-lg">
@@ -92,8 +95,8 @@ export function CharacterFinder() {
       <div className="max-w-4xl mx-auto">
         {pending && <CharacterListSkeleton />}
 
-        {state.characters && state.characters.length > 0 && (
-          <CharacterList characters={state.characters} />
+        {state.characters && state.characters.length > 0 && stream && (
+          <CharacterList characters={state.characters} stream={stream} />
         )}
 
         {!pending && (!state.characters || state.characters.length === 0) && (

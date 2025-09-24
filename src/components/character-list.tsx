@@ -13,13 +13,28 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import Image from 'next/image';
 import { Button } from './ui/button';
 import Link from 'next/link';
-import { ArrowUpRight } from 'lucide-react';
+import { ArrowUpRight, LoaderCircle } from 'lucide-react';
+import { useStreamableValue } from 'ai/rsc';
+import type { StreamMessage } from '@/app/actions';
+import { Skeleton } from './ui/skeleton';
 
 type CharacterListProps = {
   characters: NonNullable<CharacterMatchingAIOutput['characters']>;
+  stream: AsyncIterable<StreamMessage[]>;
 };
 
-export function CharacterList({ characters }: CharacterListProps) {
+export function CharacterList({ characters: initialCharacters, stream }: CharacterListProps) {
+  const [data] = useStreamableValue(stream);
+
+  const characters = initialCharacters.map(character => {
+    const streamInfo = data?.find(d => d.characterName === character.name);
+    return {
+      ...character,
+      status: streamInfo?.status || 'generating',
+      description: streamInfo?.explanation || character.description,
+    };
+  });
+
   return (
     <Card>
       <CardHeader>
@@ -50,7 +65,16 @@ export function CharacterList({ characters }: CharacterListProps) {
                   )}
                 </TableCell>
                 <TableCell className="font-medium">{character.name}</TableCell>
-                <TableCell>{character.description}</TableCell>
+                <TableCell>
+                  {character.status === 'generating' ? (
+                    <div className="flex items-center gap-2">
+                       <LoaderCircle className="h-4 w-4 animate-spin" />
+                       <span className="text-muted-foreground italic">Thinking...</span>
+                    </div>
+                  ) : (
+                    character.description
+                  )}
+                </TableCell>
                 <TableCell className="text-right">
                   <Button asChild variant="ghost" size="icon">
                     <Link href={character.url} target="_blank">
