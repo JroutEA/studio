@@ -1,3 +1,34 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "sw-char-1",
+      "description": "A jedi character holding a lightsaber.",
+      "imageUrl": "https://images.unsplash.com/photo-1553286158-5f5dac259bb0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxqZWRpJTIwd2FycmlvcnxlbnwwfHx8fDE3NTg2OTUxNzJ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "jedi warrior"
+    },
+    {
+      "id": "sw-char-2",
+      "description": "A sith lord with a red lightsaber.",
+      "imageUrl": "https://images.unsplash.com/photo-1755183198260-e39196848d30?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxzaXRoJTIwbG9yZHxlbnwwfHx8fDE3NTg2OTUxNzJ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "sith lord"
+    },
+    {
+      "id": "sw-char-3",
+      "description": "A bounty hunter in armor.",
+      "imageUrl": "https://images.unsplash.com/photo-1731430346981-0a7ca4e5ae0c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxib3VudHklMjBodW50ZXJ8ZW58MHx8fHwxNzU4NjE3ODg4fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "bounty hunter"
+    },
+    {
+      "id": "sw-char-4",
+      "description": "A droid character.",
+      "imageUrl": "https://images.unsplash.com/photo-1614903468661-236cf1073d64?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxkcm9pZCUyMHJvYm90fGVufDB8fHx8MTc1ODY5NTE3Mnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "droid robot"
+    },
+    {
+      "id": "sw-char-5",
+      "description": "A rebel pilot.",
+      "imageUrl": "https://images.unsplash.com/photo-1576157873439-f9c83ea3590d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxyZWJlbCUyMHBpbG90fGVufDB8fHx8MTc1ODY5NTE3Mnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "rebel pilot"
+    }
+  ]
 }
