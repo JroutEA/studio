@@ -1,7 +1,6 @@
 'use client';
 
 import type { CharacterMatchingAIOutput } from '@/ai/flows/character-matching-ai';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { CharacterCard } from './character-card';
 import {
   Carousel,
@@ -29,7 +28,6 @@ export function CharacterList({ characters }: CharacterListProps) {
             <div className="p-1">
               <CharacterCard
                 character={character}
-                image={PlaceHolderImages[index % PlaceHolderImages.length]}
               />
             </div>
           </CarouselItem>
