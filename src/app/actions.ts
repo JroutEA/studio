@@ -19,6 +19,7 @@ const schema = z.object({
 
 export type FormState = {
   message: string;
+  query?: string;
   characters?: CharacterMatchingAIOutput['characters'];
 };
 
@@ -46,17 +47,20 @@ export async function findCharacters(
     if (!result.characters || result.characters.length === 0) {
       return {
         message: 'Could not find any matching characters. Please try a different query.',
+        query,
       };
     }
 
     return {
       message: 'success',
       characters: result.characters,
+      query,
     };
   } catch (e) {
     console.error('Error in findCharacters action:', e);
     return {
       message: 'An error occurred while searching for characters. Please try again later.',
+      query,
     };
   }
 }

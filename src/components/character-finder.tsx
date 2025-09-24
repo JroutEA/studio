@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState, useEffect } from 'react';
+import { useActionState, useEffect, useState, useRef } from 'react';
 import { useFormStatus } from 'react-dom';
 import { findCharacters, type FormState } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
@@ -8,13 +8,20 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from '@/components/ui/sheet';
+import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { WandSparkles, LoaderCircle } from 'lucide-react';
+import { WandSparkles, LoaderCircle, History } from 'lucide-react';
 import { CharacterList } from './character-list';
 import { CharacterListSkeleton } from './character-list-skeleton';
 
@@ -49,35 +56,98 @@ export function CharacterFinder() {
   const [state, formAction] = useActionState(findCharacters, initialState);
   const { pending } = useFormStatus();
   const { toast } = useToast();
+  const [history, setHistory] = useState<string[]>([]);
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
+  const textAreaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
-    if (state.message && state.message !== 'success') {
+    try {
+      const storedHistory = localStorage.getItem('swgoh_query_history');
+      if (storedHistory) {
+        setHistory(JSON.parse(storedHistory));
+      }
+    } catch (error) {
+      console.error('Failed to parse history from localStorage', error);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (state.message === 'success' && state.query) {
+      if (!history.includes(state.query)) {
+        const newHistory = [state.query, ...history].slice(0, 20); // Limit history to 20 items
+        setHistory(newHistory);
+        localStorage.setItem('swgoh_query_history', JSON.stringify(newHistory));
+      }
+    } else if (state.message && state.message !== 'success') {
       toast({
         variant: 'destructive',
         title: 'Error',
         description: state.message,
       });
     }
-  }, [state, toast]);
+  }, [state, toast, history]);
 
+  const handleHistoryClick = (query: string) => {
+    if (textAreaRef.current) {
+      textAreaRef.current.value = query;
+    }
+    setIsHistoryOpen(false);
+  };
+  
   return (
     <div className="space-y-12">
       <Card className="max-w-3xl mx-auto shadow-lg">
         <CardHeader>
-          <CardTitle className="font-headline text-3xl">Find Your SWGOH Character</CardTitle>
-          <CardDescription>
-            Describe the characteristics of the character you're looking for, and
-            our AI will find the best matches for you from Star Wars: Galaxy of
-            Heroes.
-          </CardDescription>
+          <div className="flex justify-between items-start">
+            <div>
+              <CardTitle className="font-headline text-3xl">Find Your SWGOH Character</CardTitle>
+              <CardDescription>
+                Describe the characteristics of the character you're looking for, and
+                our AI will find the best matches for you from Star Wars: Galaxy of
+                Heroes.
+              </CardDescription>
+            </div>
+            <Sheet open={isHistoryOpen} onOpenChange={setIsHistoryOpen}>
+              <SheetTrigger asChild>
+                <Button variant="outline" size="icon">
+                  <History className="h-4 w-4" />
+                  <span className="sr-only">View query history</span>
+                </Button>
+              </SheetTrigger>
+              <SheetContent>
+                <SheetHeader>
+                  <SheetTitle>Query History</SheetTitle>
+                </SheetHeader>
+                <div className="mt-4 space-y-2">
+                  {history.length > 0 ? (
+                    history.map((query, index) => (
+                      <div
+                        key={index}
+                        className="p-3 border rounded-md hover:bg-accent hover:text-accent-foreground cursor-pointer text-sm"
+                        onClick={() => handleHistoryClick(query)}
+                      >
+                        {query}
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-sm text-muted-foreground">
+                      Your past queries will appear here.
+                    </p>
+                  )}
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
         </CardHeader>
         <CardContent>
-          <form action={formAction} className="space-y-4">
+          <form action={formAction} ref={formRef} className="space-y-4">
             <div className="grid w-full gap-1.5">
               <Label htmlFor="query">Your Query</Label>
               <Textarea
                 id="query"
                 name="query"
+                ref={textAreaRef}
                 placeholder="e.g., 'A Jedi tank that can counterattack and has high health.'"
                 required
                 rows={3}
