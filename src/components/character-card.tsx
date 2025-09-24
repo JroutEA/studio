@@ -18,7 +18,7 @@ type CharacterCardProps = {
 
 export function CharacterCard({ character, image }: CharacterCardProps) {
   return (
-    <Card className="flex flex-col overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-primary/20">
+    <Card className="flex flex-col overflow-hidden transition-all duration-300 hover:shadow-2xl hover:shadow-primary/20">
       <div className="aspect-[4/5] relative w-full">
         <Image
           src={image.imageUrl}

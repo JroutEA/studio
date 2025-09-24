@@ -3,6 +3,13 @@
 import type { CharacterMatchingAIOutput } from '@/ai/flows/character-matching-ai';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { CharacterCard } from './character-card';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from './ui/carousel';
 
 type CharacterListProps = {
   characters: CharacterMatchingAIOutput['characters'];
@@ -10,14 +17,26 @@ type CharacterListProps = {
 
 export function CharacterList({ characters }: CharacterListProps) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-      {characters.map((character, index) => (
-        <CharacterCard
-          key={character.name}
-          character={character}
-          image={PlaceHolderImages[index % PlaceHolderImages.length]}
-        />
-      ))}
-    </div>
+    <Carousel
+      opts={{
+        align: 'start',
+      }}
+      className="w-full"
+    >
+      <CarouselContent>
+        {characters.map((character, index) => (
+          <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3">
+            <div className="p-1">
+              <CharacterCard
+                character={character}
+                image={PlaceHolderImages[index % PlaceHolderImages.length]}
+              />
+            </div>
+          </CarouselItem>
+        ))}
+      </CarouselContent>
+      <CarouselPrevious />
+      <CarouselNext />
+    </Carousel>
   );
 }
