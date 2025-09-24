@@ -2,7 +2,7 @@
 
 import { useActionState, useEffect } from 'react';
 import { useFormStatus } from 'react-dom';
-import { findCharacters, type FormState, type StreamMessage } from '@/app/actions';
+import { findCharacters, type FormState } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -17,8 +17,6 @@ import {
 import { WandSparkles, LoaderCircle } from 'lucide-react';
 import { CharacterList } from './character-list';
 import { CharacterListSkeleton } from './character-list-skeleton';
-import type { StreamableValue } from 'ai/rsc';
-
 
 const initialState: FormState = {
   message: '',
@@ -62,8 +60,6 @@ export function CharacterFinder() {
     }
   }, [state, toast]);
 
-  const stream = state.stream as StreamableValue<StreamMessage[]> | undefined;
-
   return (
     <div className="space-y-12">
       <Card className="max-w-3xl mx-auto shadow-lg">
@@ -96,8 +92,8 @@ export function CharacterFinder() {
       <div className="max-w-4xl mx-auto">
         {pending && <CharacterListSkeleton />}
 
-        {state.characters && state.characters.length > 0 && stream && (
-          <CharacterList characters={state.characters} stream={stream} />
+        {state.characters && state.characters.length > 0 && (
+          <CharacterList characters={state.characters} />
         )}
 
         {!pending && (!state.characters || state.characters.length === 0) && (

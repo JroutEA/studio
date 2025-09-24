@@ -13,28 +13,13 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import Image from 'next/image';
 import { Button } from './ui/button';
 import Link from 'next/link';
-import { ArrowUpRight, LoaderCircle } from 'lucide-react';
-import { useStreamableValue } from 'ai/rsc';
-import type { StreamMessage } from '@/app/actions';
-import { Skeleton } from './ui/skeleton';
+import { ArrowUpRight } from 'lucide-react';
 
 type CharacterListProps = {
   characters: NonNullable<CharacterMatchingAIOutput['characters']>;
-  stream: AsyncIterable<StreamMessage[]>;
 };
 
-export function CharacterList({ characters: initialCharacters, stream }: CharacterListProps) {
-  const [data] = useStreamableValue(stream);
-
-  const characters = initialCharacters.map(character => {
-    const streamInfo = data?.find(d => d.characterName === character.name);
-    return {
-      ...character,
-      status: streamInfo?.status || 'generating',
-      description: streamInfo?.explanation || character.description,
-    };
-  });
-
+export function CharacterList({ characters }: CharacterListProps) {
   return (
     <Card>
       <CardHeader>
@@ -66,14 +51,7 @@ export function CharacterList({ characters: initialCharacters, stream }: Charact
                 </TableCell>
                 <TableCell className="font-medium">{character.name}</TableCell>
                 <TableCell>
-                  {character.status === 'generating' ? (
-                    <div className="flex items-center gap-2">
-                       <LoaderCircle className="h-4 w-4 animate-spin" />
-                       <span className="text-muted-foreground italic">Thinking...</span>
-                    </div>
-                  ) : (
-                    character.description
-                  )}
+                  {character.description}
                 </TableCell>
                 <TableCell className="text-right">
                   <Button asChild variant="ghost" size="icon">
