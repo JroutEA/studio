@@ -34,7 +34,10 @@ function SubmitButton() {
         </>
       ) : (
         <>
-          <WandSparkles className="mr-2 h-4 w-4" suppressHydrationWarning />
+          <WandSparkles
+            className="mr-2 h-4 w-4"
+            suppressHydrationWarning
+          />
           Find Characters
         </>
       )}
@@ -86,7 +89,7 @@ export function CharacterFinder() {
         </CardContent>
       </Card>
 
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-4xl mx-auto">
         {pending && <CharacterListSkeleton />}
 
         {state.characters && state.characters.length > 0 && (
@@ -95,7 +98,10 @@ export function CharacterFinder() {
 
         {!pending && (!state.characters || state.characters.length === 0) && (
           <div className="text-center py-16 text-muted-foreground border-2 border-dashed rounded-lg">
-            <WandSparkles className="mx-auto h-12 w-12 mb-4" suppressHydrationWarning />
+            <WandSparkles
+              className="mx-auto h-12 w-12 mb-4"
+              suppressHydrationWarning
+            />
             <h3 className="text-lg font-semibold">Your matched characters will appear here</h3>
             <p>Enter a description above to get started.</p>
           </div>

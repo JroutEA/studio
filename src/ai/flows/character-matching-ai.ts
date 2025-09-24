@@ -23,7 +23,6 @@ const CharacterMatchingAIOutputSchema = z.object({
       description: z
         .string()
         .describe('How the character satisfies the specified characteristics.'),
-      imageUrl: z.string().url().describe('The URL of the character\'s icon from swgoh.gg.'),
     })
   ).describe('A list of matched characters and their descriptions.'),
 });
@@ -44,7 +43,6 @@ const prompt = ai.definePrompt({
   For each character, provide:
   1. The character's name.
   2. A brief description of how they satisfy the user's query.
-  3. The URL for the character's icon on swgoh.gg. Character image URLs on swgoh.gg follow the format 'https://swgoh.gg/characters/{character-slug}/'. You will need to find the correct icon from that page, which is usually a PNG file. For example, the icon for "General Skywalker" is 'https://swgoh.gg/images/characters/body/GENERAL_SKYWALKER.png'. You must find the correct image URL.
 
   Ensure that the characters are actual characters available in SWGOH.
 

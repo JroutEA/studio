@@ -1,14 +1,15 @@
 'use client';
 
 import type { CharacterMatchingAIOutput } from '@/ai/flows/character-matching-ai';
-import { CharacterCard } from './character-card';
 import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from './ui/carousel';
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 
 type CharacterListProps = {
   characters: CharacterMatchingAIOutput['characters'];
@@ -16,25 +17,28 @@ type CharacterListProps = {
 
 export function CharacterList({ characters }: CharacterListProps) {
   return (
-    <Carousel
-      opts={{
-        align: 'start',
-      }}
-      className="w-full"
-    >
-      <CarouselContent>
-        {characters.map((character, index) => (
-          <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3">
-            <div className="p-1">
-              <CharacterCard
-                character={character}
-              />
-            </div>
-          </CarouselItem>
-        ))}
-      </CarouselContent>
-      <CarouselPrevious />
-      <CarouselNext />
-    </Carousel>
+    <Card>
+      <CardHeader>
+        <CardTitle>Matching Characters</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-[200px]">Character</TableHead>
+              <TableHead>How They Match</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {characters.map((character, index) => (
+              <TableRow key={index}>
+                <TableCell className="font-medium">{character.name}</TableCell>
+                <TableCell>{character.description}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
   );
 }
