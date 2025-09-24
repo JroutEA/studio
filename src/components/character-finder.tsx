@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState, useEffect, useState } from 'react';
+import { useActionState, useEffect } from 'react';
 import { useFormStatus } from 'react-dom';
 import { findCharacters, type FormState } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
@@ -34,7 +34,7 @@ function SubmitButton() {
         </>
       ) : (
         <>
-          <WandSparkles className="mr-2 h-4 w-4" />
+          <WandSparkles className="mr-2 h-4 w-4" suppressHydrationWarning />
           Find Characters
         </>
       )}
@@ -95,7 +95,7 @@ export function CharacterFinder() {
 
         {!pending && (!state.characters || state.characters.length === 0) && (
           <div className="text-center py-16 text-muted-foreground border-2 border-dashed rounded-lg">
-            <WandSparkles className="mx-auto h-12 w-12 mb-4" />
+            <WandSparkles className="mx-auto h-12 w-12 mb-4" suppressHydrationWarning />
             <h3 className="text-lg font-semibold">Your matched characters will appear here</h3>
             <p>Enter a description above to get started.</p>
           </div>
