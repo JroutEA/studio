@@ -33,6 +33,12 @@ const nextConfig: NextConfig = {
         hostname: 'swgoh.gg',
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'game-assets.swgoh.gg',
+        port: '',
+        pathname: '/**',
       }
     ],
   },
