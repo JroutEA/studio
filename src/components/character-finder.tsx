@@ -230,12 +230,15 @@ export function CharacterFinder() {
                     <Label htmlFor="test-case">Ability / Test Case</Label>
                     <Textarea id="test-case" name="testCase" ref={testCaseAbilityRef} placeholder="e.g., 'Test if the new unit's 'Force Shield' ability correctly dispels all debuffs.'" required rows={2} className="text-base" />
                   </div>
-                  <div className="grid w-full gap-1.5">
+                   <div className="grid w-full gap-1.5">
                     <Label htmlFor="expected-result">Expected Result</Label>
                     <Textarea id="expected-result" name="expectedResult" ref={testCaseExpectedRef} placeholder="e.g., 'All debuffs on the new unit should be cleared, and it should gain the 'Protection Up' buff.'" required rows={2} className="text-base" />
                   </div>
                   <div className="grid w-full gap-1.5">
                     <Label htmlFor="unit-details">New Unit Details</Label>
+                     <p className="text-xs text-muted-foreground">
+                      To protect IP, please avoid mentioning the new unit's name. Refer to it as "new unit".
+                    </p>
                     <Textarea id="unit-details" name="unitDetails" ref={testCaseUnitRef} placeholder="Describe the new unit's abilities, conditions, buffs, debuffs, zeta, and omicrons." required rows={4} className="text-base" />
                   </div>
                    <SubmitButton icon={<TestTube className="mr-2 h-4 w-4" suppressHydrationWarning />} pendingText="Generating..." text="Generate Test Case" />
@@ -281,21 +284,21 @@ export function CharacterFinder() {
           <div className="text-center py-16 text-muted-foreground border-2 border-dashed rounded-lg">
             {activeTab === 'character-finder' && (!characterState.characters || characterState.characters.length === 0) &&
               <>
-                <WandSparkles className="mx-auto h-12 w-12 mb-4" suppressHydrationWarning />
+                <WandSparkles className="mx-auto h-12 w-12" suppressHydrationWarning />
                 <h3 className="text-lg font-semibold">Your matched characters will appear here</h3>
                 <p>Enter a description above to get started.</p>
               </>
             }
             {activeTab === 'squad-builder' && (!squadState.squads || squadState.squads.length === 0) &&
               <>
-                <Users className="mx-auto h-12 w-12 mb-4" suppressHydrationWarning />
+                <Users className="mx-auto h-12 w-12" suppressHydrationWarning />
                 <h3 className="text-lg font-semibold">Your generated squads will appear here</h3>
                 <p>Describe the squad you want to build above.</p>
               </>
             }
             {activeTab === 'test-assistant' && !testCaseState.testCase &&
               <>
-                <TestTube className="mx-auto h-12 w-12 mb-4" suppressHydrationWarning />
+                <TestTube className="mx-auto h-12 w-12" suppressHydrationWarning />
                 <h3 className="text-lg font-semibold">Your generated test case will appear here</h3>
                 <p>Describe the scenario you want to test above.</p>
               </>
