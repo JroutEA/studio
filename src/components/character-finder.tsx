@@ -244,7 +244,7 @@ export function CharacterFinder() {
               <TabsContent value="test-assistant" className="mt-4">
                 <form action={testCaseFormAction} ref={testCaseFormRef} className="space-y-4">
                   <div className="grid w-full gap-1.5">
-                    <Label htmlFor="test-case">Ability / Test Case</Label>
+                    <Label htmlFor="test-case">Testcase and the Ability you are testing</Label>
                     <Textarea id="test-case" name="testCase" ref={testCaseAbilityRef} placeholder="e.g., 'Test if the new unit's 'Force Shield' ability correctly dispels all debuffs.'" required rows={2} className="text-base" />
                   </div>
                    <div className="grid w-full gap-1.5">
@@ -254,7 +254,7 @@ export function CharacterFinder() {
                   <div className="grid w-full gap-1.5">
                     <Label htmlFor="unit-details">New Unit Details</Label>
                      <p className="text-xs text-muted-foreground">
-                      To protect IP, you can copy and paste the ability details from the master ticket without naming the unit.
+                      you can copy paste the ability details from the master ticket without naming the unit.
                     </p>
                     <Textarea id="unit-details" name="unitDetails" ref={testCaseUnitRef} placeholder="Describe the new unit's abilities, conditions, buffs, debuffs, zeta, and omicrons." required rows={4} className="text-base" />
                   </div>
