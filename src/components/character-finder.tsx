@@ -32,6 +32,9 @@ const initialState: FormState = {
   message: '',
 };
 
+const CHARACTER_HISTORY_KEY = 'swgoh_character_query_history';
+const SQUAD_HISTORY_KEY = 'swgoh_squad_query_history';
+
 function CharacterSubmitButton() {
   const { pending } = useFormStatus();
 
@@ -85,7 +88,8 @@ export function CharacterFinder() {
   const { pending } = useFormStatus();
   const { toast } = useToast();
   
-  const [history, setHistory] = useState<string[]>([]);
+  const [characterHistory, setCharacterHistory] = useState<string[]>([]);
+  const [squadHistory, setSquadHistory] = useState<string[]>([]);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   
   const characterFormRef = useRef<HTMLFormElement>(null);
@@ -102,12 +106,17 @@ export function CharacterFinder() {
   }, []);
 
   const state = activeTab === 'character-finder' ? characterState : squadState;
+  const history = activeTab === 'character-finder' ? characterHistory : squadHistory;
 
   useEffect(() => {
     try {
-      const storedHistory = localStorage.getItem('swgoh_query_history');
-      if (storedHistory) {
-        setHistory(JSON.parse(storedHistory));
+      const storedCharacterHistory = localStorage.getItem(CHARACTER_HISTORY_KEY);
+      if (storedCharacterHistory) {
+        setCharacterHistory(JSON.parse(storedCharacterHistory));
+      }
+      const storedSquadHistory = localStorage.getItem(SQUAD_HISTORY_KEY);
+      if (storedSquadHistory) {
+        setSquadHistory(JSON.parse(storedSquadHistory));
       }
     } catch (error) {
       console.error('Failed to parse history from localStorage', error);
@@ -115,20 +124,36 @@ export function CharacterFinder() {
   }, []);
 
   useEffect(() => {
-    if (state.message === 'success' && state.query) {
-      if (!history.includes(state.query)) {
-        const newHistory = [state.query, ...history].slice(0, 20); // Limit history to 20 items
-        setHistory(newHistory);
-        localStorage.setItem('swgoh_query_history', JSON.stringify(newHistory));
+    if (characterState.message === 'success' && characterState.query) {
+      if (!characterHistory.includes(characterState.query)) {
+        const newHistory = [characterState.query, ...characterHistory].slice(0, 20); // Limit history to 20 items
+        setCharacterHistory(newHistory);
+        localStorage.setItem(CHARACTER_HISTORY_KEY, JSON.stringify(newHistory));
       }
-    } else if (state.message && state.message !== 'success') {
+    } else if (characterState.message && characterState.message !== 'success') {
       toast({
         variant: 'destructive',
         title: 'Error',
-        description: state.message,
+        description: characterState.message,
       });
     }
-  }, [state, toast, history]);
+  }, [characterState, toast, characterHistory]);
+
+  useEffect(() => {
+    if (squadState.message === 'success' && squadState.query) {
+      if (!squadHistory.includes(squadState.query)) {
+        const newHistory = [squadState.query, ...squadHistory].slice(0, 20);
+        setSquadHistory(newHistory);
+        localStorage.setItem(SQUAD_HISTORY_KEY, JSON.stringify(newHistory));
+      }
+    } else if (squadState.message && squadState.message !== 'success') {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: squadState.message,
+      });
+    }
+  }, [squadState, toast, squadHistory]);
 
   const handleHistoryClick = (query: string) => {
     if (activeTab === 'character-finder' && characterTextAreaRef.current) {
@@ -183,8 +208,8 @@ export function CharacterFinder() {
           </div>
         </CardHeader>
         <CardContent>
-          {isClient && (
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          {isClient ? (
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full" suppressHydrationWarning>
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="character-finder">Character Finder</TabsTrigger>
                 <TabsTrigger value="squad-builder">Squad Builder</TabsTrigger>
@@ -224,6 +249,27 @@ export function CharacterFinder() {
                 </form>
               </TabsContent>
             </Tabs>
+          ) : (
+             <div className="space-y-4 mt-4">
+                <div className="grid w-full gap-1.5">
+                  <Label htmlFor="character-query">Your Query</Label>
+                  <Textarea
+                    id="character-query"
+                    name="query"
+                    placeholder="e.g., 'A Jedi tank that can counterattack and has high health.'"
+                    required
+                    rows={3}
+                    className="text-base"
+                  />
+                </div>
+                <Button className="w-full sm:w-auto">
+                  <WandSparkles
+                    className="mr-2 h-4 w-4"
+                    suppressHydrationWarning
+                  />
+                  Find Characters
+                </Button>
+             </div>
           )}
         </CardContent>
       </Card>
