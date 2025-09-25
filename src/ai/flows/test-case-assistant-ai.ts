@@ -9,6 +9,7 @@
  */
 
 import {ai} from '@/ai/genkit';
+import { wikiSearchTool } from '@/ai/tools/wiki-search';
 import {z} from 'genkit';
 
 const CharacterSchema = z.object({
@@ -50,9 +51,10 @@ const prompt = ai.definePrompt({
   name: 'testCaseAssistantAIPrompt',
   input: {schema: TestCaseAssistantAIInputSchema},
   output: {schema: TestCaseAssistantAIOutputSchema},
+  tools: [wikiSearchTool],
   prompt: `You are a Senior QA Tester and expert in Star Wars: Galaxy of Heroes (SWGOH). Your task is to create a detailed test scenario based on a new unit's abilities and an expected test result.
 
-You MUST use your deep knowledge of SWGOH, including all existing character kits, buffs, debuffs, and game mechanics from swgoh.gg and swgoh.wiki.
+You MUST use your deep knowledge of SWGOH, including all existing character kits, buffs, debuffs, and game mechanics from swgoh.gg and by using the provided wikiSearch tool.
 
 The user has provided the following:
 1. Test Case / Ability Under Test: {{{testCase}}}
@@ -63,9 +65,9 @@ Based on this, you will generate a complete test scenario.
 
 Your output MUST include:
 1.  **scenarioTitle**: A clear, concise title for this test.
-2.  **scenarioDescription**: An explanation of what this scenario is designed to test and why it's set up the way it is.
+2.  **scenarioDescription**: An explanation of what this scenario is designed to test and why it's set up the way it is. This should reference your search results from the wiki.
 3.  **alliedSquad**: A squad for the player. This squad should include the new unit under test (you can use a placeholder for its name and icon if it's new) and other characters that enable the test condition.
-4.  **opponentSquad**: A squad for the AI opponent. This is critical. The opponents must be chosen specifically to facilitate the test. For example, if testing an anti-debuff ability, the opponents should be characters that apply many debuffs.
+4.  **opponentSquad**: A squad for the AI opponent. This is critical. The opponents must be chosen specifically to facilitate the test, based on your wiki research. For example, if testing an anti-debuff ability, the opponents should be characters that apply many debuffs.
 5.  **setupInstructions**: A numbered, step-by-step list of actions the tester needs to take in the battle to create the exact conditions for the test. e.g., "1. Use Character X's second special ability on Opponent Y. 2. Wait for Opponent Z to take a turn and apply a buff."
 6.  **passCriteria**: A clear, binary, and observable outcome. What must happen for the test to be marked as "PASS"?
 7.  **failCriteria**: A clear, binary, and observable outcome. What must happen for the test to be marked as "FAIL"?

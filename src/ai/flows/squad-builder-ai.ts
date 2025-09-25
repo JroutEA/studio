@@ -9,6 +9,7 @@
  */
 
 import {ai} from '@/ai/genkit';
+import { wikiSearchTool } from '@/ai/tools/wiki-search';
 import {z} from 'genkit';
 
 const CharacterSchema = z.object({
@@ -44,9 +45,10 @@ const prompt = ai.definePrompt({
   name: 'squadBuilderAIPrompt',
   input: {schema: SquadBuilderAIInputSchema},
   output: {schema: SquadBuilderAIOutputSchema},
+  tools: [wikiSearchTool],
   prompt: `You are an expert in Star Wars: Galaxy of Heroes (SWGOH) squad building. Your task is to create effective squads based on a user's query.
 
-You will use information from both swgoh.gg and swgoh.wiki to create the best squads.
+You will use information from both swgoh.gg and by using the provided wikiSearch tool to create the best squads.
 
 A standard squad consists of 5 characters: 1 Leader and 4 Members. You will also suggest a 6th character as a borrowed Ally where appropriate.
 
@@ -59,7 +61,7 @@ For each character, you MUST provide:
 
 For each squad, you MUST provide:
 1. A name for the squad.
-2. A description of the squad's strategy and why it fits the query.
+2. A description of the squad's strategy and why it fits the query, based on information from swgoh.gg and your search results from the wiki.
 3. The designated leader.
 4. Exactly four members.
 5. An optional recommended ally.
