@@ -3,8 +3,8 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
-  title: 'SWGOH Character Finder',
-  description: 'Find Star Wars: Galaxy of Heroes characters with AI',
+  title: 'SWGOH AI QA Assistance',
+  description: 'Your AI assistant for SWGOH QA and testing',
 };
 
 export default function RootLayout({
