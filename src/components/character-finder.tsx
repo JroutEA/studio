@@ -198,7 +198,7 @@ export function CharacterFinder() {
         <CardContent>
           {isClient ? (
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full" suppressHydrationWarning>
-              <TabsList className="grid w-full grid-cols-3">
+              <TabsList className="grid w-full grid-cols-3" suppressHydrationWarning>
                 <TabsTrigger value="character-finder">Character Finder</TabsTrigger>
                 <TabsTrigger value="squad-builder">Squad Builder</TabsTrigger>
                 <TabsTrigger value="test-assistant">Test Assistant</TabsTrigger>
@@ -231,12 +231,12 @@ export function CharacterFinder() {
                     <Textarea id="test-case" name="testCase" ref={testCaseAbilityRef} placeholder="e.g., 'Test if the new unit's 'Force Shield' ability correctly dispels all debuffs.'" required rows={2} className="text-base" />
                   </div>
                   <div className="grid w-full gap-1.5">
-                    <Label htmlFor="unit-details">New Unit Details</Label>
-                    <Textarea id="unit-details" name="unitDetails" ref={testCaseUnitRef} placeholder="Describe the new unit's abilities, conditions, buffs, debuffs, zeta, and omicrons." required rows={4} className="text-base" />
-                  </div>
-                  <div className="grid w-full gap-1.5">
                     <Label htmlFor="expected-result">Expected Result</Label>
                     <Textarea id="expected-result" name="expectedResult" ref={testCaseExpectedRef} placeholder="e.g., 'All debuffs on the new unit should be cleared, and it should gain the 'Protection Up' buff.'" required rows={2} className="text-base" />
+                  </div>
+                  <div className="grid w-full gap-1.5">
+                    <Label htmlFor="unit-details">New Unit Details</Label>
+                    <Textarea id="unit-details" name="unitDetails" ref={testCaseUnitRef} placeholder="Describe the new unit's abilities, conditions, buffs, debuffs, zeta, and omicrons." required rows={4} className="text-base" />
                   </div>
                    <SubmitButton icon={<TestTube className="mr-2 h-4 w-4" suppressHydrationWarning />} pendingText="Generating..." text="Generate Test Case" />
                 </form>
@@ -277,7 +277,7 @@ export function CharacterFinder() {
         )}
 
 
-        {!pending && (
+        {!pending && isClient && (
           <div className="text-center py-16 text-muted-foreground border-2 border-dashed rounded-lg">
             {activeTab === 'character-finder' && (!characterState.characters || characterState.characters.length === 0) &&
               <>
