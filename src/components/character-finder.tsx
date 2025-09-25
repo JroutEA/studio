@@ -29,34 +29,6 @@ import { SquadList } from './squad-list';
 import { SquadListSkeleton } from './squad-list-skeleton';
 import { TestCaseDisplay } from './test-case-display';
 
-const StarshipIcon = (props: React.SVGProps<SVGSVGElement>) => (
-    <svg 
-      xmlns="http://www.w3.org/2000/svg" 
-      width="24" 
-      height="24" 
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      stroke="currentColor" 
-      strokeWidth="0" 
-      strokeLinecap="round" 
-      strokeLinejoin="round" 
-      {...props}
-      suppressHydrationWarning
-    >
-      <path d="M12 2L12 5" />
-      <path d="M12 19L12 22" />
-      <path d="M5 12L2 12" />
-      <path d="M19 12L22 12" />
-      <path d="M19.7 4.3L17.6 6.4" />
-      <path d="M6.4 17.6L4.3 19.7" />
-      <path d="M6.4 6.4L4.3 4.3" />
-      <path d="M17.6 17.6L19.7 19.7" />
-      <path d="M12 6C15.3137 6 18 8.68629 18 12C18 15.3137 15.3137 18 12 18C8.68629 18 6 15.3137 6 12C6 8.68629 8.68629 6 12 6Z" strokeWidth="1.5" />
-      <path d="M12 15L12 9" />
-      <path d="M15 12L9 12" />
-    </svg>
-  );
-
 const initialState: FormState = {
   message: '',
 };
@@ -187,7 +159,7 @@ export function CharacterFinder() {
           <div className="flex justify-between items-start">
             <div className='flex items-center gap-3'>
               <div className="p-2 bg-primary text-primary-foreground rounded-lg">
-                  <StarshipIcon className="w-6 h-6" suppressHydrationWarning />
+                  <WandSparkles className="w-6 h-6" suppressHydrationWarning />
               </div>
               <div>
                 <CardTitle className="font-headline text-3xl">SWGOH AI Assistant</CardTitle>
