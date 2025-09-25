@@ -2,8 +2,8 @@
 
 import {z} from 'zod';
 import {
-  characterMatchingAI,
-  type CharacterMatchingAIOutput,
+  unitMatchingAI,
+  type UnitMatchingAIOutput,
 } from '@/ai/flows/character-matching-ai';
 import {
   squadBuilderAI,
@@ -15,14 +15,14 @@ import {
   type TestCaseAssistantAIOutput,
 } from '@/ai/flows/test-case-assistant-ai';
 
-const findCharactersSchema = z.object({
+const findUnitsSchema = z.object({
   query: z
     .string({
-      required_error: 'Please describe the character you are looking for.',
+      required_error: 'Please describe the unit you are looking for.',
     })
     .min(
       10,
-      'Please provide more details about the character (at least 10 characters).'
+      'Please provide more details about the unit (at least 10 characters).'
     ),
 });
 
@@ -47,17 +47,17 @@ const TestCaseAssistantAIInputSchema = z.object({
 export type FormState = {
   message: string;
   query?: string;
-  characters?: CharacterMatchingAIOutput['characters'];
+  units?: UnitMatchingAIOutput['units'];
   squads?: SquadBuilderAIOutput['squads'];
   testCase?: TestCaseAssistantAIOutput;
   testCaseInput?: TestCaseAssistantAIInput;
 };
 
-export async function findCharacters(
+export async function findUnits(
   prevState: FormState,
   formData: FormData
 ): Promise<FormState> {
-  const validatedFields = findCharactersSchema.safeParse({
+  const validatedFields = findUnitsSchema.safeParse({
     query: formData.get('query'),
   });
 
@@ -72,26 +72,26 @@ export async function findCharacters(
   const query = validatedFields.data.query;
 
   try {
-    const result = await characterMatchingAI({query});
+    const result = await unitMatchingAI({query});
 
-    if (!result.characters || result.characters.length === 0) {
+    if (!result.units || result.units.length === 0) {
       return {
         message:
-          'Could not find any matching characters. Please try a different query.',
+          'Could not find any matching units. Please try a different query.',
         query,
       };
     }
 
     return {
       message: 'success',
-      characters: result.characters,
+      units: result.units,
       query,
     };
   } catch (e) {
-    console.error('Error in findCharacters action:', e);
+    console.error('Error in findUnits action:', e);
     return {
       message:
-        'An error occurred while searching for characters. Please try again later.',
+        'An error occurred while searching for units. Please try again later.',
       query,
     };
   }

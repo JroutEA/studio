@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/table';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 
-export function CharacterListSkeleton() {
+export function UnitListSkeleton() {
   return (
     <Card>
       <CardHeader>
@@ -22,7 +22,7 @@ export function CharacterListSkeleton() {
           <TableHeader>
             <TableRow>
               <TableHead className="w-[64px]">Icon</TableHead>
-              <TableHead className="w-[200px]">Character</TableHead>
+              <TableHead className="w-[200px]">Unit</TableHead>
               <TableHead>How They Match</TableHead>
               <TableHead className="w-[100px]">Link</TableHead>
             </TableRow>

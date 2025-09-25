@@ -2,7 +2,7 @@
 
 import { useActionState, useEffect, useState, useRef } from 'react';
 import { useFormStatus } from 'react-dom';
-import { findCharacters, buildSquad, generateTestCase, type FormState } from '@/app/actions';
+import { findUnits, buildSquad, generateTestCase, type FormState } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -23,8 +23,8 @@ import {
 } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Gem, LoaderCircle, History, Users, TestTube } from 'lucide-react';
-import { CharacterList } from './character-list';
-import { CharacterListSkeleton } from './character-list-skeleton';
+import { UnitList } from './unit-list';
+import { UnitListSkeleton } from './unit-list-skeleton';
 import { SquadList } from './squad-list';
 import { SquadListSkeleton } from './squad-list-skeleton';
 import { TestCaseDisplay } from './test-case-display';
@@ -33,7 +33,7 @@ const initialState: FormState = {
   message: '',
 };
 
-const CHARACTER_HISTORY_KEY = 'swgoh_character_query_history';
+const UNIT_HISTORY_KEY = 'swgoh_unit_query_history';
 const SQUAD_HISTORY_KEY = 'swgoh_squad_query_history';
 const TEST_CASE_HISTORY_KEY = 'swgoh_test_case_history';
 
@@ -58,32 +58,32 @@ function SubmitButton({ icon, pendingText, text }: { icon: React.ReactNode, pend
 }
 
 
-export function CharacterFinder() {
-  const [characterState, characterFormAction] = useActionState(findCharacters, initialState);
+export function UnitFinder() {
+  const [unitState, unitFormAction] = useActionState(findUnits, initialState);
   const [squadState, squadFormAction] = useActionState(buildSquad, initialState);
   const [testCaseState, testCaseFormAction] = useActionState(generateTestCase, initialState);
   
   const { pending } = useFormStatus();
   const { toast } = useToast();
   
-  const [characterHistory, setCharacterHistory] = useState<string[]>([]);
+  const [unitHistory, setUnitHistory] = useState<string[]>([]);
   const [squadHistory, setSquadHistory] = useState<string[]>([]);
   const [testCaseHistory, setTestCaseHistory] = useState<any[]>([]);
 
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   
-  const characterFormRef = useRef<HTMLFormElement>(null);
+  const unitFormRef = useRef<HTMLFormElement>(null);
   const squadFormRef = useRef<HTMLFormElement>(null);
   const testCaseFormRef = useRef<HTMLFormElement>(null);
 
-  const characterTextAreaRef = useRef<HTMLTextAreaElement>(null);
+  const unitTextAreaRef = useRef<HTMLTextAreaElement>(null);
   const squadTextAreaRef = useRef<HTMLTextAreaElement>(null);
   const testCaseAbilityRef = useRef<HTMLTextAreaElement>(null);
   const testCaseUnitRef = useRef<HTMLTextAreaElement>(null);
   const testCaseExpectedRef = useRef<HTMLTextAreaElement>(null);
 
 
-  const [activeTab, setActiveTab] = useState('character-finder');
+  const [activeTab, setActiveTab] = useState('unit-finder');
   
   const [isClient, setIsClient] = useState(false);
 
@@ -91,18 +91,18 @@ export function CharacterFinder() {
     setIsClient(true);
   }, []);
 
-  const state = activeTab === 'character-finder' ? characterState :
+  const state = activeTab === 'unit-finder' ? unitState :
                 activeTab === 'squad-builder' ? squadState :
                 testCaseState;
   
-  const history = activeTab === 'character-finder' ? characterHistory :
+  const history = activeTab === 'unit-finder' ? unitHistory :
                   activeTab === 'squad-builder' ? squadHistory :
                   testCaseHistory;
 
   useEffect(() => {
     try {
-      const storedCharacterHistory = localStorage.getItem(CHARACTER_HISTORY_KEY);
-      if (storedCharacterHistory) setCharacterHistory(JSON.parse(storedCharacterHistory));
+      const storedUnitHistory = localStorage.getItem(UNIT_HISTORY_KEY);
+      if (storedUnitHistory) setUnitHistory(JSON.parse(storedUnitHistory));
 
       const storedSquadHistory = localStorage.getItem(SQUAD_HISTORY_KEY);
       if (storedSquadHistory) setSquadHistory(JSON.parse(storedSquadHistory));
@@ -120,11 +120,11 @@ export function CharacterFinder() {
       toast({ variant: 'destructive', title: 'Error', description: state.message });
     }
     
-    if (activeTab === 'character-finder' && characterState.message === 'success' && characterState.query) {
-       setCharacterHistory(prevHistory => {
-        if (!prevHistory.includes(characterState.query!)) {
-          const newHistory = [characterState.query!, ...prevHistory].slice(0, 20);
-          localStorage.setItem(CHARACTER_HISTORY_KEY, JSON.stringify(newHistory));
+    if (activeTab === 'unit-finder' && unitState.message === 'success' && unitState.query) {
+       setUnitHistory(prevHistory => {
+        if (!prevHistory.includes(unitState.query!)) {
+          const newHistory = [unitState.query!, ...prevHistory].slice(0, 20);
+          localStorage.setItem(UNIT_HISTORY_KEY, JSON.stringify(newHistory));
           return newHistory;
         }
         return prevHistory;
@@ -149,11 +149,11 @@ export function CharacterFinder() {
          return prevHistory;
        });
     }
-  }, [characterState, squadState, testCaseState, toast, activeTab]);
+  }, [unitState, squadState, testCaseState, toast, activeTab]);
 
   const handleHistoryClick = (query: any) => {
-    if (activeTab === 'character-finder' && characterTextAreaRef.current) {
-      characterTextAreaRef.current.value = query;
+    if (activeTab === 'unit-finder' && unitTextAreaRef.current) {
+      unitTextAreaRef.current.value = query;
     } else if (activeTab === 'squad-builder' && squadTextAreaRef.current) {
       squadTextAreaRef.current.value = query;
     } else if (activeTab === 'test-assistant' && testCaseAbilityRef.current && testCaseUnitRef.current && testCaseExpectedRef.current) {
@@ -216,18 +216,18 @@ export function CharacterFinder() {
           {isClient ? (
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full" suppressHydrationWarning>
               <TabsList className="grid w-full grid-cols-3" suppressHydrationWarning>
-                <TabsTrigger value="character-finder">Character Finder</TabsTrigger>
+                <TabsTrigger value="unit-finder">Unit Finder</TabsTrigger>
                 <TabsTrigger value="squad-builder">Squad Builder</TabsTrigger>
                 <TabsTrigger value="test-assistant">Test Assistant</TabsTrigger>
               </TabsList>
 
-              <TabsContent value="character-finder" className="mt-4">
-                 <form action={characterFormAction} ref={characterFormRef} className="space-y-4">
+              <TabsContent value="unit-finder" className="mt-4">
+                 <form action={unitFormAction} ref={unitFormRef} className="space-y-4">
                   <div className="grid w-full gap-1.5">
-                    <Label htmlFor="character-query">Your Query</Label>
-                    <Textarea id="character-query" name="query" ref={characterTextAreaRef} placeholder="e.g., 'A Jedi tank that can counterattack and has high health.'" required rows={3} className="text-base" />
+                    <Label htmlFor="unit-query">Your Query</Label>
+                    <Textarea id="unit-query" name="query" ref={unitTextAreaRef} placeholder="e.g., 'A Rebel ship with an AOE attack' or 'A Jedi tank with counterattack'" required rows={3} className="text-base" />
                   </div>
-                  <SubmitButton icon={<Gem className="mr-2 h-4 w-4" suppressHydrationWarning />} pendingText="Searching..." text="Find Characters" />
+                  <SubmitButton icon={<Gem className="mr-2 h-4 w-4" suppressHydrationWarning />} pendingText="Searching..." text="Find Units" />
                 </form>
               </TabsContent>
               
@@ -266,12 +266,12 @@ export function CharacterFinder() {
           ) : (
              <div className="space-y-4 mt-4">
                 <div className="grid w-full gap-1.5">
-                  <Label htmlFor="character-query">Your Query</Label>
-                  <Textarea id="character-query" name="query" placeholder="e.g., 'A Jedi tank that can counterattack and has high health.'" required rows={3} className="text-base" />
+                  <Label htmlFor="unit-query">Your Query</Label>
+                  <Textarea id="unit-query" name="query" placeholder="e.g., 'A Rebel ship with an AOE attack' or 'A Jedi tank with counterattack'" required rows={3} className="text-base" />
                 </div>
                 <Button className="w-full sm:w-auto">
                   <Gem className="mr-2 h-4 w-4" suppressHydrationWarning />
-                  Find Characters
+                  Find Units
                 </Button>
              </div>
           )}
@@ -279,13 +279,13 @@ export function CharacterFinder() {
       </Card>
 
       <div className="max-w-4xl mx-auto">
-        {pending && activeTab === 'character-finder' && <CharacterListSkeleton />}
+        {pending && activeTab === 'unit-finder' && <UnitListSkeleton />}
         {pending && activeTab === 'squad-builder' && <SquadListSkeleton />}
         {pending && activeTab === 'test-assistant' && <SquadListSkeleton />}
 
 
-        {!pending && activeTab === 'character-finder' && characterState.characters && characterState.characters.length > 0 && (
-          <CharacterList characters={characterState.characters} />
+        {!pending && activeTab === 'unit-finder' && unitState.units && unitState.units.length > 0 && (
+          <UnitList units={unitState.units} />
         )}
 
         {!pending && activeTab === 'squad-builder' && squadState.squads && squadState.squads.length > 0 && (
@@ -299,10 +299,10 @@ export function CharacterFinder() {
 
         {!pending && isClient && (
           <div className="text-center py-16 text-muted-foreground border-2 border-dashed rounded-lg">
-            {activeTab === 'character-finder' && (!characterState.characters || characterState.characters.length === 0) &&
+            {activeTab === 'unit-finder' && (!unitState.units || unitState.units.length === 0) &&
               <>
                 <Gem className="mx-auto h-12 w-12" suppressHydrationWarning />
-                <h3 className="text-lg font-semibold">Your matched characters will appear here</h3>
+                <h3 className="text-lg font-semibold">Your matched units will appear here</h3>
                 <p>Enter a description above to get started.</p>
               </>
             }

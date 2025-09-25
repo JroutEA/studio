@@ -1,72 +1,74 @@
 'use server';
 
 /**
- * @fileOverview A SWGOH character matching AI agent.
+ * @fileOverview A SWGOH unit (character or ship) matching AI agent.
  *
- * - characterMatchingAI - A function that handles the character matching process.
- * - CharacterMatchingAIInput - The input type for the characterMatchingAI function.
- * - CharacterMatchingAIOutput - The return type for the characterMatchingAI function.
+ * - unitMatchingAI - A function that handles the unit matching process.
+ * - UnitMatchingAIInput - The input type for the unitMatchingAI function.
+ * - UnitMatchingAIOutput - The return type for the unitMatchingAI function.
  */
 
 import {ai} from '@/ai/genkit';
 import { wikiSearchTool } from '@/ai/tools/wiki-search';
 import {z} from 'genkit';
 
-const CharacterMatchingAIInputSchema = z.object({
-  query: z.string().describe('The query describing the desired character characteristics.'),
+const UnitMatchingAIInputSchema = z.object({
+  query: z.string().describe('The query describing the desired unit (character or ship) characteristics.'),
 });
-export type CharacterMatchingAIInput = z.infer<typeof CharacterMatchingAIInputSchema>;
+export type UnitMatchingAIInput = z.infer<typeof UnitMatchingAIInputSchema>;
 
-const CharacterMatchingAIOutputSchema = z.object({
-  characters: z.array(
-    z.object({
-      name: z.string().describe('The name of the matched character.'),
-      imageUrl: z.string().describe("The URL of the character's icon on swgoh.gg."),
-      url: z.string().url().describe("The URL of the character's page on swgoh.gg."),
-      description: z
-        .string()
-        .describe('How the character satisfies the specified characteristics.'),
-    })
-  ).describe('A list of matched characters and their descriptions.'),
+const UnitSchema = z.object({
+  name: z.string().describe('The name of the matched unit (character or ship).'),
+  imageUrl: z.string().describe("The URL of the unit's icon on swgoh.gg."),
+  url: z.string().url().describe("The URL of the unit's page on swgoh.gg."),
+  description: z
+    .string()
+    .describe('How the unit satisfies the specified characteristics.'),
 });
-export type CharacterMatchingAIOutput = z.infer<typeof CharacterMatchingAIOutputSchema>;
 
-export async function characterMatchingAI(input: CharacterMatchingAIInput): Promise<CharacterMatchingAIOutput> {
-  return characterMatchingAIFlow(input);
+const UnitMatchingAIOutputSchema = z.object({
+  units: z.array(UnitSchema).describe('A list of matched units (characters or ships) and their descriptions.'),
+});
+export type UnitMatchingAIOutput = z.infer<typeof UnitMatchingAIOutputSchema>;
+
+export async function unitMatchingAI(input: UnitMatchingAIInput): Promise<UnitMatchingAIOutput> {
+  return unitMatchingAIFlow(input);
 }
 
 const prompt = ai.definePrompt({
-  name: 'characterMatchingAIPrompt',
-  input: {schema: CharacterMatchingAIInputSchema},
-  output: {schema: CharacterMatchingAIOutputSchema},
+  name: 'unitMatchingAIPrompt',
+  input: {schema: UnitMatchingAIInputSchema},
+  output: {schema: UnitMatchingAIOutputSchema},
   tools: [wikiSearchTool],
-  prompt: `You are an expert in Star Wars: Galaxy of Heroes (SWGOH). Your task is to identify characters from the game that match a user's description.
+  prompt: `You are an expert in Star Wars: Galaxy of Heroes (SWGOH). Your task is to identify units (characters OR ships) from the game that match a user's description.
 
 You MUST use information from two sources to provide the best possible answer:
-1.  Your built-in knowledge of swgoh.gg for character URLs, icon URLs, and basic stats.
+1.  Your built-in knowledge of swgoh.gg for unit URLs, icon URLs, and basic stats. This includes knowing the difference between character and ship pages (e.g., /characters/ vs /ships/).
 2.  The provided \`wikiSearch\` tool to get detailed, up-to-date information on abilities, strategies, and synergies from swgoh.wiki.
 
-You will identify 10 characters from SWGOH that best match the user's characteristics.
+You will identify 10 units from SWGOH that best match the user's characteristics.
 
-For each character, provide:
-1. The character's name.
-2. The URL for the character's small, public icon on swgoh.gg. This is usually found on character list pages.
-3. The URL for the character's page on swgoh.gg.
+For each unit, provide:
+1. The unit's name.
+2. The URL for the unit's small, public icon on swgoh.gg. These are usually square portraits.
+3. The URL for the unit's page on swgoh.gg.
 4. A brief description of how they satisfy the user's query, synthesizing information from both swgoh.gg and your search results from the wiki.
 
-Ensure that the characters are actual characters available in SWGOH.
+Ensure that the units are actual characters or ships available in SWGOH.
 
 Query: {{{query}}}`,
 });
 
-const characterMatchingAIFlow = ai.defineFlow(
+const unitMatchingAIFlow = ai.defineFlow(
   {
-    name: 'characterMatchingAIFlow',
-    inputSchema: CharacterMatchingAIInputSchema,
-    outputSchema: CharacterMatchingAIOutputSchema,
+    name: 'unitMatchingAIFlow',
+    inputSchema: UnitMatchingAIInputSchema,
+    outputSchema: UnitMatchingAIOutputSchema,
   },
   async input => {
     const {output} = await prompt(input);
-    return output!;
+    // Rename 'characters' to 'units' in the final output for clarity.
+    const result = { units: (output as any).characters || output!.units };
+    return result;
   }
 );
