@@ -121,23 +121,35 @@ export function CharacterFinder() {
     }
     
     if (activeTab === 'character-finder' && characterState.message === 'success' && characterState.query) {
-      if (!characterHistory.includes(characterState.query)) {
-        const newHistory = [characterState.query, ...characterHistory].slice(0, 20);
-        setCharacterHistory(newHistory);
-        localStorage.setItem(CHARACTER_HISTORY_KEY, JSON.stringify(newHistory));
-      }
+       setCharacterHistory(prevHistory => {
+        if (!prevHistory.includes(characterState.query!)) {
+          const newHistory = [characterState.query!, ...prevHistory].slice(0, 20);
+          localStorage.setItem(CHARACTER_HISTORY_KEY, JSON.stringify(newHistory));
+          return newHistory;
+        }
+        return prevHistory;
+      });
     } else if (activeTab === 'squad-builder' && squadState.message === 'success' && squadState.query) {
-      if (!squadHistory.includes(squadState.query)) {
-        const newHistory = [squadState.query, ...squadHistory].slice(0, 20);
-        setSquadHistory(newHistory);
-        localStorage.setItem(SQUAD_HISTORY_KEY, JSON.stringify(newHistory));
-      }
+       setSquadHistory(prevHistory => {
+        if (!prevHistory.includes(squadState.query!)) {
+          const newHistory = [squadState.query!, ...prevHistory].slice(0, 20);
+          localStorage.setItem(SQUAD_HISTORY_KEY, JSON.stringify(newHistory));
+          return newHistory;
+        }
+        return prevHistory;
+      });
     } else if (activeTab === 'test-assistant' && testCaseState.message === 'success' && testCaseState.testCaseInput) {
-       const newHistory = [testCaseState.testCaseInput, ...testCaseHistory.filter(h => JSON.stringify(h) !== JSON.stringify(testCaseState.testCaseInput))].slice(0, 20);
-       setTestCaseHistory(newHistory);
-       localStorage.setItem(TEST_CASE_HISTORY_KEY, JSON.stringify(newHistory));
+       setTestCaseHistory(prevHistory => {
+         const newHistoryJSON = JSON.stringify(testCaseState.testCaseInput);
+         if (!prevHistory.find(h => JSON.stringify(h) === newHistoryJSON)) {
+           const newHistory = [testCaseState.testCaseInput!, ...prevHistory].slice(0, 20);
+           localStorage.setItem(TEST_CASE_HISTORY_KEY, JSON.stringify(newHistory));
+           return newHistory;
+         }
+         return prevHistory;
+       });
     }
-  }, [characterState, squadState, testCaseState, toast, characterHistory, squadHistory, testCaseHistory, activeTab]);
+  }, [characterState, squadState, testCaseState, activeTab, toast]);
 
   const handleHistoryClick = (query: any) => {
     if (activeTab === 'character-finder' && characterTextAreaRef.current) {
