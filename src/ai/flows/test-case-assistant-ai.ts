@@ -54,7 +54,9 @@ const prompt = ai.definePrompt({
   tools: [wikiSearchTool],
   prompt: `You are a Senior QA Tester and expert in Star Wars: Galaxy of Heroes (SWGOH). Your task is to create a detailed test scenario based on a new unit's abilities and an expected test result.
 
-You MUST use your deep knowledge of SWGOH, including all existing character kits, buffs, debuffs, and game mechanics from swgoh.gg and by using the provided wikiSearch tool.
+You MUST use your deep knowledge of SWGOH by combining information from two sources:
+1.  Your built-in knowledge of swgoh.gg for character URLs, icon URLs, and team structures.
+2.  The provided \`wikiSearch\` tool to get detailed, up-to-date information on existing character kits, buffs, debuffs, and game mechanics from swgoh.wiki.
 
 The user has provided the following:
 1. Test Case / Ability Under Test: {{{testCase}}}
