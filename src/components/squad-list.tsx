@@ -2,7 +2,6 @@
 
 import type { SquadBuilderAIOutput } from '@/ai/flows/squad-builder-ai';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
-import { Button } from './ui/button';
 import Link from 'next/link';
 import { ArrowUpRight, Crown, UserPlus } from 'lucide-react';
 import {
