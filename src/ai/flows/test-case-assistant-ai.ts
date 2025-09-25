@@ -23,14 +23,14 @@ const SquadSchema = z.object({
     members: z.array(CharacterSchema).max(4).describe('The other members of the squad.'),
 });
 
-export const TestCaseAssistantAIInputSchema = z.object({
+const TestCaseAssistantAIInputSchema = z.object({
   testCase: z.string().describe('The ability or feature that is under test.'),
   unitDetails: z.string().describe("All details of the new unit's abilities, conditions, buffs, debuffs, zeta, and omicrons."),
   expectedResult: z.string().describe('The expected outcome of the test case.'),
 });
 export type TestCaseAssistantAIInput = z.infer<typeof TestCaseAssistantAIInputSchema>;
 
-export const TestCaseAssistantAIOutputSchema = z.object({
+const TestCaseAssistantAIOutputSchema = z.object({
   scenarioTitle: z.string().describe('A descriptive title for the test scenario.'),
   scenarioDescription: z.string().describe('A brief overview of the test scenario and its goal.'),
   alliedSquad: SquadSchema.describe('The squad to be used by the player/tester, including the new unit.'),
