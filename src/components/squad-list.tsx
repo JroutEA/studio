@@ -21,7 +21,6 @@ const CharacterPortrait = ({ character, isLeader = false, isAlly = false }: {
     isLeader?: boolean;
     isAlly?: boolean;
 }) => (
-  <TooltipProvider>
     <Tooltip>
       <TooltipTrigger asChild>
         <div className="relative text-center">
@@ -56,7 +55,6 @@ const CharacterPortrait = ({ character, isLeader = false, isAlly = false }: {
         </Link>
       </TooltipContent>
     </Tooltip>
-  </TooltipProvider>
 );
 
 export function SquadList({ squads, title }: SquadListProps) {
