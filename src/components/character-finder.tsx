@@ -177,7 +177,7 @@ export function CharacterFinder() {
           </div>
         </CardHeader>
         <CardContent>
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full" suppressHydrationWarning>
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="character-finder">Character Finder</TabsTrigger>
               <TabsTrigger value="squad-builder">Squad Builder</TabsTrigger>
