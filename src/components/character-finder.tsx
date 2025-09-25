@@ -174,7 +174,7 @@ export function CharacterFinder() {
                   <WandSparkles className="w-6 h-6" suppressHydrationWarning />
               </div>
               <div>
-                <CardTitle className="font-headline text-3xl">SWGOH AI QA Assistance</CardTitle>
+                <CardTitle className="font-headline text-3xl">The AI Holocron</CardTitle>
                 <CardDescription>
                   Your all-in-one tool for Star Wars: Galaxy of Heroes.
                 </CardDescription>

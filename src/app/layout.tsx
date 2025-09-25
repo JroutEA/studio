@@ -3,7 +3,7 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
-  title: 'SWGOH AI QA Assistance',
+  title: 'The AI Holocron',
   description: 'Your AI assistant for SWGOH QA and testing',
 };
 
