@@ -22,7 +22,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { WandSparkles, LoaderCircle, History, Users, TestTube } from 'lucide-react';
+import { Box, LoaderCircle, History, Users, TestTube } from 'lucide-react';
 import { CharacterList } from './character-list';
 import { CharacterListSkeleton } from './character-list-skeleton';
 import { SquadList } from './squad-list';
@@ -171,12 +171,12 @@ export function CharacterFinder() {
           <div className="flex justify-between items-start">
             <div className='flex items-center gap-3'>
               <div className="p-2 bg-primary text-primary-foreground rounded-lg">
-                  <WandSparkles className="w-6 h-6" suppressHydrationWarning />
+                  <Box className="w-6 h-6" suppressHydrationWarning />
               </div>
               <div>
                 <CardTitle className="font-headline text-3xl">The AI Holocron</CardTitle>
                 <CardDescription>
-                  Your all-in-one tool for Star Wars: Galaxy of Heroes.
+                  Your AI assistant for SWGOH QA and testing
                 </CardDescription>
               </div>
             </div>
@@ -227,7 +227,7 @@ export function CharacterFinder() {
                     <Label htmlFor="character-query">Your Query</Label>
                     <Textarea id="character-query" name="query" ref={characterTextAreaRef} placeholder="e.g., 'A Jedi tank that can counterattack and has high health.'" required rows={3} className="text-base" />
                   </div>
-                  <SubmitButton icon={<WandSparkles className="mr-2 h-4 w-4" suppressHydrationWarning />} pendingText="Searching..." text="Find Characters" />
+                  <SubmitButton icon={<Box className="mr-2 h-4 w-4" suppressHydrationWarning />} pendingText="Searching..." text="Find Characters" />
                 </form>
               </TabsContent>
               
@@ -270,7 +270,7 @@ export function CharacterFinder() {
                   <Textarea id="character-query" name="query" placeholder="e.g., 'A Jedi tank that can counterattack and has high health.'" required rows={3} className="text-base" />
                 </div>
                 <Button className="w-full sm:w-auto">
-                  <WandSparkles className="mr-2 h-4 w-4" suppressHydrationWarning />
+                  <Box className="mr-2 h-4 w-4" suppressHydrationWarning />
                   Find Characters
                 </Button>
              </div>
@@ -301,7 +301,7 @@ export function CharacterFinder() {
           <div className="text-center py-16 text-muted-foreground border-2 border-dashed rounded-lg">
             {activeTab === 'character-finder' && (!characterState.characters || characterState.characters.length === 0) &&
               <>
-                <WandSparkles className="mx-auto h-12 w-12" suppressHydrationWarning />
+                <Box className="mx-auto h-12 w-12" suppressHydrationWarning />
                 <h3 className="text-lg font-semibold">Your matched characters will appear here</h3>
                 <p>Enter a description above to get started.</p>
               </>
