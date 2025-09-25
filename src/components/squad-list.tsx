@@ -14,6 +14,7 @@ import {
 
 type SquadListProps = {
   squads: NonNullable<SquadBuilderAIOutput['squads']>;
+  title?: string;
 };
 
 const CharacterPortrait = ({ character, isLeader = false, isAlly = false }: {
@@ -59,14 +60,15 @@ const CharacterPortrait = ({ character, isLeader = false, isAlly = false }: {
   </TooltipProvider>
 );
 
-export function SquadList({ squads }: SquadListProps) {
+export function SquadList({ squads, title }: SquadListProps) {
   return (
     <div className="space-y-8">
+       {title && <h2 className="text-2xl font-bold tracking-tight font-headline">{title}</h2>}
       {squads.map((squad, index) => (
         <Card key={index} className="shadow-md">
           <CardHeader>
             <CardTitle>{squad.name}</CardTitle>
-            <CardDescription>{squad.description}</CardDescription>
+            {squad.description && <CardDescription>{squad.description}</CardDescription>}
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap items-start gap-4">
