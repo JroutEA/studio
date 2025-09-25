@@ -149,7 +149,7 @@ export function CharacterFinder() {
          return prevHistory;
        });
     }
-  }, [characterState, squadState, testCaseState, activeTab, toast]);
+  }, [characterState, squadState, testCaseState, toast, activeTab]);
 
   const handleHistoryClick = (query: any) => {
     if (activeTab === 'character-finder' && characterTextAreaRef.current) {
