@@ -94,6 +94,12 @@ export function CharacterFinder() {
   const squadTextAreaRef = useRef<HTMLTextAreaElement>(null);
 
   const [activeTab, setActiveTab] = useState('character-finder');
+  
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const state = activeTab === 'character-finder' ? characterState : squadState;
 
@@ -177,46 +183,48 @@ export function CharacterFinder() {
           </div>
         </CardHeader>
         <CardContent>
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full" suppressHydrationWarning>
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="character-finder">Character Finder</TabsTrigger>
-              <TabsTrigger value="squad-builder">Squad Builder</TabsTrigger>
-            </TabsList>
-            <TabsContent value="character-finder" className="mt-4">
-               <form action={characterFormAction} ref={characterFormRef} className="space-y-4">
-                <div className="grid w-full gap-1.5">
-                  <Label htmlFor="character-query">Your Query</Label>
-                  <Textarea
-                    id="character-query"
-                    name="query"
-                    ref={characterTextAreaRef}
-                    placeholder="e.g., 'A Jedi tank that can counterattack and has high health.'"
-                    required
-                    rows={3}
-                    className="text-base"
-                  />
-                </div>
-                <CharacterSubmitButton />
-              </form>
-            </TabsContent>
-            <TabsContent value="squad-builder" className="mt-4">
-              <form action={squadFormAction} ref={squadFormRef} className="space-y-4">
-                <div className="grid w-full gap-1.5">
-                  <Label htmlFor="squad-query">Your Query</Label>
-                  <Textarea
-                    id="squad-query"
-                    name="query"
-                    ref={squadTextAreaRef}
-                    placeholder="e.g., 'A squad to beat the Sith Triumvirate Raid with Jedi.' or 'A good starter team for Phoenix faction.'"
-                    required
-                    rows={3}
-                    className="text-base"
-                  />
-                </div>
-                <SquadSubmitButton />
-              </form>
-            </TabsContent>
-          </Tabs>
+          {isClient && (
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="character-finder">Character Finder</TabsTrigger>
+                <TabsTrigger value="squad-builder">Squad Builder</TabsTrigger>
+              </TabsList>
+              <TabsContent value="character-finder" className="mt-4">
+                 <form action={characterFormAction} ref={characterFormRef} className="space-y-4">
+                  <div className="grid w-full gap-1.5">
+                    <Label htmlFor="character-query">Your Query</Label>
+                    <Textarea
+                      id="character-query"
+                      name="query"
+                      ref={characterTextAreaRef}
+                      placeholder="e.g., 'A Jedi tank that can counterattack and has high health.'"
+                      required
+                      rows={3}
+                      className="text-base"
+                    />
+                  </div>
+                  <CharacterSubmitButton />
+                </form>
+              </TabsContent>
+              <TabsContent value="squad-builder" className="mt-4">
+                <form action={squadFormAction} ref={squadFormRef} className="space-y-4">
+                  <div className="grid w-full gap-1.5">
+                    <Label htmlFor="squad-query">Your Query</Label>
+                    <Textarea
+                      id="squad-query"
+                      name="query"
+                      ref={squadTextAreaRef}
+                      placeholder="e.g., 'A squad to beat the Sith Triumvirate Raid with Jedi.' or 'A good starter team for Phoenix faction.'"
+                      required
+                      rows={3}
+                      className="text-base"
+                    />
+                  </div>
+                  <SquadSubmitButton />
+                </form>
+              </TabsContent>
+            </Tabs>
+          )}
         </CardContent>
       </Card>
 
