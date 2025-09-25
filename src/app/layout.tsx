@@ -4,7 +4,7 @@ import { Toaster } from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
   title: 'The AI Holocron',
-  description: 'Your AI assistant for SWGOH QA and Unit testing',
+  description: "This IS the droid you're looking for... to test your units.",
 };
 
 export default function RootLayout({

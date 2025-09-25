@@ -176,7 +176,7 @@ export function CharacterFinder() {
               <div>
                 <CardTitle className="font-headline text-3xl">The AI Holocron</CardTitle>
                 <CardDescription>
-                  Your AI assistant for SWGOH QA and Unit testing
+                  This IS the droid you're looking for... to test your units.
                 </CardDescription>
               </div>
             </div>
