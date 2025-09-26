@@ -254,7 +254,7 @@ export function UnitFinder() {
                   <div className="grid w-full gap-1.5">
                     <Label htmlFor="unit-details">New Unit Details</Label>
                      <p className="text-xs text-muted-foreground">
-                      you can copy paste the ability details from the master ticket without naming the unit.
+                      You can copy and paste the ability details from the design document without naming the unit.
                     </p>
                     <Textarea id="unit-details" name="unitDetails" ref={testCaseUnitRef} placeholder="Describe the new unit's abilities, conditions, buffs, debuffs, zeta, and omicrons." required rows={4} className="text-base" />
                   </div>
