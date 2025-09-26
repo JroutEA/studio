@@ -10,9 +10,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { Button } from './ui/button';
 import Link from 'next/link';
-import { ArrowUpRight } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { cn } from '@/lib/utils';
 
@@ -55,7 +53,6 @@ export function UnitList({ units }: UnitListProps) {
               <TableHead className="w-[64px]">Icon</TableHead>
               <TableHead className="w-[200px]">Unit</TableHead>
               <TableHead>How They Match</TableHead>
-              <TableHead className="w-[100px] text-right">Link</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -63,27 +60,19 @@ export function UnitList({ units }: UnitListProps) {
               <TableRow key={index}>
                 <TableCell>
                   {unit.imageUrl && (
-                    <Avatar className={cn('h-10 w-10 border-2', borderColors[index % borderColors.length])}>
-                      <AvatarImage src={unit.imageUrl} alt={unit.name} />
-                      <AvatarFallback>
-                        {getInitials(unit.name)}
-                      </AvatarFallback>
-                    </Avatar>
+                     <Link href={unit.url} target="_blank" className="relative group">
+                        <Avatar className={cn('h-10 w-10 border-2', borderColors[index % borderColors.length])}>
+                        <AvatarImage src={unit.imageUrl} alt={unit.name} />
+                        <AvatarFallback>
+                            {getInitials(unit.name)}
+                        </AvatarFallback>
+                        </Avatar>
+                     </Link>
                   )}
                 </TableCell>
                 <TableCell className="font-medium">{unit.name}</TableCell>
                 <TableCell>
                   {unit.description}
-                </TableCell>
-                <TableCell className="text-right">
-                  <Button asChild variant="ghost" size="icon">
-                    <Link href={unit.url} target="_blank">
-                      <ArrowUpRight />
-                      <span className="sr-only">
-                        View {unit.name} on swgoh.gg
-                      </span>
-                    </Link>
-                  </Button>
                 </TableCell>
               </TableRow>
             ))}
