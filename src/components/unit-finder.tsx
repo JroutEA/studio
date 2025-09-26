@@ -140,6 +140,10 @@ export function UnitFinder() {
     }
     
     if (activeTab === 'unit-finder' && unitState.message === 'success' && unitState.query) {
+       // If the count is 10, it's a new search, so reset previous count.
+       if (unitState.units && unitState.units.length <= 10) {
+        setPreviousUnitCount(0);
+       }
        setUnitHistory(prevHistory => {
         if (!prevHistory.includes(unitState.query!)) {
           const newHistory = [unitState.query!, ...prevHistory].slice(0, 20);
@@ -244,7 +248,6 @@ export function UnitFinder() {
                  <form action={(formData) => {
                     const newCount = 10;
                     setUnitCount(newCount);
-                    setPreviousUnitCount(0);
                     formData.set('count', newCount.toString());
                     unitFormAction(formData);
                  }} ref={unitFormRef} className="space-y-4">
@@ -305,7 +308,7 @@ export function UnitFinder() {
       </Card>
 
       <div className="max-w-4xl mx-auto">
-        {(isUnitFormPending && unitCount === 10) && activeTab === 'unit-finder' && <UnitListSkeleton />}
+        {(isUnitFormPending && unitCount <= 10) && activeTab === 'unit-finder' && <UnitListSkeleton />}
         {isSquadFormPending && activeTab === 'squad-builder' && <SquadListSkeleton />}
         {isTestCaseFormPending && activeTab === 'test-assistant' && <SquadListSkeleton />}
 
