@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState, useEffect, useState, useRef, useTransition } from 'react';
+import { useActionState, useEffect, useState, useRef, startTransition } from 'react';
 import { useFormStatus } from 'react-dom';
 import { findUnits, buildSquad, generateTestCase, type FormState } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
@@ -123,7 +123,7 @@ export function UnitFinder() {
         setUnitCount(newCount);
         const formData = new FormData(unitFormRef.current);
         formData.set('count', newCount.toString());
-        React.startTransition(() => {
+        startTransition(() => {
           unitFormAction(formData);
         });
     }
