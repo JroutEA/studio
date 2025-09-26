@@ -13,9 +13,11 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import Link from 'next/link';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { cn } from '@/lib/utils';
+import { Skeleton } from './ui/skeleton';
 
 type UnitListProps = {
   units: NonNullable<UnitMatchingAIOutput['units']>;
+  isLoadingMore?: boolean;
 };
 
 function getInitials(name: string): string {
@@ -39,8 +41,29 @@ const borderColors = [
     'border-blue-500',
   ];
 
+const LoadingRows = ({ count = 5 }: { count?: number }) => (
+    <>
+      {[...Array(count)].map((_, i) => (
+        <TableRow key={`loading-${i}`}>
+          <TableCell>
+            <Skeleton className="h-10 w-10 rounded-full" />
+          </TableCell>
+          <TableCell>
+            <Skeleton className="h-5 w-3/4" />
+          </TableCell>
+          <TableCell>
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-5/6" />
+            </div>
+          </TableCell>
+        </TableRow>
+      ))}
+    </>
+);
 
-export function UnitList({ units }: UnitListProps) {
+
+export function UnitList({ units, isLoadingMore }: UnitListProps) {
   return (
     <Card>
       <CardHeader>
@@ -76,6 +99,7 @@ export function UnitList({ units }: UnitListProps) {
                 </TableCell>
               </TableRow>
             ))}
+            {isLoadingMore && <LoadingRows count={5} />}
           </TableBody>
         </Table>
       </CardContent>

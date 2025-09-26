@@ -240,7 +240,9 @@ export function UnitFinder() {
 
               <TabsContent value="unit-finder" className="mt-4">
                  <form action={(formData) => {
-                    setUnitCount(10);
+                    const newCount = 10;
+                    setUnitCount(newCount);
+                    formData.set('count', newCount.toString());
                     unitFormAction(formData);
                  }} ref={unitFormRef} className="space-y-4">
                   <div className="grid w-full gap-1.5">
@@ -306,7 +308,7 @@ export function UnitFinder() {
 
         {unitState.units && unitState.units.length > 0 && activeTab === 'unit-finder' && (
           <div className="space-y-4">
-            <UnitList units={unitState.units} />
+            <UnitList units={unitState.units} isLoadingMore={isUnitFormPending && unitCount > 10} />
             <div className="text-center">
               <Button onClick={handleLoadMore} disabled={isUnitFormPending}>
                 {isUnitFormPending && unitCount > 10 ? (
