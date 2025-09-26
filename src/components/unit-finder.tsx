@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState, useEffect, useState, useRef } from 'react';
+import { useActionState, useEffect, useState, useRef, useTransition } from 'react';
 import { useFormStatus } from 'react-dom';
 import { findUnits, buildSquad, generateTestCase, type FormState } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
@@ -70,7 +70,6 @@ export function UnitFinder() {
   const [squadHistory, setSquadHistory] = useState<string[]>([]);
   const [testCaseHistory, setTestCaseHistory] = useState<any[]>([]);
   const [unitCount, setUnitCount] = useState(10);
-  const [isLoadMore, setIsLoadMore] = useState(false);
 
 
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
@@ -117,23 +116,16 @@ export function UnitFinder() {
       console.error('Failed to parse history from localStorage', error);
     }
   }, []);
-
-  const handleNewSearch = (event: React.FormEvent<HTMLFormElement>) => {
-    const formData = new FormData(event.currentTarget);
-    if (formData.get('query')) {
-      setUnitCount(10);
-      setIsLoadMore(false);
-    }
-  };
   
   const handleLoadMore = () => {
     if (unitFormRef.current) {
-        setIsLoadMore(true);
         const newCount = unitCount + 5;
         setUnitCount(newCount);
         const formData = new FormData(unitFormRef.current);
         formData.set('count', newCount.toString());
-        unitFormAction(formData);
+        React.startTransition(() => {
+          unitFormAction(formData);
+        });
     }
   };
 
@@ -244,7 +236,10 @@ export function UnitFinder() {
               </TabsList>
 
               <TabsContent value="unit-finder" className="mt-4">
-                 <form action={unitFormAction} onSubmit={handleNewSearch} ref={unitFormRef} className="space-y-4">
+                 <form action={(formData) => {
+                    setUnitCount(10);
+                    unitFormAction(formData);
+                 }} ref={unitFormRef} className="space-y-4">
                   <div className="grid w-full gap-1.5">
                     <Label htmlFor="unit-query">Your Query</Label>
                     <Textarea id="unit-query" name="query" ref={unitTextAreaRef} placeholder="e.g., 'A Rebel ship with an AOE attack' or 'A Jedi tank with counterattack'" required rows={3} className="text-base" />
@@ -302,7 +297,7 @@ export function UnitFinder() {
       </Card>
 
       <div className="max-w-4xl mx-auto">
-        {(isUnitFormPending && !isLoadMore) && activeTab === 'unit-finder' && <UnitListSkeleton />}
+        {(isUnitFormPending && unitCount === 10) && activeTab === 'unit-finder' && <UnitListSkeleton />}
         {isSquadFormPending && activeTab === 'squad-builder' && <SquadListSkeleton />}
         {isTestCaseFormPending && activeTab === 'test-assistant' && <SquadListSkeleton />}
 
@@ -311,7 +306,7 @@ export function UnitFinder() {
             <UnitList units={unitState.units} />
             <div className="text-center">
               <Button onClick={handleLoadMore} disabled={isUnitFormPending}>
-                {isUnitFormPending && isLoadMore ? (
+                {isUnitFormPending && unitCount > 10 ? (
                   <>
                     <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
                     Loading...
