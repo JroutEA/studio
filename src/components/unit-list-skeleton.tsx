@@ -21,7 +21,7 @@ export function UnitListSkeleton() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[64px]">Icon(s)</TableHead>
+              <TableHead className="w-[64px]">Icons with Links</TableHead>
               <TableHead className="w-[200px]">Unit(s)</TableHead>
               <TableHead>How They Match</TableHead>
             </TableRow>
