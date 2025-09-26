@@ -20,10 +20,7 @@ const findUnitsSchema = z.object({
     .string({
       required_error: 'Please describe the unit you are looking for.',
     })
-    .min(
-      10,
-      'Please provide more details about the unit (at least 10 characters).'
-    ),
+    .min(1, 'Please describe the unit you are looking for.'),
   count: z.coerce.number().optional().default(10),
 });
 
@@ -32,16 +29,19 @@ const buildSquadSchema = z.object({
     .string({
       required_error: 'Please describe the squad you want to build.',
     })
-    .min(
-      10,
-      'Please provide more details about the squad (at least 10 characters).'
-    ),
+    .min(1, 'Please describe the squad you want to build.'),
 });
 
 const TestCaseAssistantAIInputSchema = z.object({
-  testCase: z.string({required_error: 'Please provide the test case details.'}).min(5, 'Test case description is too short.'),
-  unitDetails: z.string({required_error: 'Please provide the new unit details.'}).min(10, 'Unit details must be at least 10 characters.'),
-  expectedResult: z.string({required_error: 'Please provide the expected result.'}).min(10, 'Expected result must be at least 10 characters.'),
+  testCase: z
+    .string({required_error: 'Please provide the test case details.'})
+    .min(1, 'Please provide the test case details.'),
+  unitDetails: z
+    .string({required_error: 'Please provide the new unit details.'})
+    .min(1, 'Please provide the new unit details.'),
+  expectedResult: z
+    .string({required_error: 'Please provide the expected result.'})
+    .min(1, 'Please provide the expected result.'),
 });
 
 
