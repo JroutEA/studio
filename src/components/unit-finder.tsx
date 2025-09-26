@@ -118,14 +118,17 @@ export function UnitFinder() {
   }, []);
   
   const handleLoadMore = () => {
-    if (unitFormRef.current) {
-        const newCount = unitCount + 5;
-        setUnitCount(newCount);
-        const formData = new FormData(unitFormRef.current);
-        formData.set('count', newCount.toString());
-        startTransition(() => {
-          unitFormAction(formData);
-        });
+    if (unitState.query) {
+      const newCount = unitCount + 5;
+      setUnitCount(newCount);
+      
+      const formData = new FormData();
+      formData.set('query', unitState.query);
+      formData.set('count', newCount.toString());
+      
+      startTransition(() => {
+        unitFormAction(formData);
+      });
     }
   };
 
@@ -287,7 +290,7 @@ export function UnitFinder() {
                   <Label htmlFor="unit-query">Your Query</Label>
                   <Textarea id="unit-query" name="query" placeholder="e.g., 'A Rebel ship with an AOE attack' or 'A Jedi tank with counterattack'" required rows={3} className="text-base" />
                 </div>
-                <Button className="w-full sm:w-auto">
+                <Button className="w-full sm-w-auto">
                   <Gem className="mr-2 h-4 w-4" suppressHydrationWarning />
                   Find Units
                 </Button>
