@@ -13,10 +13,20 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
 import Link from 'next/link';
 import { ArrowUpRight } from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 
 type UnitListProps = {
   units: NonNullable<UnitMatchingAIOutput['units']>;
 };
+
+function getInitials(name: string): string {
+    const parts = name.split(' ');
+    if (parts.length > 1) {
+        return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    }
+    return name.substring(0, 2).toUpperCase();
+}
+
 
 export function UnitList({ units }: UnitListProps) {
   return (
@@ -39,13 +49,12 @@ export function UnitList({ units }: UnitListProps) {
               <TableRow key={index}>
                 <TableCell>
                   {unit.imageUrl && (
-                    <img
-                      src={unit.imageUrl}
-                      alt={unit.name}
-                      width={40}
-                      height={40}
-                      className="rounded-full object-cover"
-                    />
+                    <Avatar className='h-10 w-10'>
+                      <AvatarImage src={unit.imageUrl} alt={unit.name} />
+                      <AvatarFallback>
+                        {getInitials(unit.name)}
+                      </AvatarFallback>
+                    </Avatar>
                   )}
                 </TableCell>
                 <TableCell className="font-medium">{unit.name}</TableCell>
