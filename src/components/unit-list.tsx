@@ -31,6 +31,7 @@ function getInitials(name: string): string {
 
 const borderColors = [
     'border-sky-500',
+    'border-green-500',
     'border-yellow-500',
     'border-red-500',
     'border-purple-500',
@@ -40,8 +41,6 @@ const borderColors = [
     'border-orange-500',
     'border-blue-500',
   ];
-
-const newRowBorderColor = 'border-green-500';
 
 const LoadingRows = ({ count = 5 }: { count?: number }) => (
     <>
@@ -83,7 +82,7 @@ export function UnitList({ units, isLoadingMore, previousCount = 0 }: UnitListPr
           <TableBody>
             {units.map((unit, index) => {
               const isNew = index >= previousCount && previousCount > 0;
-              const borderColorClass = isNew ? newRowBorderColor : borderColors[index % borderColors.length];
+              const borderColorClass = borderColors[index % borderColors.length];
 
               return (
               <TableRow key={index}>
@@ -99,7 +98,7 @@ export function UnitList({ units, isLoadingMore, previousCount = 0 }: UnitListPr
                      </Link>
                   )}
                 </TableCell>
-                <TableCell className="font-medium">{unit.name}</TableCell>
+                <TableCell className={cn("font-medium", isNew ? "text-green-500" : "")}>{unit.name}</TableCell>
                 <TableCell>
                   {unit.description}
                 </TableCell>
