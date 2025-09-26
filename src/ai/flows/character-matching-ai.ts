@@ -14,6 +14,7 @@ import {z} from 'genkit';
 
 const UnitMatchingAIInputSchema = z.object({
   query: z.string().describe('The query describing the desired unit (character or ship) characteristics.'),
+  count: z.number().optional().default(10).describe('The number of units to find.'),
 });
 export type UnitMatchingAIInput = z.infer<typeof UnitMatchingAIInputSchema>;
 
@@ -46,7 +47,7 @@ You MUST use information from two sources to provide the best possible answer:
 1.  Your built-in knowledge of swgoh.gg for unit URLs, icon URLs, and basic stats. This includes knowing the difference between character and ship pages (e.g., /characters/ vs /ships/).
 2.  The provided \`wikiSearch\` tool to get detailed, up-to-date information on abilities, strategies, and synergies from swgoh.wiki.
 
-You will identify 10 units from SWGOH that best match the user's characteristics.
+You will identify {{{count}}} units from SWGOH that best match the user's characteristics.
 
 For each unit, provide:
 1. The unit's name.

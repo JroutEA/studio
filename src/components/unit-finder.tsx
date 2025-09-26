@@ -59,9 +59,9 @@ function SubmitButton({ icon, pendingText, text }: { icon: React.ReactNode, pend
 
 
 export function UnitFinder() {
-  const [unitState, unitFormAction] = useActionState(findUnits, initialState);
-  const [squadState, squadFormAction] = useActionState(buildSquad, initialState);
-  const [testCaseState, testCaseFormAction] = useActionState(generateTestCase, initialState);
+  const [unitState, unitFormAction, isUnitFormPending] = useActionState(findUnits, initialState);
+  const [squadState, squadFormAction, isSquadFormPending] = useActionState(buildSquad, initialState);
+  const [testCaseState, testCaseFormAction, isTestCaseFormPending] = useActionState(generateTestCase, initialState);
   
   const { pending } = useFormStatus();
   const { toast } = useToast();
@@ -69,6 +69,9 @@ export function UnitFinder() {
   const [unitHistory, setUnitHistory] = useState<string[]>([]);
   const [squadHistory, setSquadHistory] = useState<string[]>([]);
   const [testCaseHistory, setTestCaseHistory] = useState<any[]>([]);
+  const [unitCount, setUnitCount] = useState(10);
+  const [isLoadMore, setIsLoadMore] = useState(false);
+
 
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   
@@ -114,6 +117,25 @@ export function UnitFinder() {
       console.error('Failed to parse history from localStorage', error);
     }
   }, []);
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    setUnitCount(10);
+    setIsLoadMore(false);
+    const formData = new FormData(event.currentTarget);
+    formData.set('count', '10');
+    unitFormAction(formData);
+  };
+  
+  const handleLoadMore = () => {
+    if (unitFormRef.current) {
+        setIsLoadMore(true);
+        const newCount = unitCount + 5;
+        setUnitCount(newCount);
+        const formData = new FormData(unitFormRef.current);
+        formData.set('count', newCount.toString());
+        unitFormAction(formData);
+    }
+  };
 
   useEffect(() => {
     if (state.message && state.message !== 'success') {
@@ -222,10 +244,11 @@ export function UnitFinder() {
               </TabsList>
 
               <TabsContent value="unit-finder" className="mt-4">
-                 <form action={unitFormAction} ref={unitFormRef} className="space-y-4">
+                 <form action={handleSubmit} ref={unitFormRef} className="space-y-4">
                   <div className="grid w-full gap-1.5">
                     <Label htmlFor="unit-query">Your Query</Label>
                     <Textarea id="unit-query" name="query" ref={unitTextAreaRef} placeholder="e.g., 'A Rebel ship with an AOE attack' or 'A Jedi tank with counterattack'" required rows={3} className="text-base" />
+                    <input type="hidden" name="count" value={unitCount} />
                   </div>
                   <SubmitButton icon={<Gem className="mr-2 h-4 w-4" suppressHydrationWarning />} pendingText="Searching..." text="Find Units" />
                 </form>
@@ -279,20 +302,33 @@ export function UnitFinder() {
       </Card>
 
       <div className="max-w-4xl mx-auto">
-        {pending && activeTab === 'unit-finder' && <UnitListSkeleton />}
-        {pending && activeTab === 'squad-builder' && <SquadListSkeleton />}
-        {pending && activeTab === 'test-assistant' && <SquadListSkeleton />}
+        {(isUnitFormPending && !isLoadMore) && activeTab === 'unit-finder' && <UnitListSkeleton />}
+        {isSquadFormPending && activeTab === 'squad-builder' && <SquadListSkeleton />}
+        {isTestCaseFormPending && activeTab === 'test-assistant' && <SquadListSkeleton />}
 
-
-        {!pending && activeTab === 'unit-finder' && unitState.units && unitState.units.length > 0 && (
-          <UnitList units={unitState.units} />
+        {unitState.units && unitState.units.length > 0 && activeTab === 'unit-finder' && (
+          <div className="space-y-4">
+            <UnitList units={unitState.units} />
+            <div className="text-center">
+              <Button onClick={handleLoadMore} disabled={isUnitFormPending}>
+                {isUnitFormPending && isLoadMore ? (
+                  <>
+                    <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+                    Loading...
+                  </>
+                ) : (
+                  'Load 5 More'
+                )}
+              </Button>
+            </div>
+          </div>
         )}
 
-        {!pending && activeTab === 'squad-builder' && squadState.squads && squadState.squads.length > 0 && (
+        {squadState.squads && squadState.squads.length > 0 && activeTab === 'squad-builder' && !isSquadFormPending && (
           <SquadList squads={squadState.squads} />
         )}
 
-        {!pending && activeTab === 'test-assistant' && testCaseState.testCase && (
+        {testCaseState.testCase && activeTab === 'test-assistant' && !isTestCaseFormPending && (
           <TestCaseDisplay testCase={testCaseState.testCase} />
         )}
 

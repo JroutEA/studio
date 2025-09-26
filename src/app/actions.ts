@@ -24,6 +24,7 @@ const findUnitsSchema = z.object({
       10,
       'Please provide more details about the unit (at least 10 characters).'
     ),
+  count: z.coerce.number().optional().default(10),
 });
 
 const buildSquadSchema = z.object({
@@ -59,6 +60,7 @@ export async function findUnits(
 ): Promise<FormState> {
   const validatedFields = findUnitsSchema.safeParse({
     query: formData.get('query'),
+    count: formData.get('count'),
   });
 
   if (!validatedFields.success) {
@@ -69,10 +71,10 @@ export async function findUnits(
     };
   }
 
-  const query = validatedFields.data.query;
+  const { query, count } = validatedFields.data;
 
   try {
-    const result = await unitMatchingAI({query});
+    const result = await unitMatchingAI({query, count});
 
     if (!result.units || result.units.length === 0) {
       return {
