@@ -118,12 +118,12 @@ export function UnitFinder() {
     }
   }, []);
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    setUnitCount(10);
-    setIsLoadMore(false);
+  const handleNewSearch = (event: React.FormEvent<HTMLFormElement>) => {
     const formData = new FormData(event.currentTarget);
-    formData.set('count', '10');
-    unitFormAction(formData);
+    if (formData.get('query')) {
+      setUnitCount(10);
+      setIsLoadMore(false);
+    }
   };
   
   const handleLoadMore = () => {
@@ -244,7 +244,7 @@ export function UnitFinder() {
               </TabsList>
 
               <TabsContent value="unit-finder" className="mt-4">
-                 <form action={handleSubmit} ref={unitFormRef} className="space-y-4">
+                 <form action={unitFormAction} onSubmit={handleNewSearch} ref={unitFormRef} className="space-y-4">
                   <div className="grid w-full gap-1.5">
                     <Label htmlFor="unit-query">Your Query</Label>
                     <Textarea id="unit-query" name="query" ref={unitTextAreaRef} placeholder="e.g., 'A Rebel ship with an AOE attack' or 'A Jedi tank with counterattack'" required rows={3} className="text-base" />
