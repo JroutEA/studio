@@ -14,6 +14,7 @@ import { Button } from './ui/button';
 import Link from 'next/link';
 import { ArrowUpRight } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
+import { cn } from '@/lib/utils';
 
 type UnitListProps = {
   units: NonNullable<UnitMatchingAIOutput['units']>;
@@ -26,6 +27,19 @@ function getInitials(name: string): string {
     }
     return name.substring(0, 2).toUpperCase();
 }
+
+const borderColors = [
+    'border-sky-500',
+    'border-green-500',
+    'border-yellow-500',
+    'border-red-500',
+    'border-purple-500',
+    'border-pink-500',
+    'border-indigo-500',
+    'border-teal-500',
+    'border-orange-500',
+    'border-blue-500',
+  ];
 
 
 export function UnitList({ units }: UnitListProps) {
@@ -49,7 +63,7 @@ export function UnitList({ units }: UnitListProps) {
               <TableRow key={index}>
                 <TableCell>
                   {unit.imageUrl && (
-                    <Avatar className='h-10 w-10'>
+                    <Avatar className={cn('h-10 w-10 border-2', borderColors[index % borderColors.length])}>
                       <AvatarImage src={unit.imageUrl} alt={unit.name} />
                       <AvatarFallback>
                         {getInitials(unit.name)}

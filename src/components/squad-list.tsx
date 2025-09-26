@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/
 import Link from 'next/link';
 import { Crown, UserPlus } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
+import { cn } from '@/lib/utils';
 
 function getInitials(name: string): string {
     if (name === "New Unit") return "NU";
@@ -15,20 +16,34 @@ function getInitials(name: string): string {
     return name.substring(0, 2).toUpperCase();
 }
 
+const borderColors = [
+    'border-sky-500',
+    'border-green-500',
+    'border-yellow-500',
+    'border-red-500',
+    'border-purple-500',
+    'border-pink-500',
+    'border-indigo-500',
+    'border-teal-500',
+    'border-orange-500',
+    'border-blue-500',
+  ];
+
 
 type SquadListProps = {
   squads: NonNullable<SquadBuilderAIOutput['squads']>;
   title?: string;
 };
 
-const CharacterPortrait = ({ character, isLeader = false, isAlly = false }: {
+const CharacterPortrait = ({ character, isLeader = false, isAlly = false, colorClass = '' }: {
     character: NonNullable<SquadBuilderAIOutput['squads']>[0]['leader'];
     isLeader?: boolean;
     isAlly?: boolean;
+    colorClass?: string;
 }) => (
     <div className="relative text-center w-20">
       <Link href={character.url} target="_blank" className="relative group">
-        <Avatar className="w-20 h-20 mx-auto border-2 border-transparent group-hover:border-primary transition-all">
+        <Avatar className={cn("w-20 h-20 mx-auto border-2 transition-all", colorClass)}>
           <AvatarImage src={character.imageUrl} alt={character.name} />
           <AvatarFallback className="text-lg">
             {getInitials(character.name)}
@@ -62,12 +77,12 @@ export function SquadList({ squads, title }: SquadListProps) {
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap items-start gap-4">
-              <CharacterPortrait character={squad.leader} isLeader />
+              <CharacterPortrait character={squad.leader} isLeader colorClass={borderColors[0]} />
               {squad.members.map((member, memberIndex) => (
-                <CharacterPortrait key={memberIndex} character={member} />
+                <CharacterPortrait key={memberIndex} character={member} colorClass={borderColors[(memberIndex + 1) % borderColors.length]} />
               ))}
               {squad.ally && (
-                 <CharacterPortrait character={squad.ally} isAlly />
+                 <CharacterPortrait character={squad.ally} isAlly colorClass={borderColors[5 % borderColors.length]} />
               )}
             </div>
           </CardContent>
