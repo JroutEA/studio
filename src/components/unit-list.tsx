@@ -18,6 +18,7 @@ import { Skeleton } from './ui/skeleton';
 type UnitListProps = {
   units: NonNullable<UnitMatchingAIOutput['units']>;
   isLoadingMore?: boolean;
+  previousCount?: number;
 };
 
 function getInitials(name: string): string {
@@ -30,7 +31,6 @@ function getInitials(name: string): string {
 
 const borderColors = [
     'border-sky-500',
-    'border-green-500',
     'border-yellow-500',
     'border-red-500',
     'border-purple-500',
@@ -40,6 +40,8 @@ const borderColors = [
     'border-orange-500',
     'border-blue-500',
   ];
+
+const newRowBorderColor = 'border-green-500';
 
 const LoadingRows = ({ count = 5 }: { count?: number }) => (
     <>
@@ -63,7 +65,7 @@ const LoadingRows = ({ count = 5 }: { count?: number }) => (
 );
 
 
-export function UnitList({ units, isLoadingMore }: UnitListProps) {
+export function UnitList({ units, isLoadingMore, previousCount = 0 }: UnitListProps) {
   return (
     <Card>
       <CardHeader>
@@ -79,12 +81,16 @@ export function UnitList({ units, isLoadingMore }: UnitListProps) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {units.map((unit, index) => (
+            {units.map((unit, index) => {
+              const isNew = index >= previousCount && previousCount > 0;
+              const borderColorClass = isNew ? newRowBorderColor : borderColors[index % borderColors.length];
+
+              return (
               <TableRow key={index}>
                 <TableCell>
                   {unit.imageUrl && (
                      <Link href={unit.url} target="_blank" className="relative group">
-                        <Avatar className={cn('h-10 w-10 border-2', borderColors[index % borderColors.length])}>
+                        <Avatar className={cn('h-10 w-10 border-2', borderColorClass)}>
                         <AvatarImage src={unit.imageUrl} alt={unit.name} />
                         <AvatarFallback>
                             {getInitials(unit.name)}
@@ -98,7 +104,8 @@ export function UnitList({ units, isLoadingMore }: UnitListProps) {
                   {unit.description}
                 </TableCell>
               </TableRow>
-            ))}
+              )
+            })}
             {isLoadingMore && <LoadingRows count={5} />}
           </TableBody>
         </Table>

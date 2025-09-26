@@ -70,6 +70,7 @@ export function UnitFinder() {
   const [squadHistory, setSquadHistory] = useState<string[]>([]);
   const [testCaseHistory, setTestCaseHistory] = useState<any[]>([]);
   const [unitCount, setUnitCount] = useState(10);
+  const [previousUnitCount, setPreviousUnitCount] = useState(0);
 
 
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
@@ -120,6 +121,7 @@ export function UnitFinder() {
   const handleLoadMore = () => {
     if (unitState.query) {
       const newCount = unitCount + 5;
+      setPreviousUnitCount(unitCount);
       setUnitCount(newCount);
       
       const formData = new FormData();
@@ -242,6 +244,7 @@ export function UnitFinder() {
                  <form action={(formData) => {
                     const newCount = 10;
                     setUnitCount(newCount);
+                    setPreviousUnitCount(0);
                     formData.set('count', newCount.toString());
                     unitFormAction(formData);
                  }} ref={unitFormRef} className="space-y-4">
@@ -308,7 +311,11 @@ export function UnitFinder() {
 
         {unitState.units && unitState.units.length > 0 && activeTab === 'unit-finder' && (
           <div className="space-y-4">
-            <UnitList units={unitState.units} isLoadingMore={isUnitFormPending && unitCount > 10} />
+            <UnitList 
+              units={unitState.units} 
+              isLoadingMore={isUnitFormPending && unitCount > 10}
+              previousCount={previousUnitCount} 
+            />
             <div className="text-center">
               <Button onClick={handleLoadMore} disabled={isUnitFormPending}>
                 {isUnitFormPending && unitCount > 10 ? (
