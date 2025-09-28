@@ -76,10 +76,7 @@ export function UnitFinder() {
   const [testCaseHistory, setTestCaseHistory] = useState<any[]>([]);
   const [savedSquads, setSavedSquads] = useState<Squad[]>([]);
   
-  const [unitCount, setUnitCount] = useState(10);
   const [previousUnitCount, setPreviousUnitCount] = useState(0);
-
-  const [squadCount, setSquadCount] = useState(3);
 
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [isSavedSquadsOpen, setIsSavedSquadsOpen] = useState(false);
@@ -139,7 +136,6 @@ export function UnitFinder() {
     if (unitState.query) {
       const newCount = (unitState.units?.length || 0) + 5;
       setPreviousUnitCount(unitState.units?.length || 0);
-      setUnitCount(newCount);
       
       const formData = new FormData(unitFormRef.current!);
       formData.set('count', newCount.toString());
@@ -153,7 +149,6 @@ export function UnitFinder() {
   const handleLoadMoreSquads = () => {
     if (squadState.squadsInput?.query) {
       const newCount = (squadState.squads?.length || 0) + 3;
-      setSquadCount(newCount);
       
       const formData = new FormData(squadFormRef.current!);
       formData.set('count', newCount.toString());
@@ -263,16 +258,109 @@ export function UnitFinder() {
   
   const handleUnitFormSubmit = (formData: FormData) => {
     setPreviousUnitCount(0);
-    setUnitCount(10);
-    formData.set('count', '10');
     unitFormAction(formData);
   }
+
+  const renderUnitFinderContent = () => {
+    const hasResults = unitState.units && unitState.units.length > 0;
+    const isLoadingFirstTime = isUnitFormPending && !hasResults;
+    
+    if (isLoadingFirstTime) {
+      return <UnitListSkeleton />;
+    }
+
+    if (hasResults) {
+      return (
+        <div className="space-y-4">
+          <UnitList 
+            units={unitState.units!} 
+            isLoadingMore={isUnitFormPending && (unitState.units?.length || 0) > 0}
+            previousCount={previousUnitCount} 
+          />
+          <div className="text-center">
+            <Button onClick={handleLoadMoreUnits} disabled={isUnitFormPending}>
+              {isUnitFormPending ? (
+                <>
+                  <DarthVaderLoader className="mr-2 h-4 w-4" />
+                  Loading...
+                </>
+              ) : (
+                'Load 5 More'
+              )}
+            </Button>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="text-center py-16 text-muted-foreground border-2 border-dashed rounded-lg border-primary/20">
+        <HolocronIcon className="mx-auto h-12 w-12" />
+        <h3 className="text-lg font-semibold mt-2">Your matched units will appear here</h3>
+        <p>Enter a description above to get started.</p>
+      </div>
+    );
+  };
   
-  const handleSquadFormSubmit = (formData: FormData) => {
-    setSquadCount(3);
-    formData.set('count', '3');
-    squadFormAction(formData);
-  }
+  const renderSquadBuilderContent = () => {
+    const hasResults = squadState.squads && squadState.squads.length > 0;
+    const isLoadingFirstTime = isSquadFormPending && !hasResults;
+    
+    if (isLoadingFirstTime) {
+      return <SquadListSkeleton />;
+    }
+
+    if (hasResults) {
+      return (
+        <div className="space-y-4">
+          <SquadList 
+            squads={squadState.squads!} 
+            isLoadingMore={isSquadFormPending && (squadState.squads?.length || 0) > 0}
+            savedSquads={savedSquads}
+            onToggleSave={handleToggleSaveSquad}
+          />
+          <div className="text-center">
+            <Button onClick={handleLoadMoreSquads} disabled={isSquadFormPending}>
+              {isSquadFormPending ? (
+                <>
+                  <DarthVaderLoader className="mr-2 h-4 w-4" />
+                  Loading...
+                </>
+              ) : (
+                'Load 3 More'
+              )}
+            </Button>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="text-center py-16 text-muted-foreground border-2 border-dashed rounded-lg border-primary/20">
+        <Users className="mx-auto h-12 w-12" />
+        <h3 className="text-lg font-semibold mt-2">Your generated squads will appear here</h3>
+        <p>Describe the squad you want to build above.</p>
+      </div>
+    );
+  };
+
+  const renderTestAssistantContent = () => {
+    if (isTestCaseFormPending) {
+      return <SquadListSkeleton />;
+    }
+
+    if (testCaseState.testCase) {
+      return <TestCaseDisplay testCase={testCaseState.testCase} />;
+    }
+    
+    return (
+      <div className="text-center py-16 text-muted-foreground border-2 border-dashed rounded-lg border-primary/20">
+        <TestTube className="mx-auto h-12 w-12" />
+        <h3 className="text-lg font-semibold mt-2">Your generated test case will appear here</h3>
+        <p>Describe the scenario you want to test above.</p>
+      </div>
+    );
+  };
 
 
   return (
@@ -369,6 +457,7 @@ export function UnitFinder() {
 
             <TabsContent value="unit-finder" className="mt-4">
                <form action={handleUnitFormSubmit} ref={unitFormRef} className="space-y-4">
+                 <input type="hidden" name="count" value="10" />
                 <div className="grid w-full gap-1.5">
                   <Label htmlFor="unit-query">Your Query</Label>
                   <Textarea onKeyDown={handleKeyDown} id="unit-query" name="query" ref={unitTextAreaRef} defaultValue={unitState.query} placeholder="e.g., 'A Rebel ship with an AOE attack' or 'A Jedi tank with counterattack'" required rows={3} className="text-base" />
@@ -378,7 +467,8 @@ export function UnitFinder() {
             </TabsContent>
             
             <TabsContent value="squad-builder" className="mt-4">
-              <form action={handleSquadFormSubmit} ref={squadFormRef} className="space-y-4">
+              <form action={squadFormAction} ref={squadFormRef} className="space-y-4">
+                <input type="hidden" name="count" value="3" />
                 <div className="grid w-full gap-1.5">
                   <Label htmlFor="squad-query">Your Query</Label>
                   <Textarea onKeyDown={handleKeyDown} id="squad-query" name="query" ref={squadTextAreaRef} defaultValue={squadState.squadsInput?.query} placeholder="e.g., 'A squad to beat the Sith Triumvirate Raid with Jedi.' or 'A good starter team for Phoenix faction.'" required rows={3} className="text-base" />
@@ -412,84 +502,9 @@ export function UnitFinder() {
       </Card>
 
       <div className="max-w-4xl mx-auto">
-        {(isUnitFormPending && (!unitState.units || unitState.units.length <= 10)) && activeTab === 'unit-finder' && <UnitListSkeleton />}
-        {(isSquadFormPending && (!squadState.squads || squadState.squads.length <= 3)) && activeTab === 'squad-builder' && <SquadListSkeleton />}
-        {isTestCaseFormPending && activeTab === 'test-assistant' && <SquadListSkeleton />}
-
-        {unitState.units && unitState.units.length > 0 && activeTab === 'unit-finder' && (
-          <div className="space-y-4">
-            <UnitList 
-              units={unitState.units} 
-              isLoadingMore={isUnitFormPending && (unitState.units?.length || 0) > 10}
-              previousCount={previousUnitCount} 
-            />
-            <div className="text-center">
-              <Button onClick={handleLoadMoreUnits} disabled={isUnitFormPending}>
-                {isUnitFormPending && (unitState.units?.length || 0) > 10 ? (
-                  <>
-                    <DarthVaderLoader className="mr-2 h-4 w-4" />
-                    Loading...
-                  </>
-                ) : (
-                  'Load 5 More'
-                )}
-              </Button>
-            </div>
-          </div>
-        )}
-
-        {squadState.squads && squadState.squads.length > 0 && activeTab === 'squad-builder' && (
-           <div className="space-y-4">
-            <SquadList 
-              squads={squadState.squads} 
-              isLoadingMore={isSquadFormPending && (squadState.squads?.length || 0) > 3}
-              savedSquads={savedSquads}
-              onToggleSave={handleToggleSaveSquad}
-            />
-            <div className="text-center">
-              <Button onClick={handleLoadMoreSquads} disabled={isSquadFormPending}>
-                {isSquadFormPending && (squadState.squads?.length || 0) > 3 ? (
-                  <>
-                    <DarthVaderLoader className="mr-2 h-4 w-4" />
-                    Loading...
-                  </>
-                ) : (
-                  'Load 3 More'
-                )}
-              </Button>
-            </div>
-          </div>
-        )}
-
-        {testCaseState.testCase && activeTab === 'test-assistant' && !isTestCaseFormPending && (
-          <TestCaseDisplay testCase={testCaseState.testCase} />
-        )}
-        
-        {!isUnitFormPending && !isSquadFormPending && !isTestCaseFormPending && (
-          <div className="text-center py-16 text-muted-foreground border-2 border-dashed rounded-lg border-primary/20">
-            {activeTab === 'unit-finder' && (!unitState.units || unitState.units.length === 0) &&
-              <>
-                <HolocronIcon className="mx-auto h-12 w-12" />
-                <h3 className="text-lg font-semibold mt-2">Your matched units will appear here</h3>
-                <p>Enter a description above to get started.</p>
-              </>
-            }
-            {activeTab === 'squad-builder' && (!squadState.squads || squadState.squads.length === 0) &&
-              <>
-                <Users className="mx-auto h-12 w-12" />
-                <h3 className="text-lg font-semibold mt-2">Your generated squads will appear here</h3>
-                <p>Describe the squad you want to build above.</p>
-              </>
-            }
-            {activeTab === 'test-assistant' && !testCaseState.testCase &&
-              <>
-                <TestTube className="mx-auto h-12 w-12" />
-                <h3 className="text-lg font-semibold mt-2">Your generated test case will appear here</h3>
-                <p>Describe the scenario you want to test above.</p>
-              </>
-            }
-          </div>
-        )}
+        {activeTab === 'unit-finder' && renderUnitFinderContent()}
+        {activeTab === 'squad-builder' && renderSquadBuilderContent()}
+        {activeTab === 'test-assistant' && renderTestAssistantContent()}
       </div>
     </div>
   );
