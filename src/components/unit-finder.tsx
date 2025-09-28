@@ -1,12 +1,11 @@
 'use client';
 
-import { useEffect, useState, useRef, useTransition } from 'react';
+import { useEffect, useRef } from 'react';
 import { useActionState } from 'react';
 import {
   findUnits,
   buildSquad,
   generateTestCase,
-  type FormState,
 } from '@/app/actions';
 import type { SquadBuilderAIOutput } from '@/ai/flows/squad-builder-ai';
 import { useToast } from '@/hooks/use-toast';
@@ -28,7 +27,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { History, Users, TestTube, Trash2, Star, Square } from 'lucide-react';
+import { History, Users, TestTube, Trash2, Star } from 'lucide-react';
 import { UnitList } from './unit-list';
 import { UnitListSkeleton } from './unit-list-skeleton';
 import { SquadList } from './squad-list';
@@ -36,6 +35,8 @@ import { SquadListSkeleton } from './squad-list-skeleton';
 import { TestCaseDisplay } from './test-case-display';
 import { HolocronIcon } from './holocron-icon';
 import { DarthVaderLoader } from './darth-vader-loader';
+import { useState } from 'react';
+import { SavedSquadsList } from './saved-squads-list';
 
 type Squad = NonNullable<SquadBuilderAIOutput['squads']>[0];
 
@@ -55,7 +56,6 @@ function SubmitButton({
   text: string;
   isPending: boolean;
 }) {
-
   return (
     <Button type="submit" disabled={isPending} className="w-full sm:w-auto">
       {isPending ? (
@@ -257,6 +257,7 @@ export function UnitFinder() {
           <UnitList 
             units={unitState.units}
             isLoadingMore={isUnitFormPending}
+            previousCount={unitState.units.length}
           />
           <div className="text-center">
             <Button onClick={handleLoadMore} disabled={isUnitFormPending}>
@@ -366,7 +367,7 @@ export function UnitFinder() {
                     </SheetHeader>
                     <div className="mt-4 space-y-4">
                       {savedSquads.length > 0 ? (
-                        <SquadList squads={savedSquads} onToggleSave={handleToggleSaveSquad} savedSquads={savedSquads} />
+                        <SavedSquadsList squads={savedSquads} onToggleSave={handleToggleSaveSquad} />
                       ) : (
                         <p className="text-sm text-muted-foreground">
                           Your saved squads will appear here. Click the star on a squad to save it.
