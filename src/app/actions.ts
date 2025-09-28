@@ -82,15 +82,17 @@ export async function findUnits(
 
     if (!result.units || result.units.length === 0) {
       return {
+        ...prevState,
         message:
           'Could not find any matching units. Please try a different query.',
         query,
-        units: [],
       };
     }
 
     const newUnits = result.units;
-    const existingUnits = prevState.units || [];
+    // If the query is different, we are starting a new search.
+    const isNewSearch = prevState.query !== query;
+    const existingUnits = isNewSearch ? [] : prevState.units || [];
     
     const combinedUnits = [...existingUnits];
     const existingUnitNames = new Set(existingUnits.map(u => u.name));
@@ -98,7 +100,16 @@ export async function findUnits(
     for (const unit of newUnits) {
         if (!existingUnitNames.has(unit.name)) {
             combinedUnits.push(unit);
+            existingUnitNames.add(unit.name);
         }
+    }
+    
+    if (!isNewSearch && combinedUnits.length === existingUnits.length) {
+      return {
+        ...prevState,
+        query,
+        message: 'No new units found.',
+      }
     }
 
     return {
@@ -143,24 +154,33 @@ export async function buildSquad(
     const result = await squadBuilderAI(input);
     if (!result.squads || result.squads.length === 0) {
       return {
+        ...prevState,
         message:
           'Could not generate any matching squads. Please try a different query.',
         squadsInput: input,
-        squads: [],
       };
     }
 
     const newSquads = result.squads;
-    const existingSquads = prevState.squads || [];
+    const isNewSearch = prevState.squadsInput?.query !== query;
+    const existingSquads = isNewSearch ? [] : prevState.squads || [];
     const combinedSquads = [...existingSquads];
     const existingSquadNames = new Set(existingSquads.map(s => s.name));
 
     for (const squad of newSquads) {
         if (!existingSquadNames.has(squad.name)) {
             combinedSquads.push(squad);
+            existingSquadNames.add(squad.name);
         }
     }
 
+    if (!isNewSearch && combinedSquads.length === existingSquads.length) {
+      return {
+        ...prevState,
+        squadsInput: input,
+        message: 'No new squads found.',
+      }
+    }
 
     return {
       message: 'success',
