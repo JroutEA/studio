@@ -68,6 +68,7 @@ export async function findUnits(
 
   if (!validatedFields.success) {
     return {
+      ...prevState,
       message:
         validatedFields.error.flatten().fieldErrors.query?.[0] ??
         'Invalid query.',
@@ -84,12 +85,25 @@ export async function findUnits(
         message:
           'Could not find any matching units. Please try a different query.',
         query,
+        units: [],
       };
+    }
+
+    const newUnits = result.units;
+    const existingUnits = prevState.units || [];
+    
+    const combinedUnits = [...existingUnits];
+    const existingUnitNames = new Set(existingUnits.map(u => u.name));
+
+    for (const unit of newUnits) {
+        if (!existingUnitNames.has(unit.name)) {
+            combinedUnits.push(unit);
+        }
     }
 
     return {
       message: 'success',
-      units: result.units,
+      units: combinedUnits,
       query,
     };
   } catch (e: unknown) {
@@ -99,6 +113,7 @@ export async function findUnits(
       message:
         'An error occurred while searching for units. Please try again later.',
       query,
+      units: prevState.units || [],
     };
   }
 }
@@ -114,6 +129,7 @@ export async function buildSquad(
 
   if (!validatedFields.success) {
     return {
+      ...prevState,
       message:
         validatedFields.error.flatten().fieldErrors.query?.[0] ??
         'Invalid query.',
@@ -130,12 +146,25 @@ export async function buildSquad(
         message:
           'Could not generate any matching squads. Please try a different query.',
         squadsInput: input,
+        squads: [],
       };
     }
 
+    const newSquads = result.squads;
+    const existingSquads = prevState.squads || [];
+    const combinedSquads = [...existingSquads];
+    const existingSquadNames = new Set(existingSquads.map(s => s.name));
+
+    for (const squad of newSquads) {
+        if (!existingSquadNames.has(squad.name)) {
+            combinedSquads.push(squad);
+        }
+    }
+
+
     return {
       message: 'success',
-      squads: result.squads,
+      squads: combinedSquads,
       squadsInput: input,
     };
   } catch (e) {
@@ -144,6 +173,7 @@ export async function buildSquad(
       message:
         'An error occurred while building the squad. Please try again later.',
         squadsInput: input,
+        squads: prevState.squads || [],
     };
   }
 }
