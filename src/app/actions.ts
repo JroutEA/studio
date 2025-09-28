@@ -108,6 +108,7 @@ export async function findUnits(
       return {
         ...prevState,
         query,
+        units: combinedUnits,
         message: 'No new units found.',
       }
     }
@@ -162,7 +163,7 @@ export async function buildSquad(
     }
 
     const newSquads = result.squads;
-    const isNewSearch = prevState.squadsInput?.query !== query;
+    const isNewSearch = prevState.squadsInput?.query !== query || formData.get('loadMore') !== 'true';
     const existingSquads = isNewSearch ? [] : prevState.squads || [];
     const combinedSquads = [...existingSquads];
     const existingSquadNames = new Set(existingSquads.map(s => s.name));
@@ -178,6 +179,7 @@ export async function buildSquad(
       return {
         ...prevState,
         squadsInput: input,
+        squads: combinedSquads,
         message: 'No new squads found.',
       }
     }
