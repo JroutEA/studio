@@ -90,9 +90,11 @@ export function UnitFinder() {
   
   const [activeTab, setActiveTab] = useState('unit-finder');
   
+  // This state ensures client-side only logic runs after mount
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
+    // This effect runs only on the client, after the component has mounted.
     setIsClient(true);
     try {
       const storedUnitHistory = localStorage.getItem(UNIT_HISTORY_KEY);
@@ -111,6 +113,54 @@ export function UnitFinder() {
       console.error('Failed to parse data from localStorage', error);
     }
   }, []);
+  
+  useEffect(() => {
+    const currentState = 
+        activeTab === 'unit-finder' ? unitState :
+        activeTab === 'squad-builder' ? squadState :
+        testCaseState;
+
+    if (currentState.message && currentState.message !== 'success') {
+      toast({ variant: 'destructive', title: 'Error', description: currentState.message });
+    }
+
+    if (isUnitFormPending || isSquadFormPending || isTestCaseFormPending) return;
+    
+    if (activeTab === 'unit-finder' && unitState.message === 'success' && unitState.query) {
+       if (unitState.query !== unitQuery) setUnitQuery(unitState.query);
+       setUnitHistory(prevHistory => {
+        if (!prevHistory.includes(unitState.query!)) {
+          const newHistory = [unitState.query!, ...prevHistory].slice(0, 20);
+          localStorage.setItem(UNIT_HISTORY_KEY, JSON.stringify(newHistory));
+          return newHistory;
+        }
+        return prevHistory;
+      });
+    } else if (activeTab === 'squad-builder' && squadState.message === 'success' && squadState.squadsInput?.query) {
+       if (squadState.squadsInput.query !== squadQuery) setSquadQuery(squadState.squadsInput.query);
+       setSquadHistory(prevHistory => {
+        if (!prevHistory.includes(squadState.squadsInput!.query)) {
+          const newHistory = [squadState.squadsInput!.query, ...prevHistory].slice(0, 20);
+          localStorage.setItem(SQUAD_HISTORY_KEY, JSON.stringify(newHistory));
+          return newHistory;
+        }
+        return prevHistory;
+      });
+    } else if (activeTab === 'test-assistant' && testCaseState.message === 'success' && testCaseState.testCaseInput) {
+       if(testCaseState.testCaseInput.testCase !== testCaseAbility) setTestCaseAbility(testCaseState.testCaseInput.testCase);
+       if(testCaseState.testCaseInput.unitDetails !== testCaseUnit) setTestCaseUnit(testCaseState.testCaseInput.unitDetails);
+       if(testCaseState.testCaseInput.expectedResult !== testCaseExpected) setTestCaseExpected(testCaseState.testCaseInput.expectedResult);
+       setTestCaseHistory(prevHistory => {
+         const newHistoryJSON = JSON.stringify(testCaseState.testCaseInput);
+         if (!prevHistory.find(h => JSON.stringify(h) === newHistoryJSON)) {
+           const newHistory = [testCaseState.testCaseInput!, ...prevHistory].slice(0, 20);
+           localStorage.setItem(TEST_CASE_HISTORY_KEY, JSON.stringify(newHistory));
+           return newHistory;
+         }
+         return prevHistory;
+       });
+    }
+  }, [unitState, squadState, testCaseState, activeTab, isUnitFormPending, isSquadFormPending, isTestCaseFormPending, toast, unitQuery, squadQuery, testCaseAbility, testCaseUnit, testCaseExpected]);
 
   const handleToggleSaveSquad = (squad: Squad) => {
     setSavedSquads(prevSavedSquads => {
@@ -144,54 +194,6 @@ export function UnitFinder() {
     }
   };
 
-  useEffect(() => {
-    const currentState = 
-        activeTab === 'unit-finder' ? unitState :
-        activeTab === 'squad-builder' ? squadState :
-        testCaseState;
-
-    if (currentState.message && currentState.message !== 'success') {
-      toast({ variant: 'destructive', title: 'Error', description: currentState.message });
-    }
-
-    if (isUnitFormPending || isSquadFormPending || isTestCaseFormPending) return;
-    
-    if (activeTab === 'unit-finder' && unitState.message === 'success' && unitState.query) {
-       setUnitQuery(unitState.query);
-       setUnitHistory(prevHistory => {
-        if (!prevHistory.includes(unitState.query!)) {
-          const newHistory = [unitState.query!, ...prevHistory].slice(0, 20);
-          localStorage.setItem(UNIT_HISTORY_KEY, JSON.stringify(newHistory));
-          return newHistory;
-        }
-        return prevHistory;
-      });
-    } else if (activeTab === 'squad-builder' && squadState.message === 'success' && squadState.squadsInput?.query) {
-       setSquadQuery(squadState.squadsInput.query);
-       setSquadHistory(prevHistory => {
-        if (!prevHistory.includes(squadState.squadsInput!.query)) {
-          const newHistory = [squadState.squadsInput!.query, ...prevHistory].slice(0, 20);
-          localStorage.setItem(SQUAD_HISTORY_KEY, JSON.stringify(newHistory));
-          return newHistory;
-        }
-        return prevHistory;
-      });
-    } else if (activeTab === 'test-assistant' && testCaseState.message === 'success' && testCaseState.testCaseInput) {
-       setTestCaseAbility(testCaseState.testCaseInput.testCase);
-       setTestCaseUnit(testCaseState.testCaseInput.unitDetails);
-       setTestCaseExpected(testCaseState.testCaseInput.expectedResult);
-       setTestCaseHistory(prevHistory => {
-         const newHistoryJSON = JSON.stringify(testCaseState.testCaseInput);
-         if (!prevHistory.find(h => JSON.stringify(h) === newHistoryJSON)) {
-           const newHistory = [testCaseState.testCaseInput!, ...prevHistory].slice(0, 20);
-           localStorage.setItem(TEST_CASE_HISTORY_KEY, JSON.stringify(newHistory));
-           return newHistory;
-         }
-         return prevHistory;
-       });
-    }
-  }, [unitState, squadState, testCaseState, activeTab, isUnitFormPending, isSquadFormPending, isTestCaseFormPending, toast]);
-
   const handleHistoryClick = (query: any) => {
     if (activeTab === 'unit-finder') {
       setUnitQuery(query);
@@ -206,6 +208,7 @@ export function UnitFinder() {
   };
   
   const handleDeleteHistoryItem = (index: number) => {
+    if (!isClient) return;
     let updatedHistory;
     let storageKey;
 
@@ -228,9 +231,7 @@ export function UnitFinder() {
       return;
     }
 
-    if (isClient) {
-      localStorage.setItem(storageKey, JSON.stringify(updatedHistory));
-    }
+    localStorage.setItem(storageKey, JSON.stringify(updatedHistory));
   };
   
   const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -258,8 +259,9 @@ export function UnitFinder() {
 
   const renderUnitFinderContent = () => {
     const hasResults = unitState.units && unitState.units.length > 0;
+    const isPending = isUnitFormPending;
 
-    if (isUnitFormPending && !hasResults) {
+    if (isPending && !hasResults) {
       return <UnitListSkeleton />;
     }
 
@@ -268,12 +270,12 @@ export function UnitFinder() {
         <div className="space-y-4">
           <UnitList 
             units={unitState.units!} 
-            isLoadingMore={isUnitFormPending && (unitState.units?.length || 0) > 0}
-            previousCount={isUnitFormPending ? (unitState.units?.length || 0) : 0} 
+            isLoadingMore={isPending && (unitState.units?.length || 0) > 0}
+            previousCount={isPending ? (unitState.units?.length || 0) : 0} 
           />
           <div className="text-center">
-            <Button onClick={handleLoadMoreUnits} disabled={isUnitFormPending}>
-              {isUnitFormPending ? (
+            <Button onClick={handleLoadMoreUnits} disabled={isPending}>
+              {isPending ? (
                 <>
                   <DarthVaderLoader className="mr-2 h-4 w-4" />
                   Loading...
@@ -286,20 +288,25 @@ export function UnitFinder() {
         </div>
       );
     }
-
-    return (
-      <div className="text-center py-16 text-muted-foreground border-2 border-dashed rounded-lg border-primary/20">
-        <HolocronIcon className="mx-auto h-12 w-12" />
-        <h3 className="text-lg font-semibold mt-2">Your matched units will appear here</h3>
-        <p>Enter a description above to get started.</p>
-      </div>
-    );
+    
+    if (!isPending) {
+        return (
+          <div className="text-center py-16 text-muted-foreground border-2 border-dashed rounded-lg border-primary/20">
+            <HolocronIcon className="mx-auto h-12 w-12" />
+            <h3 className="text-lg font-semibold mt-2">Your matched units will appear here</h3>
+            <p>Enter a description above to get started.</p>
+          </div>
+        );
+    }
+    
+    return null;
   };
   
   const renderSquadBuilderContent = () => {
     const hasResults = squadState.squads && squadState.squads.length > 0;
+    const isPending = isSquadFormPending;
     
-    if (isSquadFormPending && !hasResults) {
+    if (isPending && !hasResults) {
       return <SquadListSkeleton />;
     }
 
@@ -308,13 +315,13 @@ export function UnitFinder() {
         <div className="space-y-4">
           <SquadList 
             squads={squadState.squads!} 
-            isLoadingMore={isSquadFormPending && (squadState.squads?.length || 0) > 0}
+            isLoadingMore={isPending && (squadState.squads?.length || 0) > 0}
             savedSquads={savedSquads}
             onToggleSave={handleToggleSaveSquad}
           />
           <div className="text-center">
-            <Button onClick={handleLoadMoreSquads} disabled={isSquadFormPending}>
-              {isSquadFormPending ? (
+            <Button onClick={handleLoadMoreSquads} disabled={isPending}>
+              {isPending ? (
                 <>
                   <DarthVaderLoader className="mr-2 h-4 w-4" />
                   Loading...
@@ -328,31 +335,42 @@ export function UnitFinder() {
       );
     }
 
-    return (
-      <div className="text-center py-16 text-muted-foreground border-2 border-dashed rounded-lg border-primary/20">
-        <Users className="mx-auto h-12 w-12" />
-        <h3 className="text-lg font-semibold mt-2">Your generated squads will appear here</h3>
-        <p>Describe the squad you want to build above.</p>
-      </div>
-    );
+    if (!isPending) {
+        return (
+          <div className="text-center py-16 text-muted-foreground border-2 border-dashed rounded-lg border-primary/20">
+            <Users className="mx-auto h-12 w-12" />
+            <h3 className="text-lg font-semibold mt-2">Your generated squads will appear here</h3>
+            <p>Describe the squad you want to build above.</p>
+          </div>
+        );
+    }
+    
+    return null;
   };
 
   const renderTestAssistantContent = () => {
-    if (isTestCaseFormPending && !testCaseState.testCase) {
+    const hasResult = testCaseState.testCase;
+    const isPending = isTestCaseFormPending;
+
+    if (isPending && !hasResult) {
       return <SquadListSkeleton />;
     }
 
-    if (testCaseState.testCase) {
+    if (hasResult) {
       return <TestCaseDisplay testCase={testCaseState.testCase} />;
     }
     
-    return (
-      <div className="text-center py-16 text-muted-foreground border-2 border-dashed rounded-lg border-primary/20">
-        <TestTube className="mx-auto h-12 w-12" />
-        <h3 className="text-lg font-semibold mt-2">Your generated test case will appear here</h3>
-        <p>Describe the scenario you want to test above.</p>
-      </div>
-    );
+    if (!isPending) {
+      return (
+        <div className="text-center py-16 text-muted-foreground border-2 border-dashed rounded-lg border-primary/20">
+          <TestTube className="mx-auto h-12 w-12" />
+          <h3 className="text-lg font-semibold mt-2">Your generated test case will appear here</h3>
+          <p>Describe the scenario you want to test above.</p>
+        </div>
+      );
+    }
+    
+    return null;
   };
 
 
@@ -500,3 +518,5 @@ export function UnitFinder() {
     </div>
   );
 }
+
+    
