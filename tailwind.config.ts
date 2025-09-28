@@ -10,7 +10,7 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        body: ['Orbitron', 'sans-serif'],
+        body: ['Inter', 'sans-serif'],
         headline: ['Staatliches', 'sans-serif'],
         code: ['monospace'],
       },
