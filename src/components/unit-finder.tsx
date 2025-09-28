@@ -22,7 +22,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { History, Users, TestTube } from 'lucide-react';
+import { History, Users, TestTube, Trash2 } from 'lucide-react';
 import { UnitList } from './unit-list';
 import { UnitListSkeleton } from './unit-list-skeleton';
 import { SquadList } from './squad-list';
@@ -190,6 +190,32 @@ export function UnitFinder() {
     setIsHistoryOpen(false);
   };
   
+  const handleDeleteHistoryItem = (index: number) => {
+    let updatedHistory;
+    let storageKey;
+
+    if (activeTab === 'unit-finder') {
+        updatedHistory = [...unitHistory];
+        storageKey = UNIT_HISTORY_KEY;
+        updatedHistory.splice(index, 1);
+        setUnitHistory(updatedHistory);
+    } else if (activeTab === 'squad-builder') {
+        updatedHistory = [...squadHistory];
+        storageKey = SQUAD_HISTORY_KEY;
+        updatedHistory.splice(index, 1);
+        setSquadHistory(updatedHistory);
+    } else if (activeTab === 'test-assistant') {
+        updatedHistory = [...testCaseHistory];
+        storageKey = TEST_CASE_HISTORY_KEY;
+        updatedHistory.splice(index, 1);
+        setTestCaseHistory(updatedHistory);
+    } else {
+      return;
+    }
+
+    localStorage.setItem(storageKey, JSON.stringify(updatedHistory));
+  };
+  
   const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
       event.preventDefault();
@@ -233,12 +259,22 @@ export function UnitFinder() {
                 <div className="mt-4 space-y-2">
                   {history.length > 0 ? (
                     history.map((query, index) => (
-                      <div
-                        key={index}
-                        className="p-3 border rounded-md hover:bg-accent hover:text-accent-foreground cursor-pointer text-sm"
-                        onClick={() => handleHistoryClick(query)}
-                      >
-                        {typeof query === 'string' ? query : query.testCase}
+                      <div key={index} className="flex items-center justify-between p-3 border rounded-md hover:bg-accent group">
+                        <div
+                            className="flex-grow cursor-pointer text-sm group-hover:text-accent-foreground"
+                            onClick={() => handleHistoryClick(query)}
+                        >
+                            {typeof query === 'string' ? query : query.testCase}
+                        </div>
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 shrink-0 text-muted-foreground group-hover:text-accent-foreground"
+                            onClick={() => handleDeleteHistoryItem(index)}
+                        >
+                            <Trash2 className="h-4 w-4" />
+                            <span className="sr-only">Delete query</span>
+                        </Button>
                       </div>
                     ))
                   ) : (
