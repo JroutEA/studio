@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState, useEffect, useState, useRef, startTransition } from 'react';
+import { useActionState, useEffect, useState, useRef } from 'react';
 import { useFormStatus } from 'react-dom';
 import { findUnits, buildSquad, generateTestCase, type FormState } from '@/app/actions';
 import type { SquadBuilderAIOutput } from '@/ai/flows/squad-builder-ai';
@@ -68,7 +68,6 @@ export function UnitFinder() {
   const [squadState, squadFormAction, isSquadFormPending] = useActionState(buildSquad, initialState);
   const [testCaseState, testCaseFormAction, isTestCaseFormPending] = useActionState(generateTestCase, initialState);
   
-  const { pending } = useFormStatus();
   const { toast } = useToast();
   
   const [unitHistory, setUnitHistory] = useState<string[]>([]);
@@ -76,7 +75,11 @@ export function UnitFinder() {
   const [testCaseHistory, setTestCaseHistory] = useState<any[]>([]);
   const [savedSquads, setSavedSquads] = useState<Squad[]>([]);
   
-  const [previousUnitCount, setPreviousUnitCount] = useState(0);
+  const [unitQuery, setUnitQuery] = useState('');
+  const [squadQuery, setSquadQuery] = useState('');
+  const [testCaseAbility, setTestCaseAbility] = useState('');
+  const [testCaseUnit, setTestCaseUnit] = useState('');
+  const [testCaseExpected, setTestCaseExpected] = useState('');
 
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [isSavedSquadsOpen, setIsSavedSquadsOpen] = useState(false);
@@ -84,14 +87,7 @@ export function UnitFinder() {
   const unitFormRef = useRef<HTMLFormElement>(null);
   const squadFormRef = useRef<HTMLFormElement>(null);
   const testCaseFormRef = useRef<HTMLFormElement>(null);
-
-  const unitTextAreaRef = useRef<HTMLTextAreaElement>(null);
-  const squadTextAreaRef = useRef<HTMLTextAreaElement>(null);
-  const testCaseAbilityRef = useRef<HTMLTextAreaElement>(null);
-  const testCaseUnitRef = useRef<HTMLTextAreaElement>(null);
-  const testCaseExpectedRef = useRef<HTMLTextAreaElement>(null);
-
-
+  
   const [activeTab, setActiveTab] = useState('unit-finder');
   
   const [isClient, setIsClient] = useState(false);
@@ -133,29 +129,18 @@ export function UnitFinder() {
   };
   
   const handleLoadMoreUnits = () => {
-    if (unitState.query) {
-      const newCount = (unitState.units?.length || 0) + 5;
-      setPreviousUnitCount(unitState.units?.length || 0);
-      
-      const formData = new FormData(unitFormRef.current!);
-      formData.set('count', newCount.toString());
-      
-      startTransition(() => {
+    if (unitFormRef.current) {
+        const formData = new FormData(unitFormRef.current);
+        formData.set('count', ((unitState.units?.length || 0) + 5).toString());
         unitFormAction(formData);
-      });
     }
   };
 
   const handleLoadMoreSquads = () => {
-    if (squadState.squadsInput?.query) {
-      const newCount = (squadState.squads?.length || 0) + 3;
-      
-      const formData = new FormData(squadFormRef.current!);
-      formData.set('count', newCount.toString());
-
-      startTransition(() => {
+     if (squadFormRef.current) {
+        const formData = new FormData(squadFormRef.current);
+        formData.set('count', ((squadState.squads?.length || 0) + 3).toString());
         squadFormAction(formData);
-      });
     }
   };
 
@@ -172,6 +157,7 @@ export function UnitFinder() {
     if (isUnitFormPending || isSquadFormPending || isTestCaseFormPending) return;
     
     if (activeTab === 'unit-finder' && unitState.message === 'success' && unitState.query) {
+       setUnitQuery(unitState.query);
        setUnitHistory(prevHistory => {
         if (!prevHistory.includes(unitState.query!)) {
           const newHistory = [unitState.query!, ...prevHistory].slice(0, 20);
@@ -181,6 +167,7 @@ export function UnitFinder() {
         return prevHistory;
       });
     } else if (activeTab === 'squad-builder' && squadState.message === 'success' && squadState.squadsInput?.query) {
+       setSquadQuery(squadState.squadsInput.query);
        setSquadHistory(prevHistory => {
         if (!prevHistory.includes(squadState.squadsInput!.query)) {
           const newHistory = [squadState.squadsInput!.query, ...prevHistory].slice(0, 20);
@@ -190,6 +177,9 @@ export function UnitFinder() {
         return prevHistory;
       });
     } else if (activeTab === 'test-assistant' && testCaseState.message === 'success' && testCaseState.testCaseInput) {
+       setTestCaseAbility(testCaseState.testCaseInput.testCase);
+       setTestCaseUnit(testCaseState.testCaseInput.unitDetails);
+       setTestCaseExpected(testCaseState.testCaseInput.expectedResult);
        setTestCaseHistory(prevHistory => {
          const newHistoryJSON = JSON.stringify(testCaseState.testCaseInput);
          if (!prevHistory.find(h => JSON.stringify(h) === newHistoryJSON)) {
@@ -203,14 +193,14 @@ export function UnitFinder() {
   }, [unitState, squadState, testCaseState, activeTab, isUnitFormPending, isSquadFormPending, isTestCaseFormPending, toast]);
 
   const handleHistoryClick = (query: any) => {
-    if (activeTab === 'unit-finder' && unitTextAreaRef.current) {
-      unitTextAreaRef.current.value = query;
-    } else if (activeTab === 'squad-builder' && squadTextAreaRef.current) {
-      squadTextAreaRef.current.value = query;
-    } else if (activeTab === 'test-assistant' && testCaseAbilityRef.current && testCaseUnitRef.current && testCaseExpectedRef.current) {
-        testCaseAbilityRef.current.value = query.testCase;
-        testCaseUnitRef.current.value = query.unitDetails;
-        testCaseExpectedRef.current.value = query.expectedResult;
+    if (activeTab === 'unit-finder') {
+      setUnitQuery(query);
+    } else if (activeTab === 'squad-builder') {
+      setSquadQuery(query);
+    } else if (activeTab === 'test-assistant') {
+        setTestCaseAbility(query.testCase);
+        setTestCaseUnit(query.unitDetails);
+        setTestCaseExpected(query.expectedResult);
     }
     setIsHistoryOpen(false);
   };
@@ -257,15 +247,19 @@ export function UnitFinder() {
   };
   
   const handleUnitFormSubmit = (formData: FormData) => {
-    setPreviousUnitCount(0);
+    formData.set('count', '10');
     unitFormAction(formData);
   }
+  
+  const handleSquadFormSubmit = (formData: FormData) => {
+    formData.set('count', '3');
+    squadFormAction(formData);
+  };
 
   const renderUnitFinderContent = () => {
     const hasResults = unitState.units && unitState.units.length > 0;
-    const isLoadingFirstTime = isUnitFormPending && !hasResults;
-    
-    if (isLoadingFirstTime) {
+
+    if (isUnitFormPending && !hasResults) {
       return <UnitListSkeleton />;
     }
 
@@ -275,7 +269,7 @@ export function UnitFinder() {
           <UnitList 
             units={unitState.units!} 
             isLoadingMore={isUnitFormPending && (unitState.units?.length || 0) > 0}
-            previousCount={previousUnitCount} 
+            previousCount={isUnitFormPending ? (unitState.units?.length || 0) : 0} 
           />
           <div className="text-center">
             <Button onClick={handleLoadMoreUnits} disabled={isUnitFormPending}>
@@ -304,9 +298,8 @@ export function UnitFinder() {
   
   const renderSquadBuilderContent = () => {
     const hasResults = squadState.squads && squadState.squads.length > 0;
-    const isLoadingFirstTime = isSquadFormPending && !hasResults;
     
-    if (isLoadingFirstTime) {
+    if (isSquadFormPending && !hasResults) {
       return <SquadListSkeleton />;
     }
 
@@ -345,7 +338,7 @@ export function UnitFinder() {
   };
 
   const renderTestAssistantContent = () => {
-    if (isTestCaseFormPending) {
+    if (isTestCaseFormPending && !testCaseState.testCase) {
       return <SquadListSkeleton />;
     }
 
@@ -457,21 +450,19 @@ export function UnitFinder() {
 
             <TabsContent value="unit-finder" className="mt-4">
                <form action={handleUnitFormSubmit} ref={unitFormRef} className="space-y-4">
-                 <input type="hidden" name="count" value="10" />
                 <div className="grid w-full gap-1.5">
                   <Label htmlFor="unit-query">Your Query</Label>
-                  <Textarea onKeyDown={handleKeyDown} id="unit-query" name="query" ref={unitTextAreaRef} defaultValue={unitState.query} placeholder="e.g., 'A Rebel ship with an AOE attack' or 'A Jedi tank with counterattack'" required rows={3} className="text-base" />
+                  <Textarea onKeyDown={handleKeyDown} id="unit-query" name="query" value={unitQuery} onChange={(e) => setUnitQuery(e.target.value)} placeholder="e.g., 'A Rebel ship with an AOE attack' or 'A Jedi tank with counterattack'" required rows={3} className="text-base" />
                 </div>
                 <SubmitButton icon={<HolocronIcon className="mr-2 h-4 w-4" />} pendingText="Searching..." text="Find Units" />
               </form>
             </TabsContent>
             
             <TabsContent value="squad-builder" className="mt-4">
-              <form action={squadFormAction} ref={squadFormRef} className="space-y-4">
-                <input type="hidden" name="count" value="3" />
+              <form action={handleSquadFormSubmit} ref={squadFormRef} className="space-y-4">
                 <div className="grid w-full gap-1.5">
                   <Label htmlFor="squad-query">Your Query</Label>
-                  <Textarea onKeyDown={handleKeyDown} id="squad-query" name="query" ref={squadTextAreaRef} defaultValue={squadState.squadsInput?.query} placeholder="e.g., 'A squad to beat the Sith Triumvirate Raid with Jedi.' or 'A good starter team for Phoenix faction.'" required rows={3} className="text-base" />
+                  <Textarea onKeyDown={handleKeyDown} id="squad-query" name="query" value={squadQuery} onChange={(e) => setSquadQuery(e.target.value)} placeholder="e.g., 'A squad to beat the Sith Triumvirate Raid with Jedi.' or 'A good starter team for Phoenix faction.'" required rows={3} className="text-base" />
                 </div>
                 <SubmitButton icon={<Users className="mr-2 h-4 w-4" />} pendingText="Building..." text="Build Squad" />
               </form>
@@ -481,18 +472,18 @@ export function UnitFinder() {
               <form action={testCaseFormAction} ref={testCaseFormRef} className="space-y-4">
                 <div className="grid w-full gap-1.5">
                   <Label htmlFor="test-case">Testcase and the Ability you are testing</Label>
-                  <Textarea onKeyDown={handleKeyDown} id="test-case" name="testCase" ref={testCaseAbilityRef} defaultValue={testCaseState.testCaseInput?.testCase} placeholder="e.g., 'Test if the new unit's 'Force Shield' ability correctly dispels all debuffs.'" required rows={2} className="text-base" />
+                  <Textarea onKeyDown={handleKeyDown} id="test-case" name="testCase" value={testCaseAbility} onChange={(e) => setTestCaseAbility(e.target.value)} placeholder="e.g., 'Test if the new unit's 'Force Shield' ability correctly dispels all debuffs.'" required rows={2} className="text-base" />
                 </div>
                  <div className="grid w-full gap-1.5">
                   <Label htmlFor="expected-result">Expected Result</Label>
-                  <Textarea onKeyDown={handleKeyDown} id="expected-result" name="expectedResult" ref={testCaseExpectedRef} defaultValue={testCaseState.testCaseInput?.expectedResult} placeholder="e.g., 'All debuffs on the new unit should be cleared, and it should gain the 'Protection Up' buff.'" required rows={2} className="text-base" />
+                  <Textarea onKeyDown={handleKeyDown} id="expected-result" name="expectedResult" value={testCaseExpected} onChange={(e) => setTestCaseExpected(e.target.value)} placeholder="e.g., 'All debuffs on the new unit should be cleared, and it should gain the 'Protection Up' buff.'" required rows={2} className="text-base" />
                 </div>
                 <div className="grid w-full gap-1.5">
                   <Label htmlFor="unit-details">New Unit Details</Label>
                    <p className="text-xs text-muted-foreground">
                     You can copy and paste the ability details from the design document without naming the unit.
                   </p>
-                  <Textarea onKeyDown={handleKeyDown} id="unit-details" name="unitDetails" ref={testCaseUnitRef} defaultValue={testCaseState.testCaseInput?.unitDetails} placeholder="Describe the new unit's abilities, conditions, buffs, debuffs, zeta, and omicrons." required rows={4} className="text-base" />
+                  <Textarea onKeyDown={handleKeyDown} id="unit-details" name="unitDetails" value={testCaseUnit} onChange={(e) => setTestCaseUnit(e.target.value)} placeholder="Describe the new unit's abilities, conditions, buffs, debuffs, zeta, and omicrons." required rows={4} className="text-base" />
                 </div>
                  <SubmitButton icon={<TestTube className="mr-2 h-4 w-4" />} pendingText="Generating..." text="Generate Test Case" />
               </form>
