@@ -1,12 +1,12 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import { useActionState } from 'react';
+import { useEffect, useRef, useState, useTransition } from 'react';
 import {
   findUnits,
   buildSquad,
   generateTestCase,
 } from '@/app/actions';
+import type { FormState } from '@/app/actions';
 import type { SquadBuilderAIOutput } from '@/ai/flows/squad-builder-ai';
 import { useToast } from '@/hooks/use-toast';
 import { Label } from '@/components/ui/label';
@@ -75,13 +75,12 @@ function SubmitButton({
 export function UnitFinder() {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('unit-finder');
+  const [isPending, startTransition] = useTransition();
 
-  // Form states from useActionState
-  const [unitState, unitFormAction, isUnitFormPending] = useActionState(findUnits, { message: '', units: [] });
-  const [squadState, squadFormAction, isSquadFormPending] = useActionState(buildSquad, { message: '', squads: [] });
-  const [testCaseState, testCaseFormAction, isTestCaseFormPending] = useActionState(generateTestCase, { message: '' });
-
-  const isPending = isUnitFormPending || isSquadFormPending || isTestCaseFormPending;
+  // State for each feature
+  const [unitState, setUnitState] = useState<FormState>({ message: '', units: [] });
+  const [squadState, setSquadState] = useState<FormState>({ message: '', squads: [] });
+  const [testCaseState, setTestCaseState] = useState<FormState>({ message: '' });
   
   // History and saved squads state
   const [unitHistory, setUnitHistory] = useState<string[]>([]);
@@ -111,11 +110,11 @@ export function UnitFinder() {
   
   useEffect(() => {
     if (unitState.message && unitState.message !== 'success') {
-      if (unitState.message === 'No new units found.') {
-        toast({ title: 'All Units Loaded', description: unitState.message });
-      } else {
-        toast({ variant: 'destructive', title: 'Error', description: unitState.message });
-      }
+        toast({
+          title: unitState.message === 'No new units found.' ? 'All Units Loaded' : 'Error',
+          description: unitState.message,
+          variant: unitState.message === 'No new units found.' ? 'default' : 'destructive',
+        });
     }
     if (unitState.message === 'success' && unitState.query) {
       setUnitHistory(prev => {
@@ -131,11 +130,11 @@ export function UnitFinder() {
 
   useEffect(() => {
     if (squadState.message && squadState.message !== 'success') {
-       if (squadState.message === 'No new squads found.') {
-        toast({ title: 'All Squads Loaded', description: squadState.message });
-      } else {
-        toast({ variant: 'destructive', title: 'Error', description: squadState.message });
-      }
+       toast({
+          title: squadState.message === 'No new squads found.' ? 'All Squads Loaded' : 'Error',
+          description: squadState.message,
+          variant: squadState.message === 'No new squads found.' ? 'default' : 'destructive',
+        });
     }
     if (squadState.message === 'success' && squadState.squadsInput?.query) {
       setSquadHistory(prev => {
@@ -181,6 +180,17 @@ export function UnitFinder() {
       return newSavedSquads;
     });
   };
+
+  const handleAction = (action: (prevState: FormState, formData: FormData) => Promise<FormState>, setState: React.Dispatch<React.SetStateAction<FormState>>, prevState: FormState) => (formData: FormData) => {
+    startTransition(async () => {
+        const result = await action(prevState, formData);
+        setState(result);
+    });
+  };
+
+  const handleFindUnits = handleAction(findUnits, setUnitState, unitState);
+  const handleBuildSquad = handleAction(buildSquad, setSquadState, squadState);
+  const handleGenerateTestCase = handleAction(generateTestCase, setTestCaseState, testCaseState);
   
   const handleLoadMore = () => {
     if (isPending) return;
@@ -190,13 +200,13 @@ export function UnitFinder() {
         formData.set('query', unitState.query || '');
         formData.set('count', '5');
         formData.set('loadMoreQuery', unitState.query || '');
-        unitFormAction(formData);
+        handleFindUnits(formData);
     } else if (activeTab === 'squad-builder' && squadFormRef.current) {
         const formData = new FormData();
         formData.set('query', squadState.squadsInput?.query || '');
         formData.set('count', '3');
         formData.set('loadMoreQuery', squadState.squadsInput?.query || '');
-        squadFormAction(formData);
+        handleBuildSquad(formData);
     }
   };
 
@@ -254,7 +264,10 @@ export function UnitFinder() {
   };
 
   const renderUnitFinderContent = () => {
-    if (isUnitFormPending && !unitState.units?.length) {
+    const isLoadingFirstTime = isPending && !unitState.units?.length;
+    const isLoadingMore = isPending && !!unitState.units?.length;
+
+    if (isLoadingFirstTime) {
       return <UnitListSkeleton />;
     }
     if (unitState.units && unitState.units.length > 0) {
@@ -263,12 +276,12 @@ export function UnitFinder() {
         <div className="space-y-4">
           <UnitList 
             units={unitState.units}
-            isLoadingMore={isUnitFormPending && !!unitState.query}
+            isLoadingMore={isLoadingMore}
           />
-          {hasMoreUnits && (
+          {hasMoreUnits && unitState.message !== 'No new units found.' && (
             <div className="text-center">
-              <Button onClick={handleLoadMore} disabled={isUnitFormPending}>
-                {isUnitFormPending && !!unitState.query ? (
+              <Button onClick={handleLoadMore} disabled={isPending}>
+                {isLoadingMore ? (
                   <>
                     <DarthVaderLoader className="mr-2 h-4 w-4" />
                     Loading...
@@ -292,7 +305,10 @@ export function UnitFinder() {
   };
   
   const renderSquadBuilderContent = () => {
-    if (isSquadFormPending && !squadState.squads?.length) {
+    const isLoadingFirstTime = isPending && !squadState.squads?.length;
+    const isLoadingMore = isPending && !!squadState.squads?.length;
+
+    if (isLoadingFirstTime) {
       return <SquadListSkeleton />;
     }
     if (squadState.squads && squadState.squads.length > 0) {
@@ -301,14 +317,14 @@ export function UnitFinder() {
         <div className="space-y-4">
           <SquadList 
             squads={squadState.squads}
-            isLoadingMore={isSquadFormPending && !!squadState.squadsInput?.query}
+            isLoadingMore={isLoadingMore}
             savedSquads={savedSquads}
             onToggleSave={handleToggleSaveSquad}
           />
-          {hasMoreSquads && (
+          {hasMoreSquads && squadState.message !== 'No new squads found.' && (
             <div className="text-center">
-              <Button onClick={handleLoadMore} disabled={isSquadFormPending}>
-                {isSquadFormPending && !!squadState.squadsInput?.query ? (
+              <Button onClick={handleLoadMore} disabled={isPending}>
+                {isLoadingMore ? (
                   <>
                     <DarthVaderLoader className="mr-2 h-4 w-4" />
                     Loading...
@@ -332,7 +348,7 @@ export function UnitFinder() {
   };
 
   const renderTestAssistantContent = () => {
-    if (isTestCaseFormPending && !testCaseState.testCase) {
+    if (isPending && !testCaseState.testCase) {
       return <SquadListSkeleton />;
     }
     if (testCaseState.testCase) {
@@ -440,7 +456,7 @@ export function UnitFinder() {
             </TabsList>
 
             <TabsContent value="unit-finder" className="mt-4">
-               <form action={unitFormAction} ref={unitFormRef} className="space-y-4">
+               <form action={handleFindUnits} ref={unitFormRef} className="space-y-4">
                 <div className="grid w-full gap-1.5">
                   <Label htmlFor="unit-query">Your Query</Label>
                   <Textarea onKeyDown={handleKeyDown} id="unit-query" name="query" defaultValue={unitState.query ?? ''} placeholder="e.g., 'A Rebel ship with an AOE attack' or 'A Jedi tank with counterattack'" required rows={3} className="text-base" />
@@ -449,13 +465,13 @@ export function UnitFinder() {
                   icon={<HolocronIcon className="mr-2 h-4 w-4" />}
                   pendingText="Searching..."
                   text="Find Units"
-                  isPending={isUnitFormPending}
+                  isPending={isPending}
                 />
               </form>
             </TabsContent>
             
             <TabsContent value="squad-builder" className="mt-4">
-              <form action={squadFormAction} ref={squadFormRef} className="space-y-4">
+              <form action={handleBuildSquad} ref={squadFormRef} className="space-y-4">
                 <div className="grid w-full gap-1.5">
                   <Label htmlFor="squad-query">Your Query</Label>
                   <Textarea onKeyDown={handleKeyDown} id="squad-query" name="query" defaultValue={squadState.squadsInput?.query ?? ''} placeholder="e.g., 'A squad to beat the Sith Triumvirate Raid with Jedi.' or 'A good starter team for Phoenix faction.'" required rows={3} className="text-base" />
@@ -464,13 +480,13 @@ export function UnitFinder() {
                   icon={<Users className="mr-2 h-4 w-4" />}
                   pendingText="Building..."
                   text="Build Squad"
-                  isPending={isSquadFormPending}
+                  isPending={isPending}
                 />
               </form>
             </TabsContent>
 
             <TabsContent value="test-assistant" className="mt-4">
-              <form action={testCaseFormAction} ref={testCaseFormRef} className="space-y-4">
+              <form action={handleGenerateTestCase} ref={testCaseFormRef} className="space-y-4">
                 <div className="grid w-full gap-1.5">
                   <Label htmlFor="test-case">Testcase and the Ability you are testing</Label>
                   <Textarea onKeyDown={handleKeyDown} id="test-case" name="testCase" defaultValue={testCaseState.testCaseInput?.testCase ?? ''} placeholder="e.g., 'Test if the new unit's 'Force Shield' ability correctly dispels all debuffs.'" required rows={2} className="text-base" />
@@ -490,7 +506,7 @@ export function UnitFinder() {
                   icon={<TestTube className="mr-2 h-4 w-4" />}
                   pendingText="Generating..."
                   text="Generate Test Case"
-                  isPending={isTestCaseFormPending}
+                  isPending={isPending}
                 />
               </form>
             </TabsContent>
@@ -506,5 +522,3 @@ export function UnitFinder() {
     </div>
   );
 }
-
-    
