@@ -71,9 +71,11 @@ export function UnitFinder() {
   const [unitHistory, setUnitHistory] = useState<string[]>([]);
   const [squadHistory, setSquadHistory] = useState<string[]>([]);
   const [testCaseHistory, setTestCaseHistory] = useState<any[]>([]);
+  
   const [unitCount, setUnitCount] = useState(10);
   const [previousUnitCount, setPreviousUnitCount] = useState(0);
 
+  const [squadCount, setSquadCount] = useState(3);
 
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   
@@ -120,7 +122,7 @@ export function UnitFinder() {
     }
   }, []);
   
-  const handleLoadMore = () => {
+  const handleLoadMoreUnits = () => {
     if (unitState.query) {
       const newCount = unitCount + 5;
       setPreviousUnitCount(unitCount);
@@ -136,12 +138,28 @@ export function UnitFinder() {
     }
   };
 
+  const handleLoadMoreSquads = () => {
+    if (squadState.squadsInput?.query) {
+      const newCount = squadCount + 3;
+      setSquadCount(newCount);
+      
+      const formData = new FormData();
+      formData.set('query', squadState.squadsInput.query);
+      formData.set('count', newCount.toString());
+
+      startTransition(() => {
+        squadFormAction(formData);
+      });
+    }
+  };
+
   useEffect(() => {
     if (state.message && state.message !== 'success') {
       toast({ variant: 'destructive', title: 'Error', description: state.message });
     }
     
     if (activeTab === 'unit-finder' && unitState.message === 'success' && unitState.query) {
+      if (isUnitFormPending) return;
        // If the new result count is 10 or less, it's a new search.
        if (unitState.units && unitState.units.length <= 10) {
         setPreviousUnitCount(0);
@@ -155,10 +173,15 @@ export function UnitFinder() {
         }
         return prevHistory;
       });
-    } else if (activeTab === 'squad-builder' && squadState.message === 'success' && squadState.query) {
+    } else if (activeTab === 'squad-builder' && squadState.message === 'success' && squadState.squadsInput?.query) {
+       if (isSquadFormPending) return;
+
+        if (squadState.squads && squadState.squads.length <= 3) {
+            setSquadCount(3);
+        }
        setSquadHistory(prevHistory => {
-        if (!prevHistory.includes(squadState.query!)) {
-          const newHistory = [squadState.query!, ...prevHistory].slice(0, 20);
+        if (!prevHistory.includes(squadState.squadsInput!.query)) {
+          const newHistory = [squadState.squadsInput!.query, ...prevHistory].slice(0, 20);
           localStorage.setItem(SQUAD_HISTORY_KEY, JSON.stringify(newHistory));
           return newHistory;
         }
@@ -175,7 +198,7 @@ export function UnitFinder() {
          return prevHistory;
        });
     }
-  }, [unitState, squadState, testCaseState, toast, activeTab]);
+  }, [unitState, squadState, testCaseState, toast, activeTab, isUnitFormPending, isSquadFormPending]);
 
   const handleHistoryClick = (query: any) => {
     if (activeTab === 'unit-finder' && unitTextAreaRef.current) {
@@ -297,21 +320,29 @@ export function UnitFinder() {
               </TabsList>
 
               <TabsContent value="unit-finder" className="mt-4">
-                 <form action={unitFormAction} ref={unitFormRef} className="space-y-4">
+                 <form action={(formData) => {
+                    setPreviousUnitCount(0);
+                    setUnitCount(10);
+                    unitFormAction(formData);
+                 }} ref={unitFormRef} className="space-y-4">
                   <div className="grid w-full gap-1.5">
                     <Label htmlFor="unit-query">Your Query</Label>
                     <Textarea onKeyDown={handleKeyDown} id="unit-query" name="query" ref={unitTextAreaRef} placeholder="e.g., 'A Rebel ship with an AOE attack' or 'A Jedi tank with counterattack'" required rows={3} className="text-base" />
-                    <input type="hidden" name="count" value="10" />
+                    <input type="hidden" name="count" value={unitCount.toString()} />
                   </div>
                   <SubmitButton icon={<HolocronIcon className="mr-2 h-4 w-4" suppressHydrationWarning />} pendingText="Searching..." text="Find Units" />
                 </form>
               </TabsContent>
               
               <TabsContent value="squad-builder" className="mt-4">
-                <form action={squadFormAction} ref={squadFormRef} className="space-y-4">
+                <form action={(formData) => {
+                  setSquadCount(3);
+                  squadFormAction(formData);
+                }} ref={squadFormRef} className="space-y-4">
                   <div className="grid w-full gap-1.5">
                     <Label htmlFor="squad-query">Your Query</Label>
                     <Textarea onKeyDown={handleKeyDown} id="squad-query" name="query" ref={squadTextAreaRef} placeholder="e.g., 'A squad to beat the Sith Triumvirate Raid with Jedi.' or 'A good starter team for Phoenix faction.'" required rows={3} className="text-base" />
+                     <input type="hidden" name="count" value={squadCount.toString()} />
                   </div>
                   <SubmitButton icon={<Users className="mr-2 h-4 w-4" suppressHydrationWarning />} pendingText="Building..." text="Build Squad" />
                 </form>
@@ -356,7 +387,7 @@ export function UnitFinder() {
 
       <div className="max-w-4xl mx-auto">
         {(isUnitFormPending && unitCount <= 10) && activeTab === 'unit-finder' && <UnitListSkeleton />}
-        {isSquadFormPending && activeTab === 'squad-builder' && <SquadListSkeleton />}
+        {(isSquadFormPending && squadCount <= 3) && activeTab === 'squad-builder' && <SquadListSkeleton />}
         {isTestCaseFormPending && activeTab === 'test-assistant' && <SquadListSkeleton />}
 
         {unitState.units && unitState.units.length > 0 && activeTab === 'unit-finder' && (
@@ -367,7 +398,7 @@ export function UnitFinder() {
               previousCount={previousUnitCount} 
             />
             <div className="text-center">
-              <Button onClick={handleLoadMore} disabled={isUnitFormPending}>
+              <Button onClick={handleLoadMoreUnits} disabled={isUnitFormPending}>
                 {isUnitFormPending && unitCount > 10 ? (
                   <>
                     <DarthVaderLoader className="mr-2 h-4 w-4" />
@@ -381,8 +412,25 @@ export function UnitFinder() {
           </div>
         )}
 
-        {squadState.squads && squadState.squads.length > 0 && activeTab === 'squad-builder' && !isSquadFormPending && (
-          <SquadList squads={squadState.squads} />
+        {squadState.squads && squadState.squads.length > 0 && activeTab === 'squad-builder' && (
+           <div className="space-y-4">
+            <SquadList 
+              squads={squadState.squads} 
+              isLoadingMore={isSquadFormPending && squadCount > 3}
+            />
+            <div className="text-center">
+              <Button onClick={handleLoadMoreSquads} disabled={isSquadFormPending}>
+                {isSquadFormPending && squadCount > 3 ? (
+                  <>
+                    <DarthVaderLoader className="mr-2 h-4 w-4" />
+                    Loading...
+                  </>
+                ) : (
+                  'Load 3 More'
+                )}
+              </Button>
+            </div>
+          </div>
         )}
 
         {testCaseState.testCase && activeTab === 'test-assistant' && !isTestCaseFormPending && (

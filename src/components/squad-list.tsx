@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { Crown, UserPlus } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { cn } from '@/lib/utils';
+import { SquadListSkeleton } from './squad-list-skeleton';
 
 function getInitials(name: string): string {
     if (name === "New Unit") return "NU";
@@ -33,6 +34,7 @@ const borderColors = [
 type SquadListProps = {
   squads: NonNullable<SquadBuilderAIOutput['squads']>;
   title?: string;
+  isLoadingMore?: boolean;
 };
 
 const CharacterPortrait = ({ character, isLeader = false, isAlly = false, colorClass = '' }: {
@@ -65,7 +67,7 @@ const CharacterPortrait = ({ character, isLeader = false, isAlly = false, colorC
 );
 
 
-export function SquadList({ squads, title }: SquadListProps) {
+export function SquadList({ squads, title, isLoadingMore = false }: SquadListProps) {
   return (
     <div className="space-y-8">
        {title && <h2 className="text-2xl font-bold tracking-tight font-headline">{title}</h2>}
@@ -88,6 +90,7 @@ export function SquadList({ squads, title }: SquadListProps) {
           </CardContent>
         </Card>
       ))}
+      {isLoadingMore && <SquadListSkeleton />}
     </div>
   );
 }

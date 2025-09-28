@@ -7,6 +7,7 @@ import {
 } from '@/ai/flows/character-matching-ai';
 import {
   squadBuilderAI,
+  type SquadBuilderAIInput,
   type SquadBuilderAIOutput,
 } from '@/ai/flows/squad-builder-ai';
 import {
@@ -30,6 +31,7 @@ const buildSquadSchema = z.object({
       required_error: 'Please describe the squad you want to build.',
     })
     .min(1, 'Please describe the squad you want to build.'),
+    count: z.coerce.number().optional().default(3),
 });
 
 const TestCaseAssistantAIInputSchema = z.object({
@@ -52,6 +54,7 @@ export type FormState = {
   squads?: SquadBuilderAIOutput['squads'];
   testCase?: TestCaseAssistantAIOutput;
   testCaseInput?: TestCaseAssistantAIInput;
+  squadsInput?: SquadBuilderAIInput;
 };
 
 export async function findUnits(
@@ -105,6 +108,7 @@ export async function buildSquad(
 ): Promise<FormState> {
   const validatedFields = buildSquadSchema.safeParse({
     query: formData.get('query'),
+    count: formData.get('count'),
   });
 
   if (!validatedFields.success) {
@@ -115,29 +119,30 @@ export async function buildSquad(
     };
   }
 
-  const query = validatedFields.data.query;
+  const { query, count } = validatedFields.data;
+  const input = { query, count };
 
   try {
-    const result = await squadBuilderAI({query});
+    const result = await squadBuilderAI(input);
     if (!result.squads || result.squads.length === 0) {
       return {
         message:
           'Could not generate any matching squads. Please try a different query.',
-        query,
+        squadsInput: input,
       };
     }
 
     return {
       message: 'success',
       squads: result.squads,
-      query,
+      squadsInput: input,
     };
   } catch (e) {
     console.error('Error in buildSquad action:', e);
     return {
       message:
         'An error occurred while building the squad. Please try again later.',
-      query,
+        squadsInput: input,
     };
   }
 }

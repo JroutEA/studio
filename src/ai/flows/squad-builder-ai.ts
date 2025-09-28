@@ -28,6 +28,7 @@ const SquadSchema = z.object({
 
 const SquadBuilderAIInputSchema = z.object({
   query: z.string().describe('The query describing the desired squad characteristics or goal.'),
+  count: z.number().optional().default(3).describe('The number of squads to find.'),
 });
 export type SquadBuilderAIInput = z.infer<typeof SquadBuilderAIInputSchema>;
 
@@ -54,7 +55,7 @@ You MUST use information from two sources to provide the best possible answer:
 
 A standard squad consists of 5 characters: 1 Leader and 4 Members. You will also suggest a 6th character as a borrowed Ally where appropriate.
 
-You must suggest 1 to 3 squads that fit the user's query.
+You will suggest {{{count}}} squads that fit the user's query.
 
 For each character, you MUST provide:
 1. The character's name.
