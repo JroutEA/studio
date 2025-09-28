@@ -22,7 +22,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Gem, History, Users, TestTube } from 'lucide-react';
+import { History, Users, TestTube } from 'lucide-react';
 import { UnitList } from './unit-list';
 import { UnitListSkeleton } from './unit-list-skeleton';
 import { SquadList } from './squad-list';
@@ -142,9 +142,10 @@ export function UnitFinder() {
     }
     
     if (activeTab === 'unit-finder' && unitState.message === 'success' && unitState.query) {
-       // If the count is 10, it's a new search, so reset previous count.
+       // If the new result count is 10 or less, it's a new search.
        if (unitState.units && unitState.units.length <= 10) {
         setPreviousUnitCount(0);
+        setUnitCount(10);
        }
        setUnitHistory(prevHistory => {
         if (!prevHistory.includes(unitState.query!)) {
@@ -247,16 +248,11 @@ export function UnitFinder() {
               </TabsList>
 
               <TabsContent value="unit-finder" className="mt-4">
-                 <form action={(formData) => {
-                    const newCount = 10;
-                    setUnitCount(newCount);
-                    formData.set('count', newCount.toString());
-                    unitFormAction(formData);
-                 }} ref={unitFormRef} className="space-y-4">
+                 <form action={unitFormAction} ref={unitFormRef} className="space-y-4">
                   <div className="grid w-full gap-1.5">
                     <Label htmlFor="unit-query">Your Query</Label>
                     <Textarea id="unit-query" name="query" ref={unitTextAreaRef} placeholder="e.g., 'A Rebel ship with an AOE attack' or 'A Jedi tank with counterattack'" required rows={3} className="text-base" />
-                    <input type="hidden" name="count" value={unitCount} />
+                    <input type="hidden" name="count" value="10" />
                   </div>
                   <SubmitButton icon={<HolocronIcon className="mr-2 h-4 w-4" suppressHydrationWarning />} pendingText="Searching..." text="Find Units" />
                 </form>
