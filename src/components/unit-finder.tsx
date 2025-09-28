@@ -273,6 +273,20 @@ export function UnitFinder() {
       }
     }
   };
+  
+  const handleUnitFormSubmit = (formData: FormData) => {
+    formData.set('count', unitCount.toString());
+    setPreviousUnitCount(0);
+    setUnitCount(10);
+    unitFormAction(formData);
+  }
+  
+  const handleSquadFormSubmit = (formData: FormData) => {
+    formData.set('count', squadCount.toString());
+    setSquadCount(3);
+    squadFormAction(formData);
+  }
+
 
   return (
     <div className="space-y-12">
@@ -368,22 +382,20 @@ export function UnitFinder() {
               </TabsList>
 
               <TabsContent value="unit-finder" className="mt-4">
-                 <form action={unitFormAction} ref={unitFormRef} className="space-y-4">
+                 <form action={handleUnitFormSubmit} ref={unitFormRef} className="space-y-4">
                   <div className="grid w-full gap-1.5">
                     <Label htmlFor="unit-query">Your Query</Label>
                     <Textarea onKeyDown={handleKeyDown} id="unit-query" name="query" ref={unitTextAreaRef} defaultValue={unitState.query} placeholder="e.g., 'A Rebel ship with an AOE attack' or 'A Jedi tank with counterattack'" required rows={3} className="text-base" />
-                    <input type="hidden" name="count" value={unitCount.toString()} />
                   </div>
                   <SubmitButton icon={<HolocronIcon className="mr-2 h-4 w-4" suppressHydrationWarning />} pendingText="Searching..." text="Find Units" />
                 </form>
               </TabsContent>
               
               <TabsContent value="squad-builder" className="mt-4">
-                <form action={squadFormAction} ref={squadFormRef} className="space-y-4">
+                <form action={handleSquadFormSubmit} ref={squadFormRef} className="space-y-4">
                   <div className="grid w-full gap-1.5">
                     <Label htmlFor="squad-query">Your Query</Label>
                     <Textarea onKeyDown={handleKeyDown} id="squad-query" name="query" ref={squadTextAreaRef} defaultValue={squadState.squadsInput?.query} placeholder="e.g., 'A squad to beat the Sith Triumvirate Raid with Jedi.' or 'A good starter team for Phoenix faction.'" required rows={3} className="text-base" />
-                     <input type="hidden" name="count" value={squadCount.toString()} />
                   </div>
                   <SubmitButton icon={<Users className="mr-2 h-4 w-4" suppressHydrationWarning />} pendingText="Building..." text="Build Squad" />
                 </form>
