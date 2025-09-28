@@ -92,8 +92,9 @@ export async function findUnits(
       units: result.units,
       query,
     };
-  } catch (e) {
-    console.error('Error in findUnits action:', e);
+  } catch (e: unknown) {
+    const errorMessage = e instanceof Error ? e.message : String(e);
+    console.error(`Error in findUnits action for query "${query}":`, errorMessage);
     return {
       message:
         'An error occurred while searching for units. Please try again later.',
