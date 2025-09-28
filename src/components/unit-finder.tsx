@@ -105,36 +105,53 @@ export function UnitFinder() {
       console.error('Failed to parse data from localStorage', error);
     }
   }, []);
+  
+  useEffect(() => {
+    if (unitState.message && unitState.message !== 'success') {
+      toast({ variant: 'destructive', title: 'Error', description: unitState.message });
+    } else if (unitState.message === 'success' && unitState.query) {
+      setUnitHistory(prev => {
+        if (!prev.includes(unitState.query!)) {
+          const newHistory = [unitState.query!, ...prev].slice(0, 20);
+          localStorage.setItem(UNIT_HISTORY_KEY, JSON.stringify(newHistory));
+          return newHistory;
+        }
+        return prev;
+      });
+    }
+  }, [unitState, toast]);
 
-  const useActionToast = (state: FormState, setHistory?: React.Dispatch<React.SetStateAction<any[]>>, historyKey?: string, getHistoryValue?: (state: FormState) => any) => {
-    useEffect(() => {
-      if (state.message && state.message !== 'success') {
-        toast({
-          variant: 'destructive',
-          title: 'Error',
-          description: state.message,
-        });
-      }
-      if (state.message === 'success' && setHistory && historyKey && getHistoryValue) {
-        const historyValue = getHistoryValue(state);
-        if (!historyValue) return;
-        setHistory(prevHistory => {
-          const historyValueJSON = JSON.stringify(historyValue);
-          if (!prevHistory.find(h => JSON.stringify(h) === historyValueJSON)) {
-            const newHistory = [historyValue, ...prevHistory].slice(0, 20);
-            localStorage.setItem(historyKey, JSON.stringify(newHistory));
-            return newHistory;
-          }
-          return prevHistory;
-        });
-      }
-    }, [state]);
-  };
-  
-  useActionToast(unitState, setUnitHistory, UNIT_HISTORY_KEY, (state) => state.query);
-  useActionToast(squadState, setSquadHistory, SQUAD_HISTORY_KEY, (state) => state.squadsInput?.query);
-  useActionToast(testCaseState, setTestCaseHistory, TEST_CASE_HISTORY_KEY, (state) => state.testCaseInput);
-  
+  useEffect(() => {
+    if (squadState.message && squadState.message !== 'success') {
+      toast({ variant: 'destructive', title: 'Error', description: squadState.message });
+    } else if (squadState.message === 'success' && squadState.squadsInput?.query) {
+      setSquadHistory(prev => {
+        if (!prev.includes(squadState.squadsInput!.query)) {
+          const newHistory = [squadState.squadsInput!.query, ...prev].slice(0, 20);
+          localStorage.setItem(SQUAD_HISTORY_KEY, JSON.stringify(newHistory));
+          return newHistory;
+        }
+        return prev;
+      });
+    }
+  }, [squadState, toast]);
+
+  useEffect(() => {
+    if (testCaseState.message && testCaseState.message !== 'success') {
+      toast({ variant: 'destructive', title: 'Error', description: testCaseState.message });
+    } else if (testCaseState.message === 'success' && testCaseState.testCaseInput) {
+      setTestCaseHistory(prev => {
+        const historyValueJSON = JSON.stringify(testCaseState.testCaseInput);
+        if (!prev.find(h => JSON.stringify(h) === historyValueJSON)) {
+          const newHistory = [testCaseState.testCaseInput, ...prev].slice(0, 20);
+          localStorage.setItem(TEST_CASE_HISTORY_KEY, JSON.stringify(newHistory));
+          return newHistory;
+        }
+        return prev;
+      });
+    }
+  }, [testCaseState, toast]);
+
   const handleToggleSaveSquad = (squad: Squad) => {
     setSavedSquads(prevSavedSquads => {
       const isSaved = prevSavedSquads.some(saved => saved.name === squad.name && saved.leader.name === squad.leader.name);
