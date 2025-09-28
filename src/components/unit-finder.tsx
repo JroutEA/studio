@@ -28,7 +28,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { History, Users, TestTube, Trash2, Star, Square } from 'lucide-react';
+import { History, Users, TestTube, Trash2, Star } from 'lucide-react';
 import { UnitList } from './unit-list';
 import { UnitListSkeleton } from './unit-list-skeleton';
 import { SquadList } from './squad-list';
@@ -55,25 +55,6 @@ function SubmitButton({
   text: string;
   isPending: boolean;
 }) {
-
-  const handleStop = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    window.location.reload();
-  }
-
-  if (isPending) {
-    return (
-        <Button
-          type="button"
-          variant="destructive"
-          onClick={handleStop}
-          className="w-full sm:w-auto"
-        >
-          <Square className="mr-2 h-4 w-4" />
-          Stop
-        </Button>
-    )
-  }
 
   return (
     <Button type="submit" disabled={isPending} className="w-full sm:w-auto">
