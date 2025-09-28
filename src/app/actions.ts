@@ -23,7 +23,7 @@ const findUnitsSchema = z.object({
     })
     .min(1, 'Please describe the unit you are looking for.'),
   count: z.coerce.number().optional().default(10),
-  loadMore: z.string().optional(),
+  loadMoreQuery: z.string().optional(),
 });
 
 const buildSquadSchema = z.object({
@@ -33,7 +33,7 @@ const buildSquadSchema = z.object({
     })
     .min(1, 'Please describe the squad you want to build.'),
     count: z.coerce.number().optional().default(3),
-    loadMore: z.string().optional(),
+    loadMoreQuery: z.string().optional(),
 });
 
 const TestCaseAssistantAIInputSchema = z.object({
@@ -66,7 +66,7 @@ export async function findUnits(
   const validatedFields = findUnitsSchema.safeParse({
     query: formData.get('query'),
     count: formData.get('count'),
-    loadMore: formData.get('loadMore'),
+    loadMoreQuery: formData.get('loadMoreQuery'),
   });
 
   if (!validatedFields.success) {
@@ -78,13 +78,13 @@ export async function findUnits(
     };
   }
 
-  const { query, count, loadMore } = validatedFields.data;
+  const { query, count, loadMoreQuery } = validatedFields.data;
 
   try {
     const result = await unitMatchingAI({
       query,
       count,
-      loadMoreQuery: loadMore ? query : undefined,
+      loadMoreQuery,
     });
 
     if (!result.units || result.units.length === 0) {
@@ -97,7 +97,7 @@ export async function findUnits(
     }
 
     const newUnits = result.units;
-    const isNewSearch = !loadMore;
+    const isNewSearch = !loadMoreQuery;
     const existingUnits = isNewSearch ? [] : prevState.units || [];
     
     const combinedUnits = [...existingUnits];
@@ -143,7 +143,7 @@ export async function buildSquad(
   const validatedFields = buildSquadSchema.safeParse({
     query: formData.get('query'),
     count: formData.get('count'),
-    loadMore: formData.get('loadMore'),
+    loadMoreQuery: formData.get('loadMoreQuery'),
   });
 
   if (!validatedFields.success) {
@@ -155,11 +155,11 @@ export async function buildSquad(
     };
   }
 
-  const { query, count, loadMore } = validatedFields.data;
+  const { query, count, loadMoreQuery } = validatedFields.data;
   const input = {
     query,
     count,
-    loadMoreQuery: loadMore ? query : undefined,
+    loadMoreQuery,
   };
 
   try {
@@ -174,7 +174,7 @@ export async function buildSquad(
     }
 
     const newSquads = result.squads;
-    const isNewSearch = !loadMore;
+    const isNewSearch = !loadMoreQuery;
     const existingSquads = isNewSearch ? [] : prevState.squads || [];
     const combinedSquads = [...existingSquads];
     const existingSquadNames = new Set(existingSquads.map(s => s.name));
