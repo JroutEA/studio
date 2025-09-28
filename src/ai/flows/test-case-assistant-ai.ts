@@ -91,6 +91,9 @@ const testCaseAssistantAIFlow = ai.defineFlow(
   },
   async input => {
     const {output} = await prompt(input);
-    return output!;
+    if (!output) {
+      throw new Error('The AI model failed to generate a valid test case. This could be due to a model content filtering or an internal error. Please try modifying your input or try again later.');
+    }
+    return output;
   }
 );
