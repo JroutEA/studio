@@ -18,7 +18,6 @@ import { Skeleton } from './ui/skeleton';
 type UnitListProps = {
   units: NonNullable<UnitMatchingAIOutput['units']>;
   isLoadingMore?: boolean;
-  previousCount?: number;
 };
 
 function getInitials(name: string): string {
@@ -64,7 +63,7 @@ const LoadingRows = ({ count = 5 }: { count?: number }) => (
 );
 
 
-export function UnitList({ units, isLoadingMore, previousCount = 0 }: UnitListProps) {
+export function UnitList({ units, isLoadingMore }: UnitListProps) {
   return (
     <Card>
       <CardHeader>
@@ -81,7 +80,6 @@ export function UnitList({ units, isLoadingMore, previousCount = 0 }: UnitListPr
           </TableHeader>
           <TableBody>
             {units.map((unit, index) => {
-              const isNew = index >= previousCount && previousCount > 0;
               const borderColorClass = borderColors[index % borderColors.length];
 
               return (
@@ -98,7 +96,7 @@ export function UnitList({ units, isLoadingMore, previousCount = 0 }: UnitListPr
                      </Link>
                   )}
                 </TableCell>
-                <TableCell className={cn("font-medium", isNew ? "text-green-500" : "")}>{unit.name}</TableCell>
+                <TableCell className="font-medium">{unit.name}</TableCell>
                 <TableCell>
                   {unit.description}
                 </TableCell>
@@ -112,3 +110,5 @@ export function UnitList({ units, isLoadingMore, previousCount = 0 }: UnitListPr
     </Card>
   );
 }
+
+    

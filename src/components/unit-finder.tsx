@@ -110,9 +110,14 @@ export function UnitFinder() {
   }, []);
   
   useEffect(() => {
-    if (unitState.message && unitState.message !== 'success' && unitState.message !== 'No new units found.') {
-      toast({ variant: 'destructive', title: 'Error', description: unitState.message });
-    } else if (unitState.message === 'success' && unitState.query) {
+    if (unitState.message && unitState.message !== 'success') {
+      if (unitState.message === 'No new units found.') {
+        toast({ title: 'All Units Loaded', description: unitState.message });
+      } else {
+        toast({ variant: 'destructive', title: 'Error', description: unitState.message });
+      }
+    }
+    if (unitState.message === 'success' && unitState.query) {
       setUnitHistory(prev => {
         if (!prev.includes(unitState.query!)) {
           const newHistory = [unitState.query!, ...prev].slice(0, 20);
@@ -125,9 +130,14 @@ export function UnitFinder() {
   }, [unitState, toast]);
 
   useEffect(() => {
-    if (squadState.message && squadState.message !== 'success' && squadState.message !== 'No new squads found.') {
-      toast({ variant: 'destructive', title: 'Error', description: squadState.message });
-    } else if (squadState.message === 'success' && squadState.squadsInput?.query) {
+    if (squadState.message && squadState.message !== 'success') {
+       if (squadState.message === 'No new squads found.') {
+        toast({ title: 'All Squads Loaded', description: squadState.message });
+      } else {
+        toast({ variant: 'destructive', title: 'Error', description: squadState.message });
+      }
+    }
+    if (squadState.message === 'success' && squadState.squadsInput?.query) {
       setSquadHistory(prev => {
         if (!prev.includes(squadState.squadsInput!.query)) {
           const newHistory = [squadState.squadsInput!.query, ...prev].slice(0, 20);
@@ -142,7 +152,8 @@ export function UnitFinder() {
   useEffect(() => {
     if (testCaseState.message && testCaseState.message !== 'success') {
       toast({ variant: 'destructive', title: 'Error', description: testCaseState.message });
-    } else if (testCaseState.message === 'success' && testCaseState.testCaseInput) {
+    }
+    if (testCaseState.message === 'success' && testCaseState.testCaseInput) {
       const historyValueJSON = JSON.stringify(testCaseState.testCaseInput);
       setTestCaseHistory(prev => {
         if (!prev.find(h => JSON.stringify(h) === historyValueJSON)) {
@@ -253,7 +264,6 @@ export function UnitFinder() {
           <UnitList 
             units={unitState.units}
             isLoadingMore={isUnitFormPending && !!unitState.query}
-            previousCount={isUnitFormPending ? (unitState.units?.length || 0) : 0}
           />
           {hasMoreUnits && (
             <div className="text-center">
@@ -496,3 +506,5 @@ export function UnitFinder() {
     </div>
   );
 }
+
+    
