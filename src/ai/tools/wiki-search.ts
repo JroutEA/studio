@@ -24,7 +24,10 @@ export const wikiSearchTool = ai.defineTool(
   async (input) => {
     console.log(`Performing wiki search for: ${input.query}`);
     try {
-      const response = await new Promise((resolve) => {
+      const response = await new Promise((resolve, reject) => {
+        if (!process.env.SERPAPI_KEY) {
+          return reject(new Error("SERPAPI_KEY environment variable not set."));
+        }
         getJson(
           {
             engine: 'google',
@@ -49,7 +52,9 @@ export const wikiSearchTool = ai.defineTool(
       console.log(`Wiki search returned ${results.length} results.`);
       return { results };
     } catch (error) {
-      console.error('Error performing wiki search:', error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      console.error('Error performing wiki search:', errorMessage);
+      // Return an empty result to the AI instead of throwing, so the flow can continue.
       return { results: [] };
     }
   }
