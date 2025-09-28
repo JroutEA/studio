@@ -45,7 +45,7 @@ const prompt = ai.definePrompt({
 
 You MUST use information from two sources to provide the best possible answer:
 1.  Your built-in knowledge of swgoh.gg for unit URLs, icon URLs, and basic stats. This includes knowing the difference between character and ship pages (e.g., /characters/ vs /ships/).
-2.  The provided \`wikiSearch\` tool to get detailed, up-to-date information on abilities, strategies, and synergies from swgoh.wiki.
+2.  The provided \`wikiSearch\` tool to get detailed, up-to-date information on abilities, strategies, and synergies from swgoh.wiki. The tool returns a list of search result snippets.
 
 You will identify {{{count}}} units from SWGOH that best match the user's characteristics.
 
