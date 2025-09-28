@@ -320,11 +320,7 @@ export function UnitFinder() {
               </TabsList>
 
               <TabsContent value="unit-finder" className="mt-4">
-                 <form action={(formData) => {
-                    setPreviousUnitCount(0);
-                    setUnitCount(10);
-                    unitFormAction(formData);
-                 }} ref={unitFormRef} className="space-y-4">
+                 <form action={unitFormAction} ref={unitFormRef} className="space-y-4">
                   <div className="grid w-full gap-1.5">
                     <Label htmlFor="unit-query">Your Query</Label>
                     <Textarea onKeyDown={handleKeyDown} id="unit-query" name="query" ref={unitTextAreaRef} placeholder="e.g., 'A Rebel ship with an AOE attack' or 'A Jedi tank with counterattack'" required rows={3} className="text-base" />
@@ -335,10 +331,7 @@ export function UnitFinder() {
               </TabsContent>
               
               <TabsContent value="squad-builder" className="mt-4">
-                <form action={(formData) => {
-                  setSquadCount(3);
-                  squadFormAction(formData);
-                }} ref={squadFormRef} className="space-y-4">
+                <form action={squadFormAction} ref={squadFormRef} className="space-y-4">
                   <div className="grid w-full gap-1.5">
                     <Label htmlFor="squad-query">Your Query</Label>
                     <Textarea onKeyDown={handleKeyDown} id="squad-query" name="query" ref={squadTextAreaRef} placeholder="e.g., 'A squad to beat the Sith Triumvirate Raid with Jedi.' or 'A good starter team for Phoenix faction.'" required rows={3} className="text-base" />
