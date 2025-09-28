@@ -2,7 +2,6 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
-import { getJson } from 'google-search-results-nodejs';
 
 export const wikiSearchTool = ai.defineTool(
   {
@@ -24,6 +23,7 @@ export const wikiSearchTool = ai.defineTool(
   async (input) => {
     console.log(`Performing wiki search for: ${input.query}`);
     try {
+      const { getJson } = await import('google-search-results-nodejs');
       const response = await new Promise((resolve, reject) => {
         getJson(
           {
