@@ -190,6 +190,19 @@ export function UnitFinder() {
     setIsHistoryOpen(false);
   };
   
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
+      event.preventDefault();
+      if (activeTab === 'unit-finder' && unitFormRef.current) {
+        unitFormRef.current.requestSubmit();
+      } else if (activeTab === 'squad-builder' && squadFormRef.current) {
+        squadFormRef.current.requestSubmit();
+      } else if (activeTab === 'test-assistant' && testCaseFormRef.current) {
+        testCaseFormRef.current.requestSubmit();
+      }
+    }
+  };
+
   return (
     <div className="space-y-12">
       <Card className="max-w-3xl mx-auto shadow-lg border-primary/20 bg-card/80 backdrop-blur-sm">
@@ -251,7 +264,7 @@ export function UnitFinder() {
                  <form action={unitFormAction} ref={unitFormRef} className="space-y-4">
                   <div className="grid w-full gap-1.5">
                     <Label htmlFor="unit-query">Your Query</Label>
-                    <Textarea id="unit-query" name="query" ref={unitTextAreaRef} placeholder="e.g., 'A Rebel ship with an AOE attack' or 'A Jedi tank with counterattack'" required rows={3} className="text-base" />
+                    <Textarea onKeyDown={handleKeyDown} id="unit-query" name="query" ref={unitTextAreaRef} placeholder="e.g., 'A Rebel ship with an AOE attack' or 'A Jedi tank with counterattack'" required rows={3} className="text-base" />
                     <input type="hidden" name="count" value="10" />
                   </div>
                   <SubmitButton icon={<HolocronIcon className="mr-2 h-4 w-4" suppressHydrationWarning />} pendingText="Searching..." text="Find Units" />
@@ -262,7 +275,7 @@ export function UnitFinder() {
                 <form action={squadFormAction} ref={squadFormRef} className="space-y-4">
                   <div className="grid w-full gap-1.5">
                     <Label htmlFor="squad-query">Your Query</Label>
-                    <Textarea id="squad-query" name="query" ref={squadTextAreaRef} placeholder="e.g., 'A squad to beat the Sith Triumvirate Raid with Jedi.' or 'A good starter team for Phoenix faction.'" required rows={3} className="text-base" />
+                    <Textarea onKeyDown={handleKeyDown} id="squad-query" name="query" ref={squadTextAreaRef} placeholder="e.g., 'A squad to beat the Sith Triumvirate Raid with Jedi.' or 'A good starter team for Phoenix faction.'" required rows={3} className="text-base" />
                   </div>
                   <SubmitButton icon={<Users className="mr-2 h-4 w-4" suppressHydrationWarning />} pendingText="Building..." text="Build Squad" />
                 </form>
@@ -272,18 +285,18 @@ export function UnitFinder() {
                 <form action={testCaseFormAction} ref={testCaseFormRef} className="space-y-4">
                   <div className="grid w-full gap-1.5">
                     <Label htmlFor="test-case">Testcase and the Ability you are testing</Label>
-                    <Textarea id="test-case" name="testCase" ref={testCaseAbilityRef} placeholder="e.g., 'Test if the new unit's 'Force Shield' ability correctly dispels all debuffs.'" required rows={2} className="text-base" />
+                    <Textarea onKeyDown={handleKeyDown} id="test-case" name="testCase" ref={testCaseAbilityRef} placeholder="e.g., 'Test if the new unit's 'Force Shield' ability correctly dispels all debuffs.'" required rows={2} className="text-base" />
                   </div>
                    <div className="grid w-full gap-1.5">
                     <Label htmlFor="expected-result">Expected Result</Label>
-                    <Textarea id="expected-result" name="expectedResult" ref={testCaseExpectedRef} placeholder="e.g., 'All debuffs on the new unit should be cleared, and it should gain the 'Protection Up' buff.'" required rows={2} className="text-base" />
+                    <Textarea onKeyDown={handleKeyDown} id="expected-result" name="expectedResult" ref={testCaseExpectedRef} placeholder="e.g., 'All debuffs on the new unit should be cleared, and it should gain the 'Protection Up' buff.'" required rows={2} className="text-base" />
                   </div>
                   <div className="grid w-full gap-1.5">
                     <Label htmlFor="unit-details">New Unit Details</Label>
                      <p className="text-xs text-muted-foreground">
                       You can copy and paste the ability details from the design document without naming the unit.
                     </p>
-                    <Textarea id="unit-details" name="unitDetails" ref={testCaseUnitRef} placeholder="Describe the new unit's abilities, conditions, buffs, debuffs, zeta, and omicrons." required rows={4} className="text-base" />
+                    <Textarea onKeyDown={handleKeyDown} id="unit-details" name="unitDetails" ref={testCaseUnitRef} placeholder="Describe the new unit's abilities, conditions, buffs, debuffs, zeta, and omicrons." required rows={4} className="text-base" />
                   </div>
                    <SubmitButton icon={<TestTube className="mr-2 h-4 w-4" suppressHydrationWarning />} pendingText="Generating..." text="Generate Test Case" />
                 </form>
