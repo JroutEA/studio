@@ -79,26 +79,26 @@ export async function findUnits(
   }
 
   const { query, count, loadMoreQuery } = validatedFields.data;
+  const isLoadMore = !!loadMoreQuery;
 
   try {
     const result = await unitMatchingAI({
-      query,
+      query: isLoadMore ? loadMoreQuery : query,
       count,
-      loadMoreQuery,
+      loadMoreQuery: isLoadMore ? query : undefined,
     });
 
     if (!result.units || result.units.length === 0) {
       return {
         ...prevState,
         message:
-          'Could not find any matching units. Please try a different query.',
+          isLoadMore ? 'No new units found.' : 'Could not find any matching units. Please try a different query.',
         query,
       };
     }
 
     const newUnits = result.units;
-    const isNewSearch = !loadMoreQuery;
-    const existingUnits = isNewSearch ? [] : prevState.units || [];
+    const existingUnits = isLoadMore ? prevState.units || [] : [];
     
     const combinedUnits = [...existingUnits];
     const existingUnitNames = new Set(existingUnits.map(u => u.name));
@@ -110,7 +110,7 @@ export async function findUnits(
         }
     }
     
-    if (!isNewSearch && combinedUnits.length === existingUnits.length) {
+    if (isLoadMore && combinedUnits.length === existingUnits.length) {
       return {
         ...prevState,
         query,
@@ -156,10 +156,12 @@ export async function buildSquad(
   }
 
   const { query, count, loadMoreQuery } = validatedFields.data;
+  const isLoadMore = !!loadMoreQuery;
+
   const input = {
-    query,
+    query: isLoadMore ? loadMoreQuery : query,
     count,
-    loadMoreQuery,
+    loadMoreQuery: isLoadMore ? query : undefined,
   };
 
   try {
@@ -168,14 +170,13 @@ export async function buildSquad(
       return {
         ...prevState,
         message:
-          'Could not generate any matching squads. Please try a different query.',
-        squadsInput: { query, count },
+          isLoadMore ? 'No new squads found.' : 'Could not generate any matching squads. Please try a different query.',
+        squadsInput: { query },
       };
     }
 
     const newSquads = result.squads;
-    const isNewSearch = !loadMoreQuery;
-    const existingSquads = isNewSearch ? [] : prevState.squads || [];
+    const existingSquads = isLoadMore ? prevState.squads || [] : [];
     const combinedSquads = [...existingSquads];
     const existingSquadNames = new Set(existingSquads.map(s => s.name));
 
@@ -186,10 +187,10 @@ export async function buildSquad(
         }
     }
 
-    if (!isNewSearch && combinedSquads.length === existingSquads.length) {
+    if (isLoadMore && combinedSquads.length === existingSquads.length) {
       return {
         ...prevState,
-        squadsInput: { query, count },
+        squadsInput: { query },
         squads: combinedSquads,
         message: 'No new squads found.',
       }
@@ -198,14 +199,14 @@ export async function buildSquad(
     return {
       message: 'success',
       squads: combinedSquads,
-      squadsInput: { query, count },
+      squadsInput: { query },
     };
   } catch (e) {
     console.error('Error in buildSquad action:', e);
     return {
       message:
         'An error occurred while building the squad. Please try again later.',
-        squadsInput: { query, count },
+        squadsInput: { query },
         squads: prevState.squads || [],
     };
   }
