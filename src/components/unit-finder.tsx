@@ -28,6 +28,7 @@ import { UnitListSkeleton } from './unit-list-skeleton';
 import { SquadList } from './squad-list';
 import { SquadListSkeleton } from './squad-list-skeleton';
 import { TestCaseDisplay } from './test-case-display';
+import { HolocronIcon } from './holocron-icon';
 
 const initialState: FormState = {
   message: '',
@@ -189,12 +190,12 @@ export function UnitFinder() {
   
   return (
     <div className="space-y-12">
-      <Card className="max-w-3xl mx-auto shadow-lg">
+      <Card className="max-w-3xl mx-auto shadow-lg border-primary/20 bg-card/80 backdrop-blur-sm">
         <CardHeader>
           <div className="flex justify-between items-start">
             <div className='flex items-center gap-3'>
               <div className="p-2 bg-primary text-primary-foreground rounded-lg">
-                  <Gem className="w-6 h-6" suppressHydrationWarning />
+                  <HolocronIcon className="w-6 h-6" suppressHydrationWarning />
               </div>
               <div>
                 <CardTitle className="font-headline text-3xl">The AI Holocron</CardTitle>
@@ -248,6 +249,7 @@ export function UnitFinder() {
                  <form action={(formData) => {
                     const newCount = 10;
                     setUnitCount(newCount);
+                    setPreviousUnitCount(0);
                     formData.set('count', newCount.toString());
                     unitFormAction(formData);
                  }} ref={unitFormRef} className="space-y-4">
@@ -256,7 +258,7 @@ export function UnitFinder() {
                     <Textarea id="unit-query" name="query" ref={unitTextAreaRef} placeholder="e.g., 'A Rebel ship with an AOE attack' or 'A Jedi tank with counterattack'" required rows={3} className="text-base" />
                     <input type="hidden" name="count" value={unitCount} />
                   </div>
-                  <SubmitButton icon={<Gem className="mr-2 h-4 w-4" suppressHydrationWarning />} pendingText="Searching..." text="Find Units" />
+                  <SubmitButton icon={<HolocronIcon className="mr-2 h-4 w-4" suppressHydrationWarning />} pendingText="Searching..." text="Find Units" />
                 </form>
               </TabsContent>
               
@@ -299,7 +301,7 @@ export function UnitFinder() {
                   <Textarea id="unit-query" name="query" placeholder="e.g., 'A Rebel ship with an AOE attack' or 'A Jedi tank with counterattack'" required rows={3} className="text-base" />
                 </div>
                 <Button className="w-full sm-w-auto">
-                  <Gem className="mr-2 h-4 w-4" suppressHydrationWarning />
+                  <HolocronIcon className="mr-2 h-4 w-4" suppressHydrationWarning />
                   Find Units
                 </Button>
              </div>
@@ -344,25 +346,25 @@ export function UnitFinder() {
 
 
         {!pending && isClient && (
-          <div className="text-center py-16 text-muted-foreground border-2 border-dashed rounded-lg">
+          <div className="text-center py-16 text-muted-foreground border-2 border-dashed rounded-lg border-primary/20">
             {activeTab === 'unit-finder' && (!unitState.units || unitState.units.length === 0) &&
               <>
-                <Gem className="mx-auto h-12 w-12" suppressHydrationWarning />
-                <h3 className="text-lg font-semibold">Your matched units will appear here</h3>
+                <HolocronIcon className="mx-auto h-12 w-12" suppressHydrationWarning />
+                <h3 className="text-lg font-semibold mt-2">Your matched units will appear here</h3>
                 <p>Enter a description above to get started.</p>
               </>
             }
             {activeTab === 'squad-builder' && (!squadState.squads || squadState.squads.length === 0) &&
               <>
                 <Users className="mx-auto h-12 w-12" suppressHydrationWarning />
-                <h3 className="text-lg font-semibold">Your generated squads will appear here</h3>
+                <h3 className="text-lg font-semibold mt-2">Your generated squads will appear here</h3>
                 <p>Describe the squad you want to build above.</p>
               </>
             }
             {activeTab === 'test-assistant' && !testCaseState.testCase &&
               <>
                 <TestTube className="mx-auto h-12 w-12" suppressHydrationWarning />
-                <h3 className="text-lg font-semibold">Your generated test case will appear here</h3>
+                <h3 className="text-lg font-semibold mt-2">Your generated test case will appear here</h3>
                 <p>Describe the scenario you want to test above.</p>
               </>
             }
