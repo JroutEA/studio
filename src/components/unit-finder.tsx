@@ -101,17 +101,6 @@ export function UnitFinder() {
 
   useEffect(() => {
     setIsClient(true);
-  }, []);
-
-  const state = activeTab === 'unit-finder' ? unitState :
-                activeTab === 'squad-builder' ? squadState :
-                testCaseState;
-  
-  const history = activeTab === 'unit-finder' ? unitHistory :
-                  activeTab === 'squad-builder' ? squadHistory :
-                  testCaseHistory;
-
-  useEffect(() => {
     try {
       const storedUnitHistory = localStorage.getItem(UNIT_HISTORY_KEY);
       if (storedUnitHistory) setUnitHistory(JSON.parse(storedUnitHistory));
@@ -129,6 +118,14 @@ export function UnitFinder() {
       console.error('Failed to parse data from localStorage', error);
     }
   }, []);
+
+  const state = activeTab === 'unit-finder' ? unitState :
+                activeTab === 'squad-builder' ? squadState :
+                testCaseState;
+  
+  const history = activeTab === 'unit-finder' ? unitHistory :
+                  activeTab === 'squad-builder' ? squadHistory :
+                  testCaseHistory;
 
   const handleToggleSaveSquad = (squad: Squad) => {
     setSavedSquads(prevSavedSquads => {
@@ -176,12 +173,18 @@ export function UnitFinder() {
   };
 
   useEffect(() => {
-    if (state.message && state.message !== 'success') {
-      toast({ variant: 'destructive', title: 'Error', description: state.message });
+    const currentState = 
+        activeTab === 'unit-finder' ? unitState :
+        activeTab === 'squad-builder' ? squadState :
+        testCaseState;
+
+    if (currentState.message && currentState.message !== 'success') {
+      toast({ variant: 'destructive', title: 'Error', description: currentState.message });
     }
+
+    if (isUnitFormPending || isSquadFormPending || isTestCaseFormPending) return;
     
     if (activeTab === 'unit-finder' && unitState.message === 'success' && unitState.query) {
-       if (isUnitFormPending) return;
        if (unitState.units && unitState.units.length <= 10) {
         setPreviousUnitCount(0);
         setUnitCount(10);
@@ -195,7 +198,6 @@ export function UnitFinder() {
         return prevHistory;
       });
     } else if (activeTab === 'squad-builder' && squadState.message === 'success' && squadState.squadsInput?.query) {
-        if (isSquadFormPending) return;
         if (squadState.squads && squadState.squads.length <= 3) {
             setSquadCount(3);
         }
@@ -218,8 +220,7 @@ export function UnitFinder() {
          return prevHistory;
        });
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [unitState, squadState, testCaseState, activeTab]);
+  }, [unitState, squadState, testCaseState, activeTab, isUnitFormPending, isSquadFormPending, isTestCaseFormPending, toast]);
 
   const handleHistoryClick = (query: any) => {
     if (activeTab === 'unit-finder' && unitTextAreaRef.current) {
