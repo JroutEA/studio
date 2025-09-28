@@ -24,7 +24,7 @@ const UnitSchema = z.object({
   url: z.string().url().describe("The URL of the unit's page on swgoh.gg."),
   description: z
     .string()
-    .describe('How the unit satisfies the specified characteristics.'),
+    .describe('A concise, one-sentence description of how the unit satisfies the specified characteristics.'),
 });
 
 const UnitMatchingAIOutputSchema = z.object({
@@ -45,7 +45,7 @@ const prompt = ai.definePrompt({
 
 You MUST use information from two sources to provide the best possible answer:
 1.  Your built-in knowledge of swgoh.gg for unit URLs, icon URLs, and basic stats. This includes knowing the difference between character and ship pages (e.g., /characters/ vs /ships/).
-2.  The provided \`wikiSearch\` tool to get detailed, up-to-date information on abilities, strategies, and synergies from swgoh.wiki. The tool returns a list of search result snippets.
+2.  The provided \`wikiSearch\` tool to get detailed, up-to-date information on abilities, strategies, and synergies from the wiki. The tool returns a list of search result snippets.
 
 You will identify {{{count}}} units from SWGOH that best match the user's characteristics.
 
@@ -53,7 +53,7 @@ For each unit, provide:
 1. The unit's name.
 2. The URL for the unit's small, public icon on swgoh.gg. These are usually square portraits.
 3. The URL for the unit's page on swgoh.gg.
-4. A brief description of how they satisfy the user's query, synthesizing information from both swgoh.gg and your search results from the wiki.
+4. A concise, one-sentence description of how they satisfy the user's query. The description must be short and to the point.
 
 Ensure that the units are actual characters or ships available in SWGOH.
 

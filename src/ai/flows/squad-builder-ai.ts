@@ -20,7 +20,7 @@ const CharacterSchema = z.object({
 
 const SquadSchema = z.object({
   name: z.string().describe('A name for the squad, e.g., "Classic Rebels" or "Sith Empire Trio".'),
-  description: z.string().describe('A brief description of the squad and its strategy.'),
+  description: z.string().describe('A brief, one-sentence description of the squad and its strategy.'),
   leader: CharacterSchema.describe('The leader of the squad.'),
   members: z.array(CharacterSchema).length(4).describe('The four other members of the squad.'),
   ally: CharacterSchema.optional().describe('A recommended ally to borrow for the 6th slot.'),
@@ -64,7 +64,7 @@ For each character, you MUST provide:
 
 For each squad, you MUST provide:
 1. A name for the squad.
-2. A description of the squad's strategy and why it fits the query, synthesizing information from both swgoh.gg and your search results from the wiki.
+2. A concise, one-sentence description of the squad's strategy and why it fits the query.
 3. The designated leader.
 4. Exactly four members.
 5. An optional recommended ally.
