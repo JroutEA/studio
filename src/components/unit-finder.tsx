@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useActionState } from 'react';
 import {
   findUnits,
@@ -35,7 +35,6 @@ import { SquadListSkeleton } from './squad-list-skeleton';
 import { TestCaseDisplay } from './test-case-display';
 import { HolocronIcon } from './holocron-icon';
 import { DarthVaderLoader } from './darth-vader-loader';
-import { useState } from 'react';
 import { SavedSquadsList } from './saved-squads-list';
 
 type Squad = NonNullable<SquadBuilderAIOutput['squads']>[0];
@@ -111,7 +110,7 @@ export function UnitFinder() {
   }, []);
   
   useEffect(() => {
-    if (unitState.message && unitState.message !== 'success') {
+    if (unitState.message && unitState.message !== 'success' && unitState.message !== 'No new units found.') {
       toast({ variant: 'destructive', title: 'Error', description: unitState.message });
     } else if (unitState.message === 'success' && unitState.query) {
       setUnitHistory(prev => {
@@ -126,7 +125,7 @@ export function UnitFinder() {
   }, [unitState, toast]);
 
   useEffect(() => {
-    if (squadState.message && squadState.message !== 'success') {
+    if (squadState.message && squadState.message !== 'success' && squadState.message !== 'No new squads found.') {
       toast({ variant: 'destructive', title: 'Error', description: squadState.message });
     } else if (squadState.message === 'success' && squadState.squadsInput?.query) {
       setSquadHistory(prev => {
@@ -177,12 +176,13 @@ export function UnitFinder() {
 
     if (activeTab === 'unit-finder' && unitFormRef.current) {
         const formData = new FormData(unitFormRef.current);
-        formData.set('loadMore', 'true');
+        formData.set('count', '5');
+        formData.set('loadMoreQuery', unitState.query || '');
         unitFormAction(formData);
     } else if (activeTab === 'squad-builder' && squadFormRef.current) {
         const formData = new FormData(squadFormRef.current);
         formData.set('count', '3');
-        formData.set('loadMore', 'true');
+        formData.set('loadMoreQuery', squadState.squadsInput?.query || '');
         squadFormAction(formData);
     }
   };
@@ -250,13 +250,13 @@ export function UnitFinder() {
         <div className="space-y-4">
           <UnitList 
             units={unitState.units}
-            isLoadingMore={isUnitFormPending}
-            previousCount={unitState.units.length}
+            isLoadingMore={isUnitFormPending && !!unitState.query}
+            previousCount={isUnitFormPending ? (unitState.units?.length || 0) : 0}
           />
           {hasMoreUnits && (
             <div className="text-center">
               <Button onClick={handleLoadMore} disabled={isUnitFormPending}>
-                {isUnitFormPending ? (
+                {isUnitFormPending && !!unitState.query ? (
                   <>
                     <DarthVaderLoader className="mr-2 h-4 w-4" />
                     Loading...
@@ -289,14 +289,14 @@ export function UnitFinder() {
         <div className="space-y-4">
           <SquadList 
             squads={squadState.squads}
-            isLoadingMore={isSquadFormPending}
+            isLoadingMore={isSquadFormPending && !!squadState.squadsInput?.query}
             savedSquads={savedSquads}
             onToggleSave={handleToggleSaveSquad}
           />
           {hasMoreSquads && (
             <div className="text-center">
               <Button onClick={handleLoadMore} disabled={isSquadFormPending}>
-                {isSquadFormPending ? (
+                {isSquadFormPending && !!squadState.squadsInput?.query ? (
                   <>
                     <DarthVaderLoader className="mr-2 h-4 w-4" />
                     Loading...
