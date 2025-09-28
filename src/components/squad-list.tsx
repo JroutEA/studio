@@ -3,10 +3,11 @@
 import type { SquadBuilderAIOutput } from '@/ai/flows/squad-builder-ai';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import Link from 'next/link';
-import { Crown, UserPlus } from 'lucide-react';
+import { Crown, UserPlus, Star } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { cn } from '@/lib/utils';
 import { SquadListSkeleton } from './squad-list-skeleton';
+import { Button } from './ui/button';
 
 function getInitials(name: string): string {
     if (name === "New Unit") return "NU";
@@ -30,11 +31,14 @@ const borderColors = [
     'border-blue-500',
   ];
 
+type Squad = NonNullable<SquadBuilderAIOutput['squads']>[0];
 
 type SquadListProps = {
   squads: NonNullable<SquadBuilderAIOutput['squads']>;
   title?: string;
   isLoadingMore?: boolean;
+  savedSquads?: Squad[];
+  onToggleSave?: (squad: Squad) => void;
 };
 
 const CharacterPortrait = ({ character, isLeader = false, isAlly = false, colorClass = '' }: {
@@ -67,15 +71,34 @@ const CharacterPortrait = ({ character, isLeader = false, isAlly = false, colorC
 );
 
 
-export function SquadList({ squads, title, isLoadingMore = false }: SquadListProps) {
+export function SquadList({ squads, title, isLoadingMore = false, savedSquads = [], onToggleSave }: SquadListProps) {
+  const isSquadSaved = (squad: Squad) => {
+    return savedSquads.some(saved => saved.name === squad.name && saved.leader.name === squad.leader.name);
+  };
+  
   return (
     <div className="space-y-8">
        {title && <h2 className="text-2xl font-bold tracking-tight font-headline">{title}</h2>}
       {squads.map((squad, index) => (
         <Card key={index} className="shadow-md">
           <CardHeader>
-            <CardTitle>{squad.name}</CardTitle>
-            {squad.description && <CardDescription>{squad.description}</CardDescription>}
+            <div className="flex justify-between items-start">
+              <div>
+                <CardTitle>{squad.name}</CardTitle>
+                {squad.description && <CardDescription>{squad.description}</CardDescription>}
+              </div>
+              {onToggleSave && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => onToggleSave(squad)}
+                  className="shrink-0"
+                >
+                  <Star className={cn("w-5 h-5", isSquadSaved(squad) ? 'text-yellow-400 fill-yellow-400' : 'text-muted-foreground')} />
+                  <span className="sr-only">Save Squad</span>
+                </Button>
+              )}
+            </div>
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap items-start gap-4">

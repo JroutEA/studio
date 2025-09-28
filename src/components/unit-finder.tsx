@@ -3,6 +3,7 @@
 import { useActionState, useEffect, useState, useRef, startTransition } from 'react';
 import { useFormStatus } from 'react-dom';
 import { findUnits, buildSquad, generateTestCase, type FormState } from '@/app/actions';
+import type { SquadBuilderAIOutput } from '@/ai/flows/squad-builder-ai';
 import { useToast } from '@/hooks/use-toast';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -22,7 +23,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { History, Users, TestTube, Trash2 } from 'lucide-react';
+import { History, Users, TestTube, Trash2, Star } from 'lucide-react';
 import { UnitList } from './unit-list';
 import { UnitListSkeleton } from './unit-list-skeleton';
 import { SquadList } from './squad-list';
@@ -31,6 +32,7 @@ import { TestCaseDisplay } from './test-case-display';
 import { HolocronIcon } from './holocron-icon';
 import { DarthVaderLoader } from './darth-vader-loader';
 
+type Squad = NonNullable<SquadBuilderAIOutput['squads']>[0];
 const initialState: FormState = {
   message: '',
 };
@@ -38,6 +40,7 @@ const initialState: FormState = {
 const UNIT_HISTORY_KEY = 'swgoh_unit_query_history';
 const SQUAD_HISTORY_KEY = 'swgoh_squad_query_history';
 const TEST_CASE_HISTORY_KEY = 'swgoh_test_case_history';
+const SAVED_SQUADS_KEY = 'swgoh_saved_squads';
 
 
 function SubmitButton({ icon, pendingText, text }: { icon: React.ReactNode, pendingText: string, text: string }) {
@@ -71,6 +74,7 @@ export function UnitFinder() {
   const [unitHistory, setUnitHistory] = useState<string[]>([]);
   const [squadHistory, setSquadHistory] = useState<string[]>([]);
   const [testCaseHistory, setTestCaseHistory] = useState<any[]>([]);
+  const [savedSquads, setSavedSquads] = useState<Squad[]>([]);
   
   const [unitCount, setUnitCount] = useState(10);
   const [previousUnitCount, setPreviousUnitCount] = useState(0);
@@ -78,6 +82,7 @@ export function UnitFinder() {
   const [squadCount, setSquadCount] = useState(3);
 
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [isSavedSquadsOpen, setIsSavedSquadsOpen] = useState(false);
   
   const unitFormRef = useRef<HTMLFormElement>(null);
   const squadFormRef = useRef<HTMLFormElement>(null);
@@ -117,10 +122,29 @@ export function UnitFinder() {
       const storedTestCaseHistory = localStorage.getItem(TEST_CASE_HISTORY_KEY);
       if (storedTestCaseHistory) setTestCaseHistory(JSON.parse(storedTestCaseHistory));
 
+      const storedSavedSquads = localStorage.getItem(SAVED_SQUADS_KEY);
+      if (storedSavedSquads) setSavedSquads(JSON.parse(storedSavedSquads));
+
     } catch (error) {
-      console.error('Failed to parse history from localStorage', error);
+      console.error('Failed to parse data from localStorage', error);
     }
   }, []);
+
+  const handleToggleSaveSquad = (squad: Squad) => {
+    setSavedSquads(prevSavedSquads => {
+      const isSaved = prevSavedSquads.some(saved => saved.name === squad.name && saved.leader.name === squad.leader.name);
+      let newSavedSquads;
+      if (isSaved) {
+        newSavedSquads = prevSavedSquads.filter(saved => saved.name !== squad.name || saved.leader.name !== squad.leader.name);
+        toast({ title: "Squad Unsaved", description: `"${squad.name}" has been removed from your saved squads.` });
+      } else {
+        newSavedSquads = [...prevSavedSquads, squad];
+        toast({ title: "Squad Saved!", description: `"${squad.name}" has been added to your saved squads.` });
+      }
+      localStorage.setItem(SAVED_SQUADS_KEY, JSON.stringify(newSavedSquads));
+      return newSavedSquads;
+    });
+  };
   
   const handleLoadMoreUnits = () => {
     if (unitState.query) {
@@ -128,8 +152,7 @@ export function UnitFinder() {
       setPreviousUnitCount(unitCount);
       setUnitCount(newCount);
       
-      const formData = new FormData();
-      formData.set('query', unitState.query);
+      const formData = new FormData(unitFormRef.current!);
       formData.set('count', newCount.toString());
       
       startTransition(() => {
@@ -143,8 +166,7 @@ export function UnitFinder() {
       const newCount = squadCount + 3;
       setSquadCount(newCount);
       
-      const formData = new FormData();
-      formData.set('query', squadState.squadsInput.query);
+      const formData = new FormData(squadFormRef.current!);
       formData.set('count', newCount.toString());
 
       startTransition(() => {
@@ -159,8 +181,7 @@ export function UnitFinder() {
     }
     
     if (activeTab === 'unit-finder' && unitState.message === 'success' && unitState.query) {
-      if (isUnitFormPending) return;
-       // If the new result count is 10 or less, it's a new search.
+       if (isUnitFormPending) return;
        if (unitState.units && unitState.units.length <= 10) {
         setPreviousUnitCount(0);
         setUnitCount(10);
@@ -174,8 +195,7 @@ export function UnitFinder() {
         return prevHistory;
       });
     } else if (activeTab === 'squad-builder' && squadState.message === 'success' && squadState.squadsInput?.query) {
-       if (isSquadFormPending) return;
-
+        if (isSquadFormPending) return;
         if (squadState.squads && squadState.squads.length <= 3) {
             setSquadCount(3);
         }
@@ -198,7 +218,8 @@ export function UnitFinder() {
          return prevHistory;
        });
     }
-  }, [unitState, squadState, testCaseState, toast, activeTab, isUnitFormPending, isSquadFormPending]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [unitState, squadState, testCaseState, activeTab]);
 
   const handleHistoryClick = (query: any) => {
     if (activeTab === 'unit-finder' && unitTextAreaRef.current) {
@@ -268,46 +289,70 @@ export function UnitFinder() {
                 </CardDescription>
               </div>
             </div>
-            <Sheet open={isHistoryOpen} onOpenChange={setIsHistoryOpen}>
-              <SheetTrigger asChild>
-                <Button variant="outline" size="icon">
-                  <History className="h-4 w-4" suppressHydrationWarning />
-                  <span className="sr-only">View query history</span>
-                </Button>
-              </SheetTrigger>
-              <SheetContent>
-                <SheetHeader>
-                  <SheetTitle>Query History</SheetTitle>
-                </SheetHeader>
-                <div className="mt-4 space-y-2">
-                  {history.length > 0 ? (
-                    history.map((query, index) => (
-                      <div key={index} className="flex items-center justify-between p-3 border rounded-md hover:bg-accent group">
-                        <div
-                            className="flex-grow cursor-pointer text-sm group-hover:text-accent-foreground"
-                            onClick={() => handleHistoryClick(query)}
-                        >
-                            {typeof query === 'string' ? query : query.testCase}
+            <div className="flex items-center gap-2">
+              <Sheet open={isSavedSquadsOpen} onOpenChange={setIsSavedSquadsOpen}>
+                <SheetTrigger asChild>
+                  <Button variant="outline" size="icon">
+                    <Star className="h-4 w-4" suppressHydrationWarning />
+                    <span className="sr-only">View saved squads</span>
+                  </Button>
+                </SheetTrigger>
+                <SheetContent>
+                  <SheetHeader>
+                    <SheetTitle>Saved Squads</SheetTitle>
+                  </SheetHeader>
+                  <div className="mt-4 space-y-4">
+                    {savedSquads.length > 0 ? (
+                      <SquadList squads={savedSquads} onToggleSave={handleToggleSaveSquad} savedSquads={savedSquads} />
+                    ) : (
+                      <p className="text-sm text-muted-foreground">
+                        Your saved squads will appear here. Click the star on a squad to save it.
+                      </p>
+                    )}
+                  </div>
+                </SheetContent>
+              </Sheet>
+              <Sheet open={isHistoryOpen} onOpenChange={setIsHistoryOpen}>
+                <SheetTrigger asChild>
+                  <Button variant="outline" size="icon">
+                    <History className="h-4 w-4" suppressHydrationWarning />
+                    <span className="sr-only">View query history</span>
+                  </Button>
+                </SheetTrigger>
+                <SheetContent>
+                  <SheetHeader>
+                    <SheetTitle>Query History</SheetTitle>
+                  </SheetHeader>
+                  <div className="mt-4 space-y-2">
+                    {history.length > 0 ? (
+                      history.map((query, index) => (
+                        <div key={index} className="flex items-center justify-between p-3 border rounded-md hover:bg-accent group">
+                          <div
+                              className="flex-grow cursor-pointer text-sm group-hover:text-accent-foreground"
+                              onClick={() => handleHistoryClick(query)}
+                          >
+                              {typeof query === 'string' ? query : query.testCase}
+                          </div>
+                          <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 shrink-0 text-muted-foreground group-hover:text-accent-foreground"
+                              onClick={() => handleDeleteHistoryItem(index)}
+                          >
+                              <Trash2 className="h-4 w-4" />
+                              <span className="sr-only">Delete query</span>
+                          </Button>
                         </div>
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 shrink-0 text-muted-foreground group-hover:text-accent-foreground"
-                            onClick={() => handleDeleteHistoryItem(index)}
-                        >
-                            <Trash2 className="h-4 w-4" />
-                            <span className="sr-only">Delete query</span>
-                        </Button>
-                      </div>
-                    ))
-                  ) : (
-                    <p className="text-sm text-muted-foreground">
-                      Your past queries will appear here.
-                    </p>
-                  )}
-                </div>
-              </SheetContent>
-            </Sheet>
+                      ))
+                    ) : (
+                      <p className="text-sm text-muted-foreground">
+                        Your past queries will appear here.
+                      </p>
+                    )}
+                  </div>
+                </SheetContent>
+              </Sheet>
+            </div>
           </div>
         </CardHeader>
         <CardContent>
@@ -323,7 +368,7 @@ export function UnitFinder() {
                  <form action={unitFormAction} ref={unitFormRef} className="space-y-4">
                   <div className="grid w-full gap-1.5">
                     <Label htmlFor="unit-query">Your Query</Label>
-                    <Textarea onKeyDown={handleKeyDown} id="unit-query" name="query" ref={unitTextAreaRef} placeholder="e.g., 'A Rebel ship with an AOE attack' or 'A Jedi tank with counterattack'" required rows={3} className="text-base" />
+                    <Textarea onKeyDown={handleKeyDown} id="unit-query" name="query" ref={unitTextAreaRef} defaultValue={unitState.query} placeholder="e.g., 'A Rebel ship with an AOE attack' or 'A Jedi tank with counterattack'" required rows={3} className="text-base" />
                     <input type="hidden" name="count" value={unitCount.toString()} />
                   </div>
                   <SubmitButton icon={<HolocronIcon className="mr-2 h-4 w-4" suppressHydrationWarning />} pendingText="Searching..." text="Find Units" />
@@ -334,7 +379,7 @@ export function UnitFinder() {
                 <form action={squadFormAction} ref={squadFormRef} className="space-y-4">
                   <div className="grid w-full gap-1.5">
                     <Label htmlFor="squad-query">Your Query</Label>
-                    <Textarea onKeyDown={handleKeyDown} id="squad-query" name="query" ref={squadTextAreaRef} placeholder="e.g., 'A squad to beat the Sith Triumvirate Raid with Jedi.' or 'A good starter team for Phoenix faction.'" required rows={3} className="text-base" />
+                    <Textarea onKeyDown={handleKeyDown} id="squad-query" name="query" ref={squadTextAreaRef} defaultValue={squadState.squadsInput?.query} placeholder="e.g., 'A squad to beat the Sith Triumvirate Raid with Jedi.' or 'A good starter team for Phoenix faction.'" required rows={3} className="text-base" />
                      <input type="hidden" name="count" value={squadCount.toString()} />
                   </div>
                   <SubmitButton icon={<Users className="mr-2 h-4 w-4" suppressHydrationWarning />} pendingText="Building..." text="Build Squad" />
@@ -345,18 +390,18 @@ export function UnitFinder() {
                 <form action={testCaseFormAction} ref={testCaseFormRef} className="space-y-4">
                   <div className="grid w-full gap-1.5">
                     <Label htmlFor="test-case">Testcase and the Ability you are testing</Label>
-                    <Textarea onKeyDown={handleKeyDown} id="test-case" name="testCase" ref={testCaseAbilityRef} placeholder="e.g., 'Test if the new unit's 'Force Shield' ability correctly dispels all debuffs.'" required rows={2} className="text-base" />
+                    <Textarea onKeyDown={handleKeyDown} id="test-case" name="testCase" ref={testCaseAbilityRef} defaultValue={testCaseState.testCaseInput?.testCase} placeholder="e.g., 'Test if the new unit's 'Force Shield' ability correctly dispels all debuffs.'" required rows={2} className="text-base" />
                   </div>
                    <div className="grid w-full gap-1.5">
                     <Label htmlFor="expected-result">Expected Result</Label>
-                    <Textarea onKeyDown={handleKeyDown} id="expected-result" name="expectedResult" ref={testCaseExpectedRef} placeholder="e.g., 'All debuffs on the new unit should be cleared, and it should gain the 'Protection Up' buff.'" required rows={2} className="text-base" />
+                    <Textarea onKeyDown={handleKeyDown} id="expected-result" name="expectedResult" ref={testCaseExpectedRef} defaultValue={testCaseState.testCaseInput?.expectedResult} placeholder="e.g., 'All debuffs on the new unit should be cleared, and it should gain the 'Protection Up' buff.'" required rows={2} className="text-base" />
                   </div>
                   <div className="grid w-full gap-1.5">
                     <Label htmlFor="unit-details">New Unit Details</Label>
                      <p className="text-xs text-muted-foreground">
                       You can copy and paste the ability details from the design document without naming the unit.
                     </p>
-                    <Textarea onKeyDown={handleKeyDown} id="unit-details" name="unitDetails" ref={testCaseUnitRef} placeholder="Describe the new unit's abilities, conditions, buffs, debuffs, zeta, and omicrons." required rows={4} className="text-base" />
+                    <Textarea onKeyDown={handleKeyDown} id="unit-details" name="unitDetails" ref={testCaseUnitRef} defaultValue={testCaseState.testCaseInput?.unitDetails} placeholder="Describe the new unit's abilities, conditions, buffs, debuffs, zeta, and omicrons." required rows={4} className="text-base" />
                   </div>
                    <SubmitButton icon={<TestTube className="mr-2 h-4 w-4" suppressHydrationWarning />} pendingText="Generating..." text="Generate Test Case" />
                 </form>
@@ -410,6 +455,8 @@ export function UnitFinder() {
             <SquadList 
               squads={squadState.squads} 
               isLoadingMore={isSquadFormPending && squadCount > 3}
+              savedSquads={savedSquads}
+              onToggleSave={handleToggleSaveSquad}
             />
             <div className="text-center">
               <Button onClick={handleLoadMoreSquads} disabled={isSquadFormPending}>
