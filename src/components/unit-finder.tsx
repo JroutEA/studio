@@ -22,13 +22,14 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Gem, LoaderCircle, History, Users, TestTube } from 'lucide-react';
+import { Gem, History, Users, TestTube } from 'lucide-react';
 import { UnitList } from './unit-list';
 import { UnitListSkeleton } from './unit-list-skeleton';
 import { SquadList } from './squad-list';
 import { SquadListSkeleton } from './squad-list-skeleton';
 import { TestCaseDisplay } from './test-case-display';
 import { HolocronIcon } from './holocron-icon';
+import { DarthVaderLoader } from './darth-vader-loader';
 
 const initialState: FormState = {
   message: '',
@@ -45,7 +46,7 @@ function SubmitButton({ icon, pendingText, text }: { icon: React.ReactNode, pend
     <Button type="submit" disabled={pending} className="w-full sm:w-auto">
       {pending ? (
         <>
-          <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+          <DarthVaderLoader className="mr-2 h-4 w-4" />
           {pendingText}
         </>
       ) : (
@@ -249,7 +250,6 @@ export function UnitFinder() {
                  <form action={(formData) => {
                     const newCount = 10;
                     setUnitCount(newCount);
-                    setPreviousUnitCount(0);
                     formData.set('count', newCount.toString());
                     unitFormAction(formData);
                  }} ref={unitFormRef} className="space-y-4">
@@ -325,7 +325,7 @@ export function UnitFinder() {
               <Button onClick={handleLoadMore} disabled={isUnitFormPending}>
                 {isUnitFormPending && unitCount > 10 ? (
                   <>
-                    <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+                    <DarthVaderLoader className="mr-2 h-4 w-4" />
                     Loading...
                   </>
                 ) : (

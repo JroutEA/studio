@@ -88,10 +88,20 @@ export default {
             height: '0',
           },
         },
+        'lightsaber-glow': {
+            '0%, 100%': { boxShadow: '0 0 5px hsl(var(--primary)), 0 0 10px hsl(var(--primary))' },
+            '50%': { boxShadow: '0 0 20px hsl(var(--primary)), 0 0 30px hsl(var(--primary))' },
+        },
+        'pulse-vader': {
+            '0%, 100%': { opacity: '1' },
+            '50%': { opacity: '0.5' },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
+        'lightsaber-glow': 'lightsaber-glow 2s ease-in-out infinite',
+        'pulse-vader': 'pulse-vader 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
       },
     },
   },
