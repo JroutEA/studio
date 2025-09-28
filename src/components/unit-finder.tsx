@@ -177,6 +177,7 @@ export function UnitFinder() {
 
     if (activeTab === 'unit-finder' && unitFormRef.current) {
         const formData = new FormData(unitFormRef.current);
+        formData.set('loadMore', 'true');
         unitFormAction(formData);
     } else if (activeTab === 'squad-builder' && squadFormRef.current) {
         const formData = new FormData(squadFormRef.current);
@@ -187,16 +188,16 @@ export function UnitFinder() {
   };
 
   const handleHistoryClick = (query: any) => {
-    if (activeTab === 'unit-finder') {
-      const input = unitFormRef.current?.querySelector<HTMLTextAreaElement>('textarea[name="query"]');
+    if (activeTab === 'unit-finder' && unitFormRef.current) {
+      const input = unitFormRef.current.elements.namedItem('query') as HTMLTextAreaElement;
       if (input) input.value = query;
-    } else if (activeTab === 'squad-builder') {
-      const input = squadFormRef.current?.querySelector<HTMLTextAreaElement>('textarea[name="query"]');
+    } else if (activeTab === 'squad-builder' && squadFormRef.current) {
+      const input = squadFormRef.current.elements.namedItem('query') as HTMLTextAreaElement;
       if (input) input.value = query;
-    } else if (activeTab === 'test-assistant') {
-      const testCaseInput = testCaseFormRef.current?.querySelector<HTMLTextAreaElement>('textarea[name="testCase"]');
-      const unitDetailsInput = testCaseFormRef.current?.querySelector<HTMLTextAreaElement>('textarea[name="unitDetails"]');
-      const expectedResultInput = testCaseFormRef.current?.querySelector<HTMLTextAreaElement>('textarea[name="expectedResult"]');
+    } else if (activeTab === 'test-assistant' && testCaseFormRef.current) {
+      const testCaseInput = testCaseFormRef.current.elements.namedItem('testCase') as HTMLTextAreaElement;
+      const unitDetailsInput = testCaseFormRef.current.elements.namedItem('unitDetails') as HTMLTextAreaElement;
+      const expectedResultInput = testCaseFormRef.current.elements.namedItem('expectedResult') as HTMLTextAreaElement;
       if (testCaseInput && unitDetailsInput && expectedResultInput) {
           testCaseInput.value = query.testCase;
           unitDetailsInput.value = query.unitDetails;
@@ -244,6 +245,7 @@ export function UnitFinder() {
       return <UnitListSkeleton />;
     }
     if (unitState.units && unitState.units.length > 0) {
+      const hasMoreUnits = unitState.units.length >= 10;
       return (
         <div className="space-y-4">
           <UnitList 
@@ -251,18 +253,20 @@ export function UnitFinder() {
             isLoadingMore={isUnitFormPending}
             previousCount={unitState.units.length}
           />
-          <div className="text-center">
-            <Button onClick={handleLoadMore} disabled={isUnitFormPending}>
-              {isUnitFormPending ? (
-                <>
-                  <DarthVaderLoader className="mr-2 h-4 w-4" />
-                  Loading...
-                </>
-              ) : (
-                'Load 5 More'
-              )}
-            </Button>
-          </div>
+          {hasMoreUnits && (
+            <div className="text-center">
+              <Button onClick={handleLoadMore} disabled={isUnitFormPending}>
+                {isUnitFormPending ? (
+                  <>
+                    <DarthVaderLoader className="mr-2 h-4 w-4" />
+                    Loading...
+                  </>
+                ) : (
+                  'Load 5 More'
+                )}
+              </Button>
+            </div>
+          )}
         </div>
       );
     }
@@ -280,6 +284,7 @@ export function UnitFinder() {
       return <SquadListSkeleton />;
     }
     if (squadState.squads && squadState.squads.length > 0) {
+      const hasMoreSquads = squadState.squads.length >= 3;
       return (
         <div className="space-y-4">
           <SquadList 
@@ -288,18 +293,20 @@ export function UnitFinder() {
             savedSquads={savedSquads}
             onToggleSave={handleToggleSaveSquad}
           />
-          <div className="text-center">
-            <Button onClick={handleLoadMore} disabled={isSquadFormPending}>
-              {isSquadFormPending ? (
-                <>
-                  <DarthVaderLoader className="mr-2 h-4 w-4" />
-                  Loading...
-                </>
-              ) : (
-                'Load 3 More'
-              )}
-            </Button>
-          </div>
+          {hasMoreSquads && (
+            <div className="text-center">
+              <Button onClick={handleLoadMore} disabled={isSquadFormPending}>
+                {isSquadFormPending ? (
+                  <>
+                    <DarthVaderLoader className="mr-2 h-4 w-4" />
+                    Loading...
+                  </>
+                ) : (
+                  'Load 3 More'
+                )}
+              </Button>
+            </div>
+          )}
         </div>
       );
     }

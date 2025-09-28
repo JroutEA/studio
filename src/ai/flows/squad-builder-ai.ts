@@ -29,6 +29,7 @@ const SquadSchema = z.object({
 const SquadBuilderAIInputSchema = z.object({
   query: z.string().describe('The query describing the desired squad characteristics or goal.'),
   count: z.number().optional().default(3).describe('The number of squads to find.'),
+  loadMoreQuery: z.string().optional().describe('An optional previous query to ensure new results are returned when loading more.'),
 });
 export type SquadBuilderAIInput = z.infer<typeof SquadBuilderAIInputSchema>;
 
@@ -57,6 +58,10 @@ A standard squad consists of 5 characters: 1 Leader and 4 Members. You will also
 
 You will suggest {{{count}}} squads that fit the user's query.
 
+{{#if loadMoreQuery}}
+You MUST suggest different squads than the ones you found for the previous query: "{{{loadMoreQuery}}}"
+{{/if}}
+
 For each character, you MUST provide:
 1. The character's name.
 2. The URL for the character's small, public icon on swgoh.gg. These are usually square character portraits.
@@ -80,6 +85,9 @@ const squadBuilderAIFlow = ai.defineFlow(
   },
   async input => {
     const {output} = await prompt(input);
-    return output!;
+    if (!output) {
+      return { squads: [] };
+    }
+    return output;
   }
 );

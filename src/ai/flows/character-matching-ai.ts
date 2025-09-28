@@ -15,6 +15,7 @@ import {z} from 'genkit';
 const UnitMatchingAIInputSchema = z.object({
   query: z.string().describe('The query describing the desired unit (character or ship) characteristics.'),
   count: z.number().optional().default(10).describe('The number of units to find.'),
+  loadMoreQuery: z.string().optional().describe('An optional previous query to ensure new results are returned when loading more.'),
 });
 export type UnitMatchingAIInput = z.infer<typeof UnitMatchingAIInputSchema>;
 
@@ -48,6 +49,10 @@ You MUST use information from two sources to provide the best possible answer:
 2.  The provided \`wikiSearch\` tool to get detailed, up-to-date information on abilities, strategies, and synergies from the wiki. The tool returns a list of search result snippets.
 
 You will identify {{{count}}} units from SWGOH that best match the user's characteristics.
+
+{{#if loadMoreQuery}}
+You MUST find different units than the ones you found for the previous query: "{{{loadMoreQuery}}}"
+{{/if}}
 
 For each unit, provide:
 1. The unit's name.

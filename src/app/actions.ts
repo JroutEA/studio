@@ -23,6 +23,7 @@ const findUnitsSchema = z.object({
     })
     .min(1, 'Please describe the unit you are looking for.'),
   count: z.coerce.number().optional().default(10),
+  loadMore: z.string().optional(),
 });
 
 const buildSquadSchema = z.object({
@@ -32,6 +33,7 @@ const buildSquadSchema = z.object({
     })
     .min(1, 'Please describe the squad you want to build.'),
     count: z.coerce.number().optional().default(3),
+    loadMore: z.string().optional(),
 });
 
 const TestCaseAssistantAIInputSchema = z.object({
@@ -64,6 +66,7 @@ export async function findUnits(
   const validatedFields = findUnitsSchema.safeParse({
     query: formData.get('query'),
     count: formData.get('count'),
+    loadMore: formData.get('loadMore'),
   });
 
   if (!validatedFields.success) {
@@ -75,10 +78,14 @@ export async function findUnits(
     };
   }
 
-  const { query, count } = validatedFields.data;
+  const { query, count, loadMore } = validatedFields.data;
 
   try {
-    const result = await unitMatchingAI({query, count});
+    const result = await unitMatchingAI({
+      query,
+      count,
+      loadMoreQuery: loadMore ? query : undefined,
+    });
 
     if (!result.units || result.units.length === 0) {
       return {
@@ -90,8 +97,7 @@ export async function findUnits(
     }
 
     const newUnits = result.units;
-    // If the query is different, we are starting a new search.
-    const isNewSearch = prevState.query !== query;
+    const isNewSearch = !loadMore;
     const existingUnits = isNewSearch ? [] : prevState.units || [];
     
     const combinedUnits = [...existingUnits];
@@ -137,6 +143,7 @@ export async function buildSquad(
   const validatedFields = buildSquadSchema.safeParse({
     query: formData.get('query'),
     count: formData.get('count'),
+    loadMore: formData.get('loadMore'),
   });
 
   if (!validatedFields.success) {
@@ -148,8 +155,12 @@ export async function buildSquad(
     };
   }
 
-  const { query, count } = validatedFields.data;
-  const input = { query, count };
+  const { query, count, loadMore } = validatedFields.data;
+  const input = {
+    query,
+    count,
+    loadMoreQuery: loadMore ? query : undefined,
+  };
 
   try {
     const result = await squadBuilderAI(input);
@@ -158,12 +169,12 @@ export async function buildSquad(
         ...prevState,
         message:
           'Could not generate any matching squads. Please try a different query.',
-        squadsInput: input,
+        squadsInput: { query, count },
       };
     }
 
     const newSquads = result.squads;
-    const isNewSearch = prevState.squadsInput?.query !== query || formData.get('loadMore') !== 'true';
+    const isNewSearch = !loadMore;
     const existingSquads = isNewSearch ? [] : prevState.squads || [];
     const combinedSquads = [...existingSquads];
     const existingSquadNames = new Set(existingSquads.map(s => s.name));
@@ -178,7 +189,7 @@ export async function buildSquad(
     if (!isNewSearch && combinedSquads.length === existingSquads.length) {
       return {
         ...prevState,
-        squadsInput: input,
+        squadsInput: { query, count },
         squads: combinedSquads,
         message: 'No new squads found.',
       }
@@ -187,14 +198,14 @@ export async function buildSquad(
     return {
       message: 'success',
       squads: combinedSquads,
-      squadsInput: input,
+      squadsInput: { query, count },
     };
   } catch (e) {
     console.error('Error in buildSquad action:', e);
     return {
       message:
         'An error occurred while building the squad. Please try again later.',
-        squadsInput: input,
+        squadsInput: { query, count },
         squads: prevState.squads || [],
     };
   }
