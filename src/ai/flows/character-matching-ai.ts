@@ -68,8 +68,13 @@ const unitMatchingAIFlow = ai.defineFlow(
   },
   async input => {
     const {output} = await prompt(input);
-    // Rename 'characters' to 'units' in the final output for clarity.
-    const result = { units: (output as any).characters || output!.units };
+    
+    if (!output) {
+      return { units: [] };
+    }
+
+    // The model sometimes returns 'characters' instead of 'units'. Handle both cases.
+    const result = { units: (output as any).characters || output.units || [] };
     return result;
   }
 );
