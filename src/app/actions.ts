@@ -164,6 +164,11 @@ export async function generateTestCase(
     const message = Object.values(fieldErrors).flat()[0] || 'Invalid input.';
     return {
       message,
+      testCaseInput: {
+        testCase: formData.get('testCase') as string || '',
+        unitDetails: formData.get('unitDetails') as string || '',
+        expectedResult: formData.get('expectedResult') as string || '',
+      }
     };
   }
   
@@ -177,9 +182,10 @@ export async function generateTestCase(
       testCaseInput: input,
     };
   } catch (e) {
+    const errorMessage = e instanceof Error ? e.message : String(e);
     console.error('Error in generateTestCase action:', e);
     return {
-      message: 'An error occurred while generating the test case. Please try again later.',
+      message: errorMessage,
       testCaseInput: input,
     };
   }

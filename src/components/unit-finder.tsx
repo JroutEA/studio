@@ -33,7 +33,8 @@ import { HolocronIcon } from './holocron-icon';
 import { DarthVaderLoader } from './darth-vader-loader';
 
 type Squad = NonNullable<SquadBuilderAIOutput['squads']>[0];
-const initialState: FormState = {
+
+const initialFormState: FormState = {
   message: '',
 };
 
@@ -64,9 +65,9 @@ function SubmitButton({ icon, pendingText, text }: { icon: React.ReactNode, pend
 
 
 export function UnitFinder() {
-  const [unitState, unitFormAction, isUnitFormPending] = useActionState(findUnits, initialState);
-  const [squadState, squadFormAction, isSquadFormPending] = useActionState(buildSquad, initialState);
-  const [testCaseState, testCaseFormAction, isTestCaseFormPending] = useActionState(generateTestCase, initialState);
+  const [unitState, unitFormAction, isUnitFormPending] = useActionState(findUnits, initialFormState);
+  const [squadState, squadFormAction, isSquadFormPending] = useActionState(buildSquad, initialFormState);
+  const [testCaseState, testCaseFormAction, isTestCaseFormPending] = useActionState(generateTestCase, initialFormState);
   
   const { toast } = useToast();
   
@@ -75,12 +76,6 @@ export function UnitFinder() {
   const [testCaseHistory, setTestCaseHistory] = useState<any[]>([]);
   const [savedSquads, setSavedSquads] = useState<Squad[]>([]);
   
-  const [unitQuery, setUnitQuery] = useState('');
-  const [squadQuery, setSquadQuery] = useState('');
-  const [testCaseAbility, setTestCaseAbility] = useState('');
-  const [testCaseUnit, setTestCaseUnit] = useState('');
-  const [testCaseExpected, setTestCaseExpected] = useState('');
-
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [isSavedSquadsOpen, setIsSavedSquadsOpen] = useState(false);
   
@@ -89,13 +84,8 @@ export function UnitFinder() {
   const testCaseFormRef = useRef<HTMLFormElement>(null);
   
   const [activeTab, setActiveTab] = useState('unit-finder');
-  
-  // This state ensures client-side only logic runs after mount
-  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
-    // This effect runs only on the client, after the component has mounted.
-    setIsClient(true);
     try {
       const storedUnitHistory = localStorage.getItem(UNIT_HISTORY_KEY);
       if (storedUnitHistory) setUnitHistory(JSON.parse(storedUnitHistory));
@@ -127,7 +117,6 @@ export function UnitFinder() {
     if (isUnitFormPending || isSquadFormPending || isTestCaseFormPending) return;
     
     if (activeTab === 'unit-finder' && unitState.message === 'success' && unitState.query) {
-       if (unitState.query !== unitQuery) setUnitQuery(unitState.query);
        setUnitHistory(prevHistory => {
         if (!prevHistory.includes(unitState.query!)) {
           const newHistory = [unitState.query!, ...prevHistory].slice(0, 20);
@@ -137,7 +126,6 @@ export function UnitFinder() {
         return prevHistory;
       });
     } else if (activeTab === 'squad-builder' && squadState.message === 'success' && squadState.squadsInput?.query) {
-       if (squadState.squadsInput.query !== squadQuery) setSquadQuery(squadState.squadsInput.query);
        setSquadHistory(prevHistory => {
         if (!prevHistory.includes(squadState.squadsInput!.query)) {
           const newHistory = [squadState.squadsInput!.query, ...prevHistory].slice(0, 20);
@@ -147,9 +135,6 @@ export function UnitFinder() {
         return prevHistory;
       });
     } else if (activeTab === 'test-assistant' && testCaseState.message === 'success' && testCaseState.testCaseInput) {
-       if(testCaseState.testCaseInput.testCase !== testCaseAbility) setTestCaseAbility(testCaseState.testCaseInput.testCase);
-       if(testCaseState.testCaseInput.unitDetails !== testCaseUnit) setTestCaseUnit(testCaseState.testCaseInput.unitDetails);
-       if(testCaseState.testCaseInput.expectedResult !== testCaseExpected) setTestCaseExpected(testCaseState.testCaseInput.expectedResult);
        setTestCaseHistory(prevHistory => {
          const newHistoryJSON = JSON.stringify(testCaseState.testCaseInput);
          if (!prevHistory.find(h => JSON.stringify(h) === newHistoryJSON)) {
@@ -160,7 +145,7 @@ export function UnitFinder() {
          return prevHistory;
        });
     }
-  }, [unitState, squadState, testCaseState, activeTab, isUnitFormPending, isSquadFormPending, isTestCaseFormPending, toast, unitQuery, squadQuery, testCaseAbility, testCaseUnit, testCaseExpected]);
+  }, [unitState, squadState, testCaseState, activeTab, isUnitFormPending, isSquadFormPending, isTestCaseFormPending, toast]);
 
   const handleToggleSaveSquad = (squad: Squad) => {
     setSavedSquads(prevSavedSquads => {
@@ -195,20 +180,33 @@ export function UnitFinder() {
   };
 
   const handleHistoryClick = (query: any) => {
-    if (activeTab === 'unit-finder') {
-      setUnitQuery(query);
-    } else if (activeTab === 'squad-builder') {
-      setSquadQuery(query);
-    } else if (activeTab === 'test-assistant') {
-        setTestCaseAbility(query.testCase);
-        setTestCaseUnit(query.unitDetails);
-        setTestCaseExpected(query.expectedResult);
+    if (activeTab === 'unit-finder' && unitFormRef.current) {
+        const queryInput = unitFormRef.current.querySelector<HTMLTextAreaElement>('textarea[name="query"]');
+        if (queryInput) {
+            queryInput.value = query;
+            unitFormRef.current.requestSubmit();
+        }
+    } else if (activeTab === 'squad-builder' && squadFormRef.current) {
+        const queryInput = squadFormRef.current.querySelector<HTMLTextAreaElement>('textarea[name="query"]');
+        if (queryInput) {
+            queryInput.value = query;
+            squadFormRef.current.requestSubmit();
+        }
+    } else if (activeTab === 'test-assistant' && testCaseFormRef.current) {
+        const testCaseInput = testCaseFormRef.current.querySelector<HTMLTextAreaElement>('textarea[name="testCase"]');
+        const unitDetailsInput = testCaseFormRef.current.querySelector<HTMLTextAreaElement>('textarea[name="unitDetails"]');
+        const expectedResultInput = testCaseFormRef.current.querySelector<HTMLTextAreaElement>('textarea[name="expectedResult"]');
+        if (testCaseInput && unitDetailsInput && expectedResultInput) {
+            testCaseInput.value = query.testCase;
+            unitDetailsInput.value = query.unitDetails;
+            expectedResultInput.value = query.expectedResult;
+            testCaseFormRef.current.requestSubmit();
+        }
     }
     setIsHistoryOpen(false);
   };
   
   const handleDeleteHistoryItem = (index: number) => {
-    if (!isClient) return;
     let updatedHistory;
     let storageKey;
 
@@ -237,13 +235,7 @@ export function UnitFinder() {
   const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
       event.preventDefault();
-      if (activeTab === 'unit-finder' && unitFormRef.current) {
-        unitFormRef.current.requestSubmit();
-      } else if (activeTab === 'squad-builder' && squadFormRef.current) {
-        squadFormRef.current.requestSubmit();
-      } else if (activeTab === 'test-assistant' && testCaseFormRef.current) {
-        testCaseFormRef.current.requestSubmit();
-      }
+      (event.target as HTMLTextAreaElement).form?.requestSubmit();
     }
   };
   
@@ -258,24 +250,19 @@ export function UnitFinder() {
   };
 
   const renderUnitFinderContent = () => {
-    const hasResults = unitState.units && unitState.units.length > 0;
-    const isPending = isUnitFormPending;
-
-    if (isPending && !hasResults) {
+    if (isUnitFormPending && !unitState.units?.length) {
       return <UnitListSkeleton />;
     }
-
-    if (hasResults) {
+    if (unitState.units?.length) {
       return (
         <div className="space-y-4">
           <UnitList 
-            units={unitState.units!} 
-            isLoadingMore={isPending && (unitState.units?.length || 0) > 0}
-            previousCount={isPending ? (unitState.units?.length || 0) : 0} 
+            units={unitState.units}
+            isLoadingMore={isUnitFormPending}
           />
           <div className="text-center">
-            <Button onClick={handleLoadMoreUnits} disabled={isPending}>
-              {isPending ? (
+            <Button onClick={handleLoadMoreUnits} disabled={isUnitFormPending}>
+              {isUnitFormPending ? (
                 <>
                   <DarthVaderLoader className="mr-2 h-4 w-4" />
                   Loading...
@@ -288,40 +275,31 @@ export function UnitFinder() {
         </div>
       );
     }
-    
-    if (!isPending) {
-        return (
-          <div className="text-center py-16 text-muted-foreground border-2 border-dashed rounded-lg border-primary/20">
-            <HolocronIcon className="mx-auto h-12 w-12" />
-            <h3 className="text-lg font-semibold mt-2">Your matched units will appear here</h3>
-            <p>Enter a description above to get started.</p>
-          </div>
-        );
-    }
-    
-    return null;
+    return (
+      <div className="text-center py-16 text-muted-foreground border-2 border-dashed rounded-lg border-primary/20">
+        <HolocronIcon className="mx-auto h-12 w-12" />
+        <h3 className="text-lg font-semibold mt-2">Your matched units will appear here</h3>
+        <p>Enter a description above to get started.</p>
+      </div>
+    );
   };
   
   const renderSquadBuilderContent = () => {
-    const hasResults = squadState.squads && squadState.squads.length > 0;
-    const isPending = isSquadFormPending;
-    
-    if (isPending && !hasResults) {
+    if (isSquadFormPending && !squadState.squads?.length) {
       return <SquadListSkeleton />;
     }
-
-    if (hasResults) {
+    if (squadState.squads?.length) {
       return (
         <div className="space-y-4">
           <SquadList 
-            squads={squadState.squads!} 
-            isLoadingMore={isPending && (squadState.squads?.length || 0) > 0}
+            squads={squadState.squads}
+            isLoadingMore={isSquadFormPending}
             savedSquads={savedSquads}
             onToggleSave={handleToggleSaveSquad}
           />
           <div className="text-center">
-            <Button onClick={handleLoadMoreSquads} disabled={isPending}>
-              {isPending ? (
+            <Button onClick={handleLoadMoreSquads} disabled={isSquadFormPending}>
+              {isSquadFormPending ? (
                 <>
                   <DarthVaderLoader className="mr-2 h-4 w-4" />
                   Loading...
@@ -334,45 +312,30 @@ export function UnitFinder() {
         </div>
       );
     }
-
-    if (!isPending) {
-        return (
-          <div className="text-center py-16 text-muted-foreground border-2 border-dashed rounded-lg border-primary/20">
-            <Users className="mx-auto h-12 w-12" />
-            <h3 className="text-lg font-semibold mt-2">Your generated squads will appear here</h3>
-            <p>Describe the squad you want to build above.</p>
-          </div>
-        );
-    }
-    
-    return null;
+    return (
+      <div className="text-center py-16 text-muted-foreground border-2 border-dashed rounded-lg border-primary/20">
+        <Users className="mx-auto h-12 w-12" />
+        <h3 className="text-lg font-semibold mt-2">Your generated squads will appear here</h3>
+        <p>Describe the squad you want to build above.</p>
+      </div>
+    );
   };
 
   const renderTestAssistantContent = () => {
-    const hasResult = testCaseState.testCase;
-    const isPending = isTestCaseFormPending;
-
-    if (isPending && !hasResult) {
+    if (isTestCaseFormPending && !testCaseState.testCase) {
       return <SquadListSkeleton />;
     }
-
-    if (hasResult) {
+    if (testCaseState.testCase) {
       return <TestCaseDisplay testCase={testCaseState.testCase} />;
     }
-    
-    if (!isPending) {
-      return (
-        <div className="text-center py-16 text-muted-foreground border-2 border-dashed rounded-lg border-primary/20">
-          <TestTube className="mx-auto h-12 w-12" />
-          <h3 className="text-lg font-semibold mt-2">Your generated test case will appear here</h3>
-          <p>Describe the scenario you want to test above.</p>
-        </div>
-      );
-    }
-    
-    return null;
+    return (
+      <div className="text-center py-16 text-muted-foreground border-2 border-dashed rounded-lg border-primary/20">
+        <TestTube className="mx-auto h-12 w-12" />
+        <h3 className="text-lg font-semibold mt-2">Your generated test case will appear here</h3>
+        <p>Describe the scenario you want to test above.</p>
+      </div>
+    );
   };
-
 
   return (
     <div className="space-y-12">
@@ -381,7 +344,7 @@ export function UnitFinder() {
           <div className="flex justify-between items-start">
             <div className='flex items-center gap-3'>
               <div className="p-2 bg-primary text-primary-foreground rounded-lg">
-                  <HolocronIcon className="w-6 h-6" suppressHydrationWarning />
+                  <HolocronIcon className="w-6 h-6" />
               </div>
               <div>
                 <CardTitle className="font-headline text-3xl">The AI Holocron</CardTitle>
@@ -395,7 +358,7 @@ export function UnitFinder() {
                 <Sheet open={isSavedSquadsOpen} onOpenChange={setIsSavedSquadsOpen}>
                   <SheetTrigger asChild>
                     <Button variant="outline" size="icon">
-                      <Star className="h-4 w-4" suppressHydrationWarning />
+                      <Star className="h-4 w-4" />
                       <span className="sr-only">View saved squads</span>
                     </Button>
                   </SheetTrigger>
@@ -404,7 +367,7 @@ export function UnitFinder() {
                       <SheetTitle>Saved Squads</SheetTitle>
                     </SheetHeader>
                     <div className="mt-4 space-y-4">
-                      {isClient && savedSquads.length > 0 ? (
+                      {savedSquads.length > 0 ? (
                         <SquadList squads={savedSquads} onToggleSave={handleToggleSaveSquad} savedSquads={savedSquads} />
                       ) : (
                         <p className="text-sm text-muted-foreground">
@@ -418,7 +381,7 @@ export function UnitFinder() {
               <Sheet open={isHistoryOpen} onOpenChange={setIsHistoryOpen}>
                 <SheetTrigger asChild>
                   <Button variant="outline" size="icon">
-                    <History className="h-4 w-4" suppressHydrationWarning />
+                    <History className="h-4 w-4" />
                     <span className="sr-only">View query history</span>
                   </Button>
                 </SheetTrigger>
@@ -427,7 +390,7 @@ export function UnitFinder() {
                     <SheetTitle>Query History</SheetTitle>
                   </SheetHeader>
                   <div className="mt-4 space-y-2">
-                    {isClient && (activeTab === 'unit-finder' ? unitHistory : activeTab === 'squad-builder' ? squadHistory : testCaseHistory).length > 0 ? (
+                    {(activeTab === 'unit-finder' ? unitHistory : activeTab === 'squad-builder' ? squadHistory : testCaseHistory).length > 0 ? (
                       (activeTab === 'unit-finder' ? unitHistory : activeTab === 'squad-builder' ? squadHistory : testCaseHistory).map((query, index) => (
                         <div key={index} className="flex items-center justify-between p-3 border rounded-md hover:bg-accent group">
                           <div
@@ -470,7 +433,7 @@ export function UnitFinder() {
                <form action={handleUnitFormSubmit} ref={unitFormRef} className="space-y-4">
                 <div className="grid w-full gap-1.5">
                   <Label htmlFor="unit-query">Your Query</Label>
-                  <Textarea onKeyDown={handleKeyDown} id="unit-query" name="query" value={unitQuery} onChange={(e) => setUnitQuery(e.target.value)} placeholder="e.g., 'A Rebel ship with an AOE attack' or 'A Jedi tank with counterattack'" required rows={3} className="text-base" />
+                  <Textarea onKeyDown={handleKeyDown} id="unit-query" name="query" defaultValue={unitState.query} placeholder="e.g., 'A Rebel ship with an AOE attack' or 'A Jedi tank with counterattack'" required rows={3} className="text-base" />
                 </div>
                 <SubmitButton icon={<HolocronIcon className="mr-2 h-4 w-4" />} pendingText="Searching..." text="Find Units" />
               </form>
@@ -480,7 +443,7 @@ export function UnitFinder() {
               <form action={handleSquadFormSubmit} ref={squadFormRef} className="space-y-4">
                 <div className="grid w-full gap-1.5">
                   <Label htmlFor="squad-query">Your Query</Label>
-                  <Textarea onKeyDown={handleKeyDown} id="squad-query" name="query" value={squadQuery} onChange={(e) => setSquadQuery(e.target.value)} placeholder="e.g., 'A squad to beat the Sith Triumvirate Raid with Jedi.' or 'A good starter team for Phoenix faction.'" required rows={3} className="text-base" />
+                  <Textarea onKeyDown={handleKeyDown} id="squad-query" name="query" defaultValue={squadState.squadsInput?.query} placeholder="e.g., 'A squad to beat the Sith Triumvirate Raid with Jedi.' or 'A good starter team for Phoenix faction.'" required rows={3} className="text-base" />
                 </div>
                 <SubmitButton icon={<Users className="mr-2 h-4 w-4" />} pendingText="Building..." text="Build Squad" />
               </form>
@@ -490,18 +453,18 @@ export function UnitFinder() {
               <form action={testCaseFormAction} ref={testCaseFormRef} className="space-y-4">
                 <div className="grid w-full gap-1.5">
                   <Label htmlFor="test-case">Testcase and the Ability you are testing</Label>
-                  <Textarea onKeyDown={handleKeyDown} id="test-case" name="testCase" value={testCaseAbility} onChange={(e) => setTestCaseAbility(e.target.value)} placeholder="e.g., 'Test if the new unit's 'Force Shield' ability correctly dispels all debuffs.'" required rows={2} className="text-base" />
+                  <Textarea onKeyDown={handleKeyDown} id="test-case" name="testCase" defaultValue={testCaseState.testCaseInput?.testCase} placeholder="e.g., 'Test if the new unit's 'Force Shield' ability correctly dispels all debuffs.'" required rows={2} className="text-base" />
                 </div>
                  <div className="grid w-full gap-1.5">
                   <Label htmlFor="expected-result">Expected Result</Label>
-                  <Textarea onKeyDown={handleKeyDown} id="expected-result" name="expectedResult" value={testCaseExpected} onChange={(e) => setTestCaseExpected(e.target.value)} placeholder="e.g., 'All debuffs on the new unit should be cleared, and it should gain the 'Protection Up' buff.'" required rows={2} className="text-base" />
+                  <Textarea onKeyDown={handleKeyDown} id="expected-result" name="expectedResult" defaultValue={testCaseState.testCaseInput?.expectedResult} placeholder="e.g., 'All debuffs on the new unit should be cleared, and it should gain the 'Protection Up' buff.'" required rows={2} className="text-base" />
                 </div>
                 <div className="grid w-full gap-1.5">
                   <Label htmlFor="unit-details">New Unit Details</Label>
                    <p className="text-xs text-muted-foreground">
                     You can copy and paste the ability details from the design document without naming the unit.
                   </p>
-                  <Textarea onKeyDown={handleKeyDown} id="unit-details" name="unitDetails" value={testCaseUnit} onChange={(e) => setTestCaseUnit(e.target.value)} placeholder="Describe the new unit's abilities, conditions, buffs, debuffs, zeta, and omicrons." required rows={4} className="text-base" />
+                  <Textarea onKeyDown={handleKeyDown} id="unit-details" name="unitDetails" defaultValue={testCaseState.testCaseInput?.unitDetails} placeholder="Describe the new unit's abilities, conditions, buffs, debuffs, zeta, and omicrons." required rows={4} className="text-base" />
                 </div>
                  <SubmitButton icon={<TestTube className="mr-2 h-4 w-4" />} pendingText="Generating..." text="Generate Test Case" />
               </form>
@@ -518,5 +481,3 @@ export function UnitFinder() {
     </div>
   );
 }
-
-    
