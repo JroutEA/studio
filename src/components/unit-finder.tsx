@@ -175,12 +175,14 @@ export function UnitFinder() {
     if (isPending) return;
 
     if (activeTab === 'unit-finder' && unitFormRef.current) {
-        const formData = new FormData(unitFormRef.current);
+        const formData = new FormData();
+        formData.set('query', unitState.query || '');
         formData.set('count', '5');
         formData.set('loadMoreQuery', unitState.query || '');
         unitFormAction(formData);
     } else if (activeTab === 'squad-builder' && squadFormRef.current) {
-        const formData = new FormData(squadFormRef.current);
+        const formData = new FormData();
+        formData.set('query', squadState.squadsInput?.query || '');
         formData.set('count', '3');
         formData.set('loadMoreQuery', squadState.squadsInput?.query || '');
         squadFormAction(formData);
