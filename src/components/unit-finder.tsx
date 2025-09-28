@@ -119,14 +119,6 @@ export function UnitFinder() {
     }
   }, []);
 
-  const state = activeTab === 'unit-finder' ? unitState :
-                activeTab === 'squad-builder' ? squadState :
-                testCaseState;
-  
-  const history = activeTab === 'unit-finder' ? unitHistory :
-                  activeTab === 'squad-builder' ? squadHistory :
-                  testCaseHistory;
-
   const handleToggleSaveSquad = (squad: Squad) => {
     setSavedSquads(prevSavedSquads => {
       const isSaved = prevSavedSquads.some(saved => saved.name === squad.name && saved.leader.name === squad.leader.name);
@@ -145,8 +137,8 @@ export function UnitFinder() {
   
   const handleLoadMoreUnits = () => {
     if (unitState.query) {
-      const newCount = unitCount + 5;
-      setPreviousUnitCount(unitCount);
+      const newCount = (unitState.units?.length || 0) + 5;
+      setPreviousUnitCount(unitState.units?.length || 0);
       setUnitCount(newCount);
       
       const formData = new FormData(unitFormRef.current!);
@@ -160,7 +152,7 @@ export function UnitFinder() {
 
   const handleLoadMoreSquads = () => {
     if (squadState.squadsInput?.query) {
-      const newCount = squadCount + 3;
+      const newCount = (squadState.squads?.length || 0) + 3;
       setSquadCount(newCount);
       
       const formData = new FormData(squadFormRef.current!);
@@ -185,10 +177,6 @@ export function UnitFinder() {
     if (isUnitFormPending || isSquadFormPending || isTestCaseFormPending) return;
     
     if (activeTab === 'unit-finder' && unitState.message === 'success' && unitState.query) {
-       if (unitState.units && unitState.units.length <= 10) {
-        setPreviousUnitCount(0);
-        setUnitCount(10);
-       }
        setUnitHistory(prevHistory => {
         if (!prevHistory.includes(unitState.query!)) {
           const newHistory = [unitState.query!, ...prevHistory].slice(0, 20);
@@ -198,9 +186,6 @@ export function UnitFinder() {
         return prevHistory;
       });
     } else if (activeTab === 'squad-builder' && squadState.message === 'success' && squadState.squadsInput?.query) {
-        if (squadState.squads && squadState.squads.length <= 3) {
-            setSquadCount(3);
-        }
        setSquadHistory(prevHistory => {
         if (!prevHistory.includes(squadState.squadsInput!.query)) {
           const newHistory = [squadState.squadsInput!.query, ...prevHistory].slice(0, 20);
@@ -258,7 +243,9 @@ export function UnitFinder() {
       return;
     }
 
-    localStorage.setItem(storageKey, JSON.stringify(updatedHistory));
+    if (isClient) {
+      localStorage.setItem(storageKey, JSON.stringify(updatedHistory));
+    }
   };
   
   const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -275,15 +262,15 @@ export function UnitFinder() {
   };
   
   const handleUnitFormSubmit = (formData: FormData) => {
-    formData.set('count', unitCount.toString());
     setPreviousUnitCount(0);
     setUnitCount(10);
+    formData.set('count', '10');
     unitFormAction(formData);
   }
   
   const handleSquadFormSubmit = (formData: FormData) => {
-    formData.set('count', squadCount.toString());
     setSquadCount(3);
+    formData.set('count', '3');
     squadFormAction(formData);
   }
 
@@ -318,7 +305,7 @@ export function UnitFinder() {
                       <SheetTitle>Saved Squads</SheetTitle>
                     </SheetHeader>
                     <div className="mt-4 space-y-4">
-                      {savedSquads.length > 0 ? (
+                      {isClient && savedSquads.length > 0 ? (
                         <SquadList squads={savedSquads} onToggleSave={handleToggleSaveSquad} savedSquads={savedSquads} />
                       ) : (
                         <p className="text-sm text-muted-foreground">
@@ -341,8 +328,8 @@ export function UnitFinder() {
                     <SheetTitle>Query History</SheetTitle>
                   </SheetHeader>
                   <div className="mt-4 space-y-2">
-                    {history.length > 0 ? (
-                      history.map((query, index) => (
+                    {isClient && (activeTab === 'unit-finder' ? unitHistory : activeTab === 'squad-builder' ? squadHistory : testCaseHistory).length > 0 ? (
+                      (activeTab === 'unit-finder' ? unitHistory : activeTab === 'squad-builder' ? squadHistory : testCaseHistory).map((query, index) => (
                         <div key={index} className="flex items-center justify-between p-3 border rounded-md hover:bg-accent group">
                           <div
                               className="flex-grow cursor-pointer text-sm group-hover:text-accent-foreground"
@@ -373,86 +360,72 @@ export function UnitFinder() {
           </div>
         </CardHeader>
         <CardContent>
-          {isClient ? (
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full" suppressHydrationWarning>
-              <TabsList className="grid w-full grid-cols-3" suppressHydrationWarning>
-                <TabsTrigger value="unit-finder">Unit Finder</TabsTrigger>
-                <TabsTrigger value="squad-builder">Squad Builder</TabsTrigger>
-                <TabsTrigger value="test-assistant">Test Assistant</TabsTrigger>
-              </TabsList>
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="unit-finder">Unit Finder</TabsTrigger>
+              <TabsTrigger value="squad-builder">Squad Builder</TabsTrigger>
+              <TabsTrigger value="test-assistant">Test Assistant</TabsTrigger>
+            </TabsList>
 
-              <TabsContent value="unit-finder" className="mt-4">
-                 <form action={handleUnitFormSubmit} ref={unitFormRef} className="space-y-4">
-                  <div className="grid w-full gap-1.5">
-                    <Label htmlFor="unit-query">Your Query</Label>
-                    <Textarea onKeyDown={handleKeyDown} id="unit-query" name="query" ref={unitTextAreaRef} defaultValue={unitState.query} placeholder="e.g., 'A Rebel ship with an AOE attack' or 'A Jedi tank with counterattack'" required rows={3} className="text-base" />
-                  </div>
-                  <SubmitButton icon={<HolocronIcon className="mr-2 h-4 w-4" suppressHydrationWarning />} pendingText="Searching..." text="Find Units" />
-                </form>
-              </TabsContent>
-              
-              <TabsContent value="squad-builder" className="mt-4">
-                <form action={handleSquadFormSubmit} ref={squadFormRef} className="space-y-4">
-                  <div className="grid w-full gap-1.5">
-                    <Label htmlFor="squad-query">Your Query</Label>
-                    <Textarea onKeyDown={handleKeyDown} id="squad-query" name="query" ref={squadTextAreaRef} defaultValue={squadState.squadsInput?.query} placeholder="e.g., 'A squad to beat the Sith Triumvirate Raid with Jedi.' or 'A good starter team for Phoenix faction.'" required rows={3} className="text-base" />
-                  </div>
-                  <SubmitButton icon={<Users className="mr-2 h-4 w-4" suppressHydrationWarning />} pendingText="Building..." text="Build Squad" />
-                </form>
-              </TabsContent>
-
-              <TabsContent value="test-assistant" className="mt-4">
-                <form action={testCaseFormAction} ref={testCaseFormRef} className="space-y-4">
-                  <div className="grid w-full gap-1.5">
-                    <Label htmlFor="test-case">Testcase and the Ability you are testing</Label>
-                    <Textarea onKeyDown={handleKeyDown} id="test-case" name="testCase" ref={testCaseAbilityRef} defaultValue={testCaseState.testCaseInput?.testCase} placeholder="e.g., 'Test if the new unit's 'Force Shield' ability correctly dispels all debuffs.'" required rows={2} className="text-base" />
-                  </div>
-                   <div className="grid w-full gap-1.5">
-                    <Label htmlFor="expected-result">Expected Result</Label>
-                    <Textarea onKeyDown={handleKeyDown} id="expected-result" name="expectedResult" ref={testCaseExpectedRef} defaultValue={testCaseState.testCaseInput?.expectedResult} placeholder="e.g., 'All debuffs on the new unit should be cleared, and it should gain the 'Protection Up' buff.'" required rows={2} className="text-base" />
-                  </div>
-                  <div className="grid w-full gap-1.5">
-                    <Label htmlFor="unit-details">New Unit Details</Label>
-                     <p className="text-xs text-muted-foreground">
-                      You can copy and paste the ability details from the design document without naming the unit.
-                    </p>
-                    <Textarea onKeyDown={handleKeyDown} id="unit-details" name="unitDetails" ref={testCaseUnitRef} defaultValue={testCaseState.testCaseInput?.unitDetails} placeholder="Describe the new unit's abilities, conditions, buffs, debuffs, zeta, and omicrons." required rows={4} className="text-base" />
-                  </div>
-                   <SubmitButton icon={<TestTube className="mr-2 h-4 w-4" suppressHydrationWarning />} pendingText="Generating..." text="Generate Test Case" />
-                </form>
-              </TabsContent>
-
-            </Tabs>
-          ) : (
-             <div className="space-y-4 mt-4">
+            <TabsContent value="unit-finder" className="mt-4">
+               <form action={handleUnitFormSubmit} ref={unitFormRef} className="space-y-4">
                 <div className="grid w-full gap-1.5">
                   <Label htmlFor="unit-query">Your Query</Label>
-                  <Textarea id="unit-query" name="query" placeholder="e.g., 'A Rebel ship with an AOE attack' or 'A Jedi tank with counterattack'" required rows={3} className="text-base" />
+                  <Textarea onKeyDown={handleKeyDown} id="unit-query" name="query" ref={unitTextAreaRef} defaultValue={unitState.query} placeholder="e.g., 'A Rebel ship with an AOE attack' or 'A Jedi tank with counterattack'" required rows={3} className="text-base" />
                 </div>
-                <Button className="w-full sm-w-auto">
-                  <HolocronIcon className="mr-2 h-4 w-4" suppressHydrationWarning />
-                  Find Units
-                </Button>
-             </div>
-          )}
+                <SubmitButton icon={<HolocronIcon className="mr-2 h-4 w-4" />} pendingText="Searching..." text="Find Units" />
+              </form>
+            </TabsContent>
+            
+            <TabsContent value="squad-builder" className="mt-4">
+              <form action={handleSquadFormSubmit} ref={squadFormRef} className="space-y-4">
+                <div className="grid w-full gap-1.5">
+                  <Label htmlFor="squad-query">Your Query</Label>
+                  <Textarea onKeyDown={handleKeyDown} id="squad-query" name="query" ref={squadTextAreaRef} defaultValue={squadState.squadsInput?.query} placeholder="e.g., 'A squad to beat the Sith Triumvirate Raid with Jedi.' or 'A good starter team for Phoenix faction.'" required rows={3} className="text-base" />
+                </div>
+                <SubmitButton icon={<Users className="mr-2 h-4 w-4" />} pendingText="Building..." text="Build Squad" />
+              </form>
+            </TabsContent>
+
+            <TabsContent value="test-assistant" className="mt-4">
+              <form action={testCaseFormAction} ref={testCaseFormRef} className="space-y-4">
+                <div className="grid w-full gap-1.5">
+                  <Label htmlFor="test-case">Testcase and the Ability you are testing</Label>
+                  <Textarea onKeyDown={handleKeyDown} id="test-case" name="testCase" ref={testCaseAbilityRef} defaultValue={testCaseState.testCaseInput?.testCase} placeholder="e.g., 'Test if the new unit's 'Force Shield' ability correctly dispels all debuffs.'" required rows={2} className="text-base" />
+                </div>
+                 <div className="grid w-full gap-1.5">
+                  <Label htmlFor="expected-result">Expected Result</Label>
+                  <Textarea onKeyDown={handleKeyDown} id="expected-result" name="expectedResult" ref={testCaseExpectedRef} defaultValue={testCaseState.testCaseInput?.expectedResult} placeholder="e.g., 'All debuffs on the new unit should be cleared, and it should gain the 'Protection Up' buff.'" required rows={2} className="text-base" />
+                </div>
+                <div className="grid w-full gap-1.5">
+                  <Label htmlFor="unit-details">New Unit Details</Label>
+                   <p className="text-xs text-muted-foreground">
+                    You can copy and paste the ability details from the design document without naming the unit.
+                  </p>
+                  <Textarea onKeyDown={handleKeyDown} id="unit-details" name="unitDetails" ref={testCaseUnitRef} defaultValue={testCaseState.testCaseInput?.unitDetails} placeholder="Describe the new unit's abilities, conditions, buffs, debuffs, zeta, and omicrons." required rows={4} className="text-base" />
+                </div>
+                 <SubmitButton icon={<TestTube className="mr-2 h-4 w-4" />} pendingText="Generating..." text="Generate Test Case" />
+              </form>
+            </TabsContent>
+          </Tabs>
         </CardContent>
       </Card>
 
       <div className="max-w-4xl mx-auto">
-        {(isUnitFormPending && unitCount <= 10) && activeTab === 'unit-finder' && <UnitListSkeleton />}
-        {(isSquadFormPending && squadCount <= 3) && activeTab === 'squad-builder' && <SquadListSkeleton />}
+        {(isUnitFormPending && (!unitState.units || unitState.units.length <= 10)) && activeTab === 'unit-finder' && <UnitListSkeleton />}
+        {(isSquadFormPending && (!squadState.squads || squadState.squads.length <= 3)) && activeTab === 'squad-builder' && <SquadListSkeleton />}
         {isTestCaseFormPending && activeTab === 'test-assistant' && <SquadListSkeleton />}
 
         {unitState.units && unitState.units.length > 0 && activeTab === 'unit-finder' && (
           <div className="space-y-4">
             <UnitList 
               units={unitState.units} 
-              isLoadingMore={isUnitFormPending && unitCount > 10}
+              isLoadingMore={isUnitFormPending && (unitState.units?.length || 0) > 10}
               previousCount={previousUnitCount} 
             />
             <div className="text-center">
               <Button onClick={handleLoadMoreUnits} disabled={isUnitFormPending}>
-                {isUnitFormPending && unitCount > 10 ? (
+                {isUnitFormPending && (unitState.units?.length || 0) > 10 ? (
                   <>
                     <DarthVaderLoader className="mr-2 h-4 w-4" />
                     Loading...
@@ -469,13 +442,13 @@ export function UnitFinder() {
            <div className="space-y-4">
             <SquadList 
               squads={squadState.squads} 
-              isLoadingMore={isSquadFormPending && squadCount > 3}
+              isLoadingMore={isSquadFormPending && (squadState.squads?.length || 0) > 3}
               savedSquads={savedSquads}
               onToggleSave={handleToggleSaveSquad}
             />
             <div className="text-center">
               <Button onClick={handleLoadMoreSquads} disabled={isSquadFormPending}>
-                {isSquadFormPending && squadCount > 3 ? (
+                {isSquadFormPending && (squadState.squads?.length || 0) > 3 ? (
                   <>
                     <DarthVaderLoader className="mr-2 h-4 w-4" />
                     Loading...
@@ -491,27 +464,26 @@ export function UnitFinder() {
         {testCaseState.testCase && activeTab === 'test-assistant' && !isTestCaseFormPending && (
           <TestCaseDisplay testCase={testCaseState.testCase} />
         )}
-
-
-        {!pending && isClient && (
+        
+        {!isUnitFormPending && !isSquadFormPending && !isTestCaseFormPending && (
           <div className="text-center py-16 text-muted-foreground border-2 border-dashed rounded-lg border-primary/20">
             {activeTab === 'unit-finder' && (!unitState.units || unitState.units.length === 0) &&
               <>
-                <HolocronIcon className="mx-auto h-12 w-12" suppressHydrationWarning />
+                <HolocronIcon className="mx-auto h-12 w-12" />
                 <h3 className="text-lg font-semibold mt-2">Your matched units will appear here</h3>
                 <p>Enter a description above to get started.</p>
               </>
             }
             {activeTab === 'squad-builder' && (!squadState.squads || squadState.squads.length === 0) &&
               <>
-                <Users className="mx-auto h-12 w-12" suppressHydrationWarning />
+                <Users className="mx-auto h-12 w-12" />
                 <h3 className="text-lg font-semibold mt-2">Your generated squads will appear here</h3>
                 <p>Describe the squad you want to build above.</p>
               </>
             }
             {activeTab === 'test-assistant' && !testCaseState.testCase &&
               <>
-                <TestTube className="mx-auto h-12 w-12" suppressHydrationWarning />
+                <TestTube className="mx-auto h-12 w-12" />
                 <h3 className="text-lg font-semibold mt-2">Your generated test case will appear here</h3>
                 <p>Describe the scenario you want to test above.</p>
               </>
