@@ -290,28 +290,30 @@ export function UnitFinder() {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <Sheet open={isSavedSquadsOpen} onOpenChange={setIsSavedSquadsOpen}>
-                <SheetTrigger asChild>
-                  <Button variant="outline" size="icon">
-                    <Star className="h-4 w-4" suppressHydrationWarning />
-                    <span className="sr-only">View saved squads</span>
-                  </Button>
-                </SheetTrigger>
-                <SheetContent>
-                  <SheetHeader>
-                    <SheetTitle>Saved Squads</SheetTitle>
-                  </SheetHeader>
-                  <div className="mt-4 space-y-4">
-                    {savedSquads.length > 0 ? (
-                      <SquadList squads={savedSquads} onToggleSave={handleToggleSaveSquad} savedSquads={savedSquads} />
-                    ) : (
-                      <p className="text-sm text-muted-foreground">
-                        Your saved squads will appear here. Click the star on a squad to save it.
-                      </p>
-                    )}
-                  </div>
-                </SheetContent>
-              </Sheet>
+              {activeTab === 'squad-builder' && (
+                <Sheet open={isSavedSquadsOpen} onOpenChange={setIsSavedSquadsOpen}>
+                  <SheetTrigger asChild>
+                    <Button variant="outline" size="icon">
+                      <Star className="h-4 w-4" suppressHydrationWarning />
+                      <span className="sr-only">View saved squads</span>
+                    </Button>
+                  </SheetTrigger>
+                  <SheetContent>
+                    <SheetHeader>
+                      <SheetTitle>Saved Squads</SheetTitle>
+                    </SheetHeader>
+                    <div className="mt-4 space-y-4">
+                      {savedSquads.length > 0 ? (
+                        <SquadList squads={savedSquads} onToggleSave={handleToggleSaveSquad} savedSquads={savedSquads} />
+                      ) : (
+                        <p className="text-sm text-muted-foreground">
+                          Your saved squads will appear here. Click the star on a squad to save it.
+                        </p>
+                      )}
+                    </div>
+                  </SheetContent>
+                </Sheet>
+              )}
               <Sheet open={isHistoryOpen} onOpenChange={setIsHistoryOpen}>
                 <SheetTrigger asChild>
                   <Button variant="outline" size="icon">
