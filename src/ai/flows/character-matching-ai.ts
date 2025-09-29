@@ -77,10 +77,10 @@ const unitMatchingAIFlow = ai.defineFlow(
   async input => {
     const {output} = await prompt(input);
     
-    // Safely handle the output. The AI might return 'characters' or the output might be null.
     if (!output) {
-      return { units: [] };
+      throw new Error('The AI model failed to generate a valid response. This could be due to a content filter or an internal error. Please try a different query.');
     }
+    
     const anyOutput = output as any;
     const units = anyOutput.units || anyOutput.characters || [];
     const isSquadQuery = anyOutput.isSquadQuery || false;

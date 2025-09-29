@@ -89,7 +89,7 @@ const squadBuilderAIFlow = ai.defineFlow(
   async input => {
     const {output} = await prompt(input);
     if (!output) {
-      return { squads: [] };
+      throw new Error('The AI model failed to generate a valid squad. This could be due to a content filter or an internal error. Please try a different query.');
     }
     const anyOutput = output as any;
     const squads = anyOutput.squads || [];
