@@ -44,7 +44,16 @@ const TestCaseAssistantAIOutputSchema = z.object({
 export type TestCaseAssistantAIOutput = z.infer<typeof TestCaseAssistantAIOutputSchema>;
 
 export async function testCaseAssistantAI(input: TestCaseAssistantAIInput): Promise<TestCaseAssistantAIOutput> {
-  return testCaseAssistantAIFlow(input);
+  try {
+    return await testCaseAssistantAIFlow(input);
+  } catch (e: unknown) {
+    const errorMessage = e instanceof Error ? e.message : String(e);
+    if (errorMessage.includes('503 Service Unavailable')) {
+      throw new Error("The AI model is temporarily unavailable (503 Service Unavailable). This is usually a temporary issue. Please try again in a few moments.");
+    }
+    // Re-throw other errors
+    throw e;
+  }
 }
 
 const prompt = ai.definePrompt({
