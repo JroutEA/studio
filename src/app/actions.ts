@@ -202,12 +202,12 @@ export async function buildSquad(
       squadsInput: { query },
     };
   } catch (e) {
+    const errorMessage = e instanceof Error ? e.message : String(e);
     console.error('Error in buildSquad action:', e);
     return {
-      message:
-        'An error occurred while building the squad. Please try again later.',
-        squadsInput: { query },
-        squads: prevState.squads || [],
+      message: errorMessage,
+      squadsInput: { query },
+      squads: prevState.squads || [],
     };
   }
 }
