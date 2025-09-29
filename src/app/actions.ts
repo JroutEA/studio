@@ -101,9 +101,12 @@ export async function findUnits(
     };
 
   } catch (e: unknown) {
-    const errorMessage = e instanceof Error ? e.message : String(e);
+    let errorMessage = e instanceof Error ? e.message : String(e);
     if (errorMessage.includes('503')) {
        return { ...prevState, query, message: "The AI model is temporarily unavailable (503 Service Unavailable). Please try again in a few moments." };
+    }
+    if (errorMessage.includes('Schema validation failed')) {
+      errorMessage = "The AI model returned an invalid response. This may be due to content filtering or a temporary issue. Please try a different query.";
     }
     return { ...prevState, query, message: `An error occurred: ${errorMessage}` };
   }
@@ -163,9 +166,12 @@ export async function buildSquad(
       squadsInput: { query }
     };
   } catch (e: unknown) {
-    const errorMessage = e instanceof Error ? e.message : String(e);
+    let errorMessage = e instanceof Error ? e.message : String(e);
      if (errorMessage.includes('503')) {
        return { ...prevState, squadsInput: { query }, message: "The AI model is temporarily unavailable (503 Service Unavailable). Please try again in a few moments." };
+    }
+    if (errorMessage.includes('Schema validation failed')) {
+      errorMessage = "The AI model returned an invalid response. This may be due to content filtering or a temporary issue. Please try a different query.";
     }
     return { ...prevState, squadsInput: { query }, message: `An error occurred while building the squad: ${errorMessage}` };
   }
@@ -196,9 +202,12 @@ export async function generateTestCase(
             testCaseInput: input
         };
     } catch (e: unknown) {
-        const errorMessage = e instanceof Error ? e.message : String(e);
+        let errorMessage = e instanceof Error ? e.message : String(e);
         if (errorMessage.includes('503')) {
           return { ...prevState, testCaseInput: input, message: "The AI model is temporarily unavailable (503 Service Unavailable). Please try again in a few moments." };
+        }
+        if (errorMessage.includes('Schema validation failed')) {
+          errorMessage = "The AI model returned an invalid response. This may be due to content filtering or a temporary issue. Please try a different query.";
         }
         return { ...prevState, testCaseInput: input, message: `An error occurred: ${errorMessage}` };
     }
