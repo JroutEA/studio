@@ -522,15 +522,15 @@ export function UnitFinder() {
             <TabsContent value="test-assistant" className="mt-4">
               <form action={testCaseFormAction} ref={testCaseFormRef} className="space-y-4">
                 <div className="grid w-full gap-1.5">
-                  <Label htmlFor="test-case">Testcase and the Ability you are testing</Label>
+                  <Label htmlFor="test-case">Put the Abilility along with the test scenario (test_step)</Label>
                   <Textarea onKeyDown={handleKeyDown} id="test-case" name="testCase" defaultValue={testCaseState.testCaseInput?.testCase ?? ''} placeholder="e.g., 'Test if the new unit's 'Force Shield' ability correctly dispels all debuffs.'" required rows={2} className="text-base" />
                 </div>
                  <div className="grid w-full gap-1.5">
-                  <Label htmlFor="expected-result">Expected Result</Label>
+                  <Label htmlFor="expected-result">Expected Result of above test Step.</Label>
                   <Textarea onKeyDown={handleKeyDown} id="expected-result" name="expectedResult" defaultValue={testCaseState.testCaseInput?.expectedResult ?? ''} placeholder="e.g., 'All debuffs on the new unit should be cleared, and it should gain the 'Protection Up' buff.'" required rows={2} className="text-base" />
                 </div>
                 <div className="grid w-full gap-1.5">
-                  <Label htmlFor="unit-details">New Unit Details</Label>
+                  <Label htmlFor="unit-details">the 'new_unit ability design'.</Label>
                    <p className="text-xs text-muted-foreground">
                     You can copy and paste the ability details from the design document without naming the unit.
                   </p>
@@ -539,7 +539,7 @@ export function UnitFinder() {
                  <SubmitButton
                   icon={<TestTube className="mr-2 h-4 w-4" />}
                   pendingText="Generating..."
-                  text="Generate Test Case"
+                  text="help me test this"
                   isPending={isTestCasePending}
                 />
               </form>
