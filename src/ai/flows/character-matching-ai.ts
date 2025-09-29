@@ -51,6 +51,11 @@ If it is NOT a squad query, you MUST use information from two sources to provide
 1. Your built-in knowledge of swgoh.gg for unit URLs, icon URLs, and basic stats. This includes knowing the difference between character and ship pages (e.g., /characters/ vs /ships/).
 2. The provided \`wikiSearch\` tool to get detailed, up-to-date information on abilities, strategies, and synergies from the wiki. The tool returns a list of search result snippets.
 
+Crucially, you must understand the difference between Buffs (positive effects) and Debuffs (negative effects).
+- **Buffs** are beneficial status effects. Examples include: Protection Up, Offense Up, Critical Damage Up, Speed Up, Tenacity Up, Retribution, Advantage.
+- **Debuffs** are detrimental status effects. Examples include: Stun, Daze, Ability Block, Healing Immunity, Potency Down, Shock, Stagger, Target Lock, Fear.
+When a user asks for units that apply buffs, DO NOT provide units that apply debuffs, and vice-versa.
+
 You will identify {{{count}}} units from SWGOH that best match the user's characteristics.
 
 {{#if loadMoreQuery}}
