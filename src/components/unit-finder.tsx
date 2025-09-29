@@ -1,7 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState, useTransition } from 'react';
-import { useFormState } from 'react-dom';
+import { useEffect, useRef, useState, useTransition, useActionState } from 'react';
 import {
   findUnits,
   buildSquad,
@@ -81,9 +80,9 @@ export function UnitFinder() {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('unit-finder');
   
-  const [unitState, unitFormAction, isUnitPending] = useFormState(findUnits, initialUnitState);
-  const [squadState, squadFormAction, isSquadPending] = useFormState(buildSquad, initialSquadState);
-  const [testCaseState, testCaseFormAction, isTestCasePending] = useFormState(generateTestCase, initialTestCaseState);
+  const [unitState, unitFormAction, isUnitPending] = useActionState(findUnits, initialUnitState);
+  const [squadState, squadFormAction, isSquadPending] = useActionState(buildSquad, initialSquadState);
+  const [testCaseState, testCaseFormAction, isTestCasePending] = useActionState(generateTestCase, initialTestCaseState);
 
   const isPending = isUnitPending || isSquadPending || isTestCasePending;
   
