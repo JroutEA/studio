@@ -523,18 +523,18 @@ export function UnitFinder() {
               <form action={testCaseFormAction} ref={testCaseFormRef} className="space-y-4">
                 <div className="grid w-full gap-1.5">
                   <Label htmlFor="test-case">Put the Abilility along with the test scenario (test_step)</Label>
-                  <Textarea onKeyDown={handleKeyDown} id="test-case" name="testCase" defaultValue={testCaseState.testCaseInput?.testCase ?? ''} placeholder="e.g., 'Test if the new unit's 'Force Shield' ability correctly dispels all debuffs.'" required rows={2} className="text-base" />
+                  <Textarea onKeyDown={handleKeyDown} id="test-case" name="testCase" defaultValue={testCaseState.testCaseInput?.testCase ?? ''} placeholder="e.g., 'Verify that if the ability can be evaded, it has an apply-type-tooltip defined in gamedata'" required rows={2} className="text-base" />
                 </div>
                  <div className="grid w-full gap-1.5">
                   <Label htmlFor="expected-result">Expected Result of above test Step.</Label>
-                  <Textarea onKeyDown={handleKeyDown} id="expected-result" name="expectedResult" defaultValue={testCaseState.testCaseInput?.expectedResult ?? ''} placeholder="e.g., 'All debuffs on the new unit should be cleared, and it should gain the 'Protection Up' buff.'" required rows={2} className="text-base" />
+                  <Textarea onKeyDown={handleKeyDown} id="expected-result" name="expectedResult" defaultValue={testCaseState.testCaseInput?.expectedResult ?? ''} placeholder="e.g., 'If the ability can be evaded and there is no apply type tooltip key defined, bug'" required rows={2} className="text-base" />
                 </div>
                 <div className="grid w-full gap-1.5">
                   <Label htmlFor="unit-details">the 'new_unit ability design'.</Label>
                    <p className="text-xs text-muted-foreground">
                     You can copy and paste the ability details from the design document without naming the unit.
                   </p>
-                  <Textarea onKeyDown={handleKeyDown} id="unit-details" name="unitDetails" defaultValue={testCaseState.testCaseInput?.unitDetails ?? ''} placeholder="Describe the new unit's abilities, conditions, buffs, debuffs, zeta, and omicrons." required rows={4} className="text-base" />
+                  <Textarea onKeyDown={handleKeyDown} id="unit-details" name="unitDetails" defaultValue={testCaseState.testCaseInput?.unitDetails ?? ''} placeholder={`e.g., 'Basic - Destructive Rotation\nDescription: Deal Special damage to target enemy.\n\nUpgrades:\n\n+5% Damage\nDeal an additional instance of damage\n+5% Damage\nDeal an additional instance of damage\nInflict Defense Down for 1 turn\nDeal an additional instance of damage\nDuring new_unit's turn, Dark Side Bounty Hunter Attackers Stealth for 2 turns\nFinal Text: Deal Special damage to target enemy four times and inflict them with Defense Down for 1 turn.\n\nDuring new_unit's turn, Dark Side Bounty Hunter Attackers Stealth for 2 turns.'`} required rows={4} className="text-base" />
                 </div>
                  <SubmitButton
                   icon={<TestTube className="mr-2 h-4 w-4" />}
