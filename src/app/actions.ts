@@ -59,6 +59,14 @@ export type FormState = {
   squadsInput?: SquadBuilderAIInput;
 };
 
+const handleServiceUnavailable = (e: unknown): string | null => {
+  const errorMessage = e instanceof Error ? e.message : String(e);
+  if (errorMessage.includes('503 Service Unavailable')) {
+    return 'The AI model is temporarily unavailable (503 Service Unavailable). Please try again in a few moments.';
+  }
+  return null;
+}
+
 export async function findUnits(
   prevState: FormState,
   formData: FormData
@@ -125,6 +133,11 @@ export async function findUnits(
       query,
     };
   } catch (e: unknown) {
+    const serviceError = handleServiceUnavailable(e);
+    if (serviceError) {
+      return { message: serviceError, query, units: prevState.units || [] };
+    }
+    
     const errorMessage = e instanceof Error ? e.message : String(e);
     console.error(`Error in findUnits action for query "${query}":`, errorMessage);
     return {
@@ -202,10 +215,15 @@ export async function buildSquad(
       squadsInput: { query },
     };
   } catch (e) {
+    const serviceError = handleServiceUnavailable(e);
+    if (serviceError) {
+      return { message: serviceError, squadsInput: { query }, squads: prevState.squads || [] };
+    }
+
     const errorMessage = e instanceof Error ? e.message : String(e);
     console.error('Error in buildSquad action:', e);
     return {
-      message: errorMessage,
+      message: "An error occurred while building the squad. Please try again later.",
       squadsInput: { query },
       squads: prevState.squads || [],
     };
@@ -246,6 +264,11 @@ export async function generateTestCase(
       testCaseInput: input,
     };
   } catch (e) {
+     const serviceError = handleServiceUnavailable(e);
+    if (serviceError) {
+      return { message: serviceError, testCaseInput: input };
+    }
+    
     const errorMessage = e instanceof Error ? e.message : String(e);
     console.error('Error in generateTestCase action:', e);
     return {
