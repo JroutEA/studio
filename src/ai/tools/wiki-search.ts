@@ -2,6 +2,7 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
+import { getJson } from 'serpapi';
 
 export const wikiSearchTool = ai.defineTool(
   {
@@ -24,25 +25,18 @@ export const wikiSearchTool = ai.defineTool(
     console.log(`Performing wiki search for: ${input.query}`);
     if (!process.env.SERPAPI_KEY) {
       console.error('SERPAPI_KEY environment variable not set.');
+      // Return empty result to AI instead of throwing to allow flow to continue
       return { results: [] };
     }
 
-    const searchParams = new URLSearchParams({
-      engine: 'google',
-      q: `site:swgoh.wiki ${input.query}`,
-      api_key: process.env.SERPAPI_KEY,
-    });
-    const url = `https://serpapi.com/search.json?${searchParams.toString()}`;
-
     try {
-      const response = await fetch(url);
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`SerpApi request failed with status ${response.status}: ${errorText}`);
-      }
+      const response = await getJson({
+        engine: 'google',
+        q: `site:swgoh.wiki ${input.query}`,
+        api_key: process.env.SERPAPI_KEY,
+      });
       
-      const json = await response.json();
-      const organicResults = json.organic_results || [];
+      const organicResults = response.organic_results || [];
       
       const results = organicResults.slice(0, 5).map((result: any) => ({
         title: result.title,
