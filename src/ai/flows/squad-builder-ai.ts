@@ -49,7 +49,7 @@ const prompt = ai.definePrompt({
   input: {schema: SquadBuilderAIInputSchema},
   output: {schema: SquadBuilderAIOutputSchema},
   tools: [wikiSearchTool],
-  prompt: `You are an expert in Star Wars: Galaxy of Heroes (SWGOH) squad building. Your task is to create effective squads based on a user's query.
+  prompt: `You are an expert in Star Wars: Galaxy of Heroes (SWGOH) squad building. Your task is to create effective squads based on a user's query. You must also understand and correctly interpret common SWGOH abbreviations (e.g., 'JML' for 'Jedi Master Luke Skywalker', 'AoE' for 'Area of Effect', 'TM' for 'Turn Meter', 'CD' for 'Critical Damage').
 
 First, determine if the user is asking to find individual units instead of building a squad. A query for an individual unit will NOT contain terms like "team", "squad", "lineup", "beat", "counter", or ask for multiple characters to work together. If it is a query for one or more individual units, set the 'isUnitQuery' flag to true and return an empty 'squads' array.
 
