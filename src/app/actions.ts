@@ -1,151 +1,111 @@
 'use server';
 
-import {z} from 'zod';
+import { z } from 'zod';
 import {
   unitMatchingAI,
   type UnitMatchingAIOutput,
+  type UnitMatchingAIInput,
 } from '@/ai/flows/character-matching-ai';
 import {
   squadBuilderAI,
-  type SquadBuilderAIInput,
   type SquadBuilderAIOutput,
+  type SquadBuilderAIInput,
 } from '@/ai/flows/squad-builder-ai';
 import {
   testCaseAssistantAI,
-  type TestCaseAssistantAIInput,
   type TestCaseAssistantAIOutput,
+  type TestCaseAssistantAIInput,
 } from '@/ai/flows/test-case-assistant-ai';
-
-const findUnitsSchema = z.object({
-  query: z
-    .string({
-      required_error: 'Please describe the unit you are looking for.',
-    })
-    .min(1, 'Please describe the unit you are looking for.'),
-  count: z.coerce.number().optional().default(10),
-  loadMoreQuery: z.string().optional(),
-});
-
-const buildSquadSchema = z.object({
-  query: z
-    .string({
-      required_error: 'Please describe the squad you want to build.',
-    })
-    .min(1, 'Please describe the squad you want to build.'),
-    count: z.coerce.number().optional().default(3),
-    loadMoreQuery: z.string().optional(),
-});
-
-const TestCaseAssistantAIInputSchema = z.object({
-  testCase: z
-    .string({required_error: 'Please provide the test case details.'})
-    .min(1, 'Please provide the test case details.'),
-  unitDetails: z
-    .string({required_error: 'Please provide the new unit details.'})
-    .min(1, 'Please provide the new unit details.'),
-  expectedResult: z
-    .string({required_error: 'Please provide the expected result.'})
-    .min(1, 'Please provide the expected result.'),
-});
-
 
 export type FormState = {
   message: string;
-  query?: string;
   units?: UnitMatchingAIOutput['units'];
   squads?: SquadBuilderAIOutput['squads'];
   testCase?: TestCaseAssistantAIOutput;
-  testCaseInput?: TestCaseAssistantAIInput;
+  query?: string;
   squadsInput?: SquadBuilderAIInput;
+  testCaseInput?: TestCaseAssistantAIInput;
+  switchToTab?: string;
 };
 
-const handleServiceUnavailable = (e: unknown): string | null => {
-  const errorMessage = e instanceof Error ? e.message : String(e);
-  if (errorMessage.includes('503 Service Unavailable')) {
-    return 'The AI model is temporarily unavailable (503 Service Unavailable). Please try again in a few moments.';
-  }
-  return null;
-}
+const findUnitsSchema = z.object({
+  query: z.string().min(5, { message: 'Query must be at least 5 characters long.' }),
+  loadMoreQuery: z.string().optional(),
+  count: z.coerce.number().optional().default(10),
+});
+
+const buildSquadSchema = z.object({
+  query: z.string().min(10, { message: 'Query must be at least 10 characters long.' }),
+  loadMoreQuery: z.string().optional(),
+  count: z.coerce.number().optional().default(3),
+});
+
+const generateTestCaseSchema = z.object({
+    testCase: z.string().min(10, { message: 'Test case description must be at least 10 characters.' }),
+    unitDetails: z.string().min(20, { message: 'Unit details must be at least 20 characters.' }),
+    expectedResult: z.string().min(10, { message: 'Expected result must be at least 10 characters.' }),
+});
 
 export async function findUnits(
   prevState: FormState,
   formData: FormData
 ): Promise<FormState> {
-  const validatedFields = findUnitsSchema.safeParse({
-    query: formData.get('query'),
-    count: formData.get('count'),
-    loadMoreQuery: formData.get('loadMoreQuery'),
-  });
+  const validatedFields = findUnitsSchema.safeParse(
+    Object.fromEntries(formData.entries())
+  );
 
   if (!validatedFields.success) {
     return {
-      ...prevState,
-      message:
-        validatedFields.error.flatten().fieldErrors.query?.[0] ??
-        'Invalid query.',
+      message: 'Invalid query.',
+      units: prevState.units || [],
     };
   }
-
-  const { query, count, loadMoreQuery } = validatedFields.data;
+  
+  const { query, loadMoreQuery, count } = validatedFields.data;
   const isLoadMore = !!loadMoreQuery;
+  const input: UnitMatchingAIInput = { query, count, loadMoreQuery };
 
   try {
-    const result = await unitMatchingAI({
-      query: isLoadMore ? loadMoreQuery : query,
-      count,
-      loadMoreQuery: isLoadMore ? query : undefined,
-    });
+    const result = await unitMatchingAI(input);
 
+    if (result.isSquadQuery) {
+        const squadResult = await squadBuilderAI({ query, count: 3 });
+        return {
+            message: 'success',
+            query: query,
+            units: [], // Clear units
+            squads: squadResult.squads, // Populate squads
+            switchToTab: 'squad-builder',
+        };
+    }
+    
     if (!result.units || result.units.length === 0) {
-      return {
+      return { 
         ...prevState,
-        message:
-          isLoadMore ? 'No new units found.' : 'Could not find any matching units. Please try a different query.',
-        query,
+        message: 'No new units found.',
+        query: query
       };
     }
 
-    const newUnits = result.units;
-    const existingUnits = isLoadMore ? prevState.units || [] : [];
-    
-    const combinedUnits = [...existingUnits];
-    const existingUnitNames = new Set(existingUnits.map(u => u.name));
+    const combinedUnits = isLoadMore 
+      ? [...(prevState.units || []), ...result.units]
+      : result.units;
 
-    for (const unit of newUnits) {
-        if (!existingUnitNames.has(unit.name)) {
-            combinedUnits.push(unit);
-            existingUnitNames.add(unit.name);
-        }
-    }
-    
-    if (isLoadMore && combinedUnits.length === existingUnits.length) {
-      return {
-        ...prevState,
-        query,
-        units: combinedUnits,
-        message: 'No new units found.',
-      }
-    }
+    // Filter out duplicates based on name
+    const uniqueUnits = Array.from(new Map(combinedUnits.map(unit => [unit.name, unit])).values());
 
-    return {
-      message: 'success',
-      units: combinedUnits,
-      query,
+    return { 
+      message: 'success', 
+      units: uniqueUnits,
+      query: query
     };
+
   } catch (e: unknown) {
-    const serviceError = handleServiceUnavailable(e);
-    if (serviceError) {
-      return { message: serviceError, query, units: prevState.units || [] };
-    }
-    
     const errorMessage = e instanceof Error ? e.message : String(e);
-    console.error(`Error in findUnits action for query "${query}":`, errorMessage);
-    return {
-      message:
-        'An error occurred while searching for units. Please try again later.',
-      query,
-      units: prevState.units || [],
-    };
+    if (errorMessage.includes('503')) {
+       return { ...prevState, query, message: "The AI model is temporarily unavailable (503 Service Unavailable). Please try again in a few moments." };
+    }
+    return { ...prevState, query, message: `An error occurred: ${errorMessage}` };
   }
 }
 
@@ -153,127 +113,79 @@ export async function buildSquad(
   prevState: FormState,
   formData: FormData
 ): Promise<FormState> {
-  const validatedFields = buildSquadSchema.safeParse({
-    query: formData.get('query'),
-    count: formData.get('count'),
-    loadMoreQuery: formData.get('loadMoreQuery'),
-  });
+  const validatedFields = buildSquadSchema.safeParse(
+    Object.fromEntries(formData.entries())
+  );
 
   if (!validatedFields.success) {
     return {
-      ...prevState,
-      message:
-        validatedFields.error.flatten().fieldErrors.query?.[0] ??
-        'Invalid query.',
-    };
-  }
-
-  const { query, count, loadMoreQuery } = validatedFields.data;
-  const isLoadMore = !!loadMoreQuery;
-
-  const input = {
-    query: isLoadMore ? loadMoreQuery : query,
-    count,
-    loadMoreQuery: isLoadMore ? query : undefined,
-  };
-
-  try {
-    const result = await squadBuilderAI(input);
-    if (!result.squads || result.squads.length === 0) {
-      return {
-        ...prevState,
-        message:
-          isLoadMore ? 'No new squads found.' : 'Could not generate any matching squads. Please try a different query.',
-        squadsInput: { query },
-      };
-    }
-
-    const newSquads = result.squads;
-    const existingSquads = isLoadMore ? prevState.squads || [] : [];
-    const combinedSquads = [...existingSquads];
-    const existingSquadNames = new Set(existingSquads.map(s => s.name));
-
-    for (const squad of newSquads) {
-        if (!existingSquadNames.has(squad.name)) {
-            combinedSquads.push(squad);
-            existingSquadNames.add(squad.name);
-        }
-    }
-
-    if (isLoadMore && combinedSquads.length === existingSquads.length) {
-      return {
-        ...prevState,
-        squadsInput: { query },
-        squads: combinedSquads,
-        message: 'No new squads found.',
-      }
-    }
-
-    return {
-      message: 'success',
-      squads: combinedSquads,
-      squadsInput: { query },
-    };
-  } catch (e) {
-    const serviceError = handleServiceUnavailable(e);
-    if (serviceError) {
-      return { message: serviceError, squadsInput: { query }, squads: prevState.squads || [] };
-    }
-
-    const errorMessage = e instanceof Error ? e.message : String(e);
-    console.error('Error in buildSquad action:', e);
-    return {
-      message: "An error occurred while building the squad. Please try again later.",
-      squadsInput: { query },
+      message: 'Invalid query.',
       squads: prevState.squads || [],
     };
   }
-}
 
-
-export async function generateTestCase(
-  prevState: FormState,
-  formData: FormData
-): Promise<FormState> {
-  const validatedFields = TestCaseAssistantAIInputSchema.safeParse({
-    testCase: formData.get('testCase'),
-    unitDetails: formData.get('unitDetails'),
-    expectedResult: formData.get('expectedResult'),
-  });
-
-  if (!validatedFields.success) {
-    const fieldErrors = validatedFields.error.flatten().fieldErrors;
-    const message = Object.values(fieldErrors).flat()[0] || 'Invalid input.';
-    return {
-      message,
-      testCaseInput: {
-        testCase: formData.get('testCase') as string || '',
-        unitDetails: formData.get('unitDetails') as string || '',
-        expectedResult: formData.get('expectedResult') as string || '',
-      }
-    };
-  }
-  
-  const input = validatedFields.data;
+  const { query, loadMoreQuery, count } = validatedFields.data;
+  const isLoadMore = !!loadMoreQuery;
+  const input: SquadBuilderAIInput = { query, count, loadMoreQuery };
 
   try {
-    const result = await testCaseAssistantAI(input);
-    return {
+    const result = await squadBuilderAI(input);
+
+     if (!result.squads || result.squads.length === 0) {
+      return { 
+        ...prevState,
+        message: 'No new squads found.',
+        squadsInput: { query }
+      };
+    }
+
+    const combinedSquads = isLoadMore
+        ? [...(prevState.squads || []), ...result.squads]
+        : result.squads;
+
+    // Filter out duplicates based on squad name
+    const uniqueSquads = Array.from(new Map(combinedSquads.map(squad => [squad.name, squad])).values());
+
+    return { 
       message: 'success',
-      testCase: result,
-      testCaseInput: input,
+      squads: uniqueSquads,
+      squadsInput: { query }
     };
-  } catch (e) {
-     const serviceError = handleServiceUnavailable(e);
-    if (serviceError) {
-      return { message: serviceError, testCaseInput: input };
+  } catch (e: unknown) {
+    const errorMessage = e instanceof Error ? e.message : String(e);
+     if (errorMessage.includes('503')) {
+       return { ...prevState, squadsInput: { query }, message: "The AI model is temporarily unavailable (503 Service Unavailable). Please try again in a few moments." };
+    }
+    return { ...prevState, squadsInput: { query }, message: `An error occurred while building the squad: ${errorMessage}` };
+  }
+}
+
+export async function generateTestCase(
+    prevState: FormState,
+    formData: FormData
+): Promise<FormState> {
+    const validatedFields = generateTestCaseSchema.safeParse(Object.fromEntries(formData.entries()));
+
+    if (!validatedFields.success) {
+        return {
+            message: validatedFields.error.flatten().fieldErrors.testCase?.[0] || 
+                     validatedFields.error.flatten().fieldErrors.unitDetails?.[0] || 
+                     validatedFields.error.flatten().fieldErrors.expectedResult?.[0] || 
+                     "Invalid input.",
+        };
     }
     
-    const errorMessage = e instanceof Error ? e.message : String(e);
-    console.error('Error in generateTestCase action:', e);
-    return {
-      message: errorMessage,
-      testCaseInput: input,
-    };
-  }
+    const input: TestCaseAssistantAIInput = validatedFields.data;
+
+    try {
+        const result = await testCaseAssistantAI(input);
+        return {
+            message: 'success',
+            testCase: result,
+            testCaseInput: input
+        };
+    } catch (e: unknown) {
+        const errorMessage = e instanceof Error ? e.message : String(e);
+        return { ...prevState, testCaseInput: input, message: `An error occurred: ${errorMessage}` };
+    }
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState, useTransition, useActionState } from 'react';
+import { useEffect, useRef, useState, useActionState } from 'react';
 import {
   findUnits,
   buildSquad,
@@ -113,11 +113,14 @@ export function UnitFinder() {
   }, []);
   
   useEffect(() => {
+    if (unitState.switchToTab) {
+      setActiveTab(unitState.switchToTab);
+    }
     if (unitState.message && unitState.message !== 'success') {
         toast({
-          title: unitState.message.includes('found') ? 'Info' : 'Error',
+          title: unitState.message.includes('found') ? 'Info' : unitState.message.includes('Invalid') ? 'Warning' : 'Error',
           description: unitState.message,
-          variant: unitState.message.includes('found') ? 'default' : 'destructive',
+          variant: unitState.message.includes('found') || unitState.message.includes('Invalid') ? 'default' : 'destructive',
         });
     }
     if (unitState.message === 'success' && unitState.query) {
@@ -135,9 +138,9 @@ export function UnitFinder() {
   useEffect(() => {
     if (squadState.message && squadState.message !== 'success') {
        toast({
-          title: squadState.message.includes('found') ? 'Info' : 'Error',
+          title: squadState.message.includes('found') ? 'Info' : squadState.message.includes('Invalid') ? 'Warning' : 'Error',
           description: squadState.message,
-          variant: squadState.message.includes('found') ? 'default' : 'destructive',
+          variant: squadState.message.includes('found') || squadState.message.includes('Invalid') ? 'default' : 'destructive',
         });
     }
     if (squadState.message === 'success' && squadState.squadsInput?.query) {
@@ -265,14 +268,30 @@ export function UnitFinder() {
   };
 
   const renderUnitFinderContent = () => {
-    const isLoadingFirstTime = isUnitPending && !unitState.units?.length;
+    const isLoadingFirstTime = isUnitPending && !unitState.units?.length && !unitState.squads?.length;
     const isLoadingMore = isUnitPending && !!unitState.units?.length;
 
     if (isLoadingFirstTime) {
       return <UnitListSkeleton />;
     }
+    
+    // If the query was for a squad, the results will be in unitState, not squadState after action change
+    if (unitState.switchToTab === 'squad-builder') {
+      if (isUnitPending) return <SquadListSkeleton />; // Show skeleton while switching and fetching
+      if (unitState.squads && unitState.squads.length > 0) {
+        return (
+          <SquadList
+            squads={unitState.squads}
+            savedSquads={savedSquads}
+            onToggleSave={handleToggleSaveSquad}
+            title="Generated Squads (from Unit Finder)"
+          />
+        );
+      }
+    }
+
     if (unitState.units && unitState.units.length > 0) {
-      const hasMoreUnits = true; // Assume there can always be more
+      const hasMoreUnits = true;
       return (
         <div className="space-y-4">
           <UnitList 

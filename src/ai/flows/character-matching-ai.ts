@@ -30,6 +30,7 @@ const UnitSchema = z.object({
 
 const UnitMatchingAIOutputSchema = z.object({
   units: z.array(UnitSchema).describe('A list of matched units (characters or ships) and their descriptions.'),
+  isSquadQuery: z.boolean().optional().describe('Set to true if the user\'s query is asking to build a squad of multiple characters instead of finding individual units.'),
 });
 export type UnitMatchingAIOutput = z.infer<typeof UnitMatchingAIOutputSchema>;
 
@@ -44,9 +45,11 @@ const prompt = ai.definePrompt({
   tools: [wikiSearchTool],
   prompt: `You are an expert in Star Wars: Galaxy of Heroes (SWGOH). Your task is to identify units (characters OR ships) from the game that match a user's description.
 
-You MUST use information from two sources to provide the best possible answer:
-1.  Your built-in knowledge of swgoh.gg for unit URLs, icon URLs, and basic stats. This includes knowing the difference between character and ship pages (e.g., /characters/ vs /ships/).
-2.  The provided \`wikiSearch\` tool to get detailed, up-to-date information on abilities, strategies, and synergies from the wiki. The tool returns a list of search result snippets.
+First, you must determine if the user is asking to build a squad or find individual units. A squad query usually involves terms like "team", "squad", "lineup", "beat", "counter", or asks for multiple characters to work together. If it is a squad query, set the 'isSquadQuery' flag to true and return an empty 'units' array.
+
+If it is NOT a squad query, you MUST use information from two sources to provide the best possible answer:
+1. Your built-in knowledge of swgoh.gg for unit URLs, icon URLs, and basic stats. This includes knowing the difference between character and ship pages (e.g., /characters/ vs /ships/).
+2. The provided \`wikiSearch\` tool to get detailed, up-to-date information on abilities, strategies, and synergies from the wiki. The tool returns a list of search result snippets.
 
 You will identify {{{count}}} units from SWGOH that best match the user's characteristics.
 
@@ -80,7 +83,8 @@ const unitMatchingAIFlow = ai.defineFlow(
     }
     const anyOutput = output as any;
     const units = anyOutput.units || anyOutput.characters || [];
+    const isSquadQuery = anyOutput.isSquadQuery || false;
 
-    return { units };
+    return { units, isSquadQuery };
   }
 );
