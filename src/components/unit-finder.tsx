@@ -523,18 +523,18 @@ export function UnitFinder() {
               <form action={testCaseFormAction} ref={testCaseFormRef} className="space-y-4">
                 <div className="grid w-full gap-1.5">
                   <Label htmlFor="test-case">Put the Abilility along with the test scenario (test_step)</Label>
-                  <Textarea onKeyDown={handleKeyDown} id="test-case" name="testCase" defaultValue={testCaseState.testCaseInput?.testCase ?? ''} placeholder="e.g., Step: Verify if any Bonus Move is applied, it is only applied during an allies turn while performing an attack on an enemy. Test Data: Check in game during battle for the timing of the bonus move application" required rows={3} className="text-base" />
+                  <Textarea onKeyDown={handleKeyDown} id="test-case" name="testCase" defaultValue={testCaseState.testCaseInput?.testCase ?? ''} placeholder="Step: Verify if any Bonus Move is applied, it is only applied during an allies turn while performing an attack on an enemy. Test Data: Check in game during battle for the timing of the bonus move application" required rows={3} className="text-base" />
                 </div>
                  <div className="grid w-full gap-1.5">
                   <Label htmlFor="expected-result">Expected Result of above test Step.</Label>
-                  <Textarea onKeyDown={handleKeyDown} id="expected-result" name="expectedResult" defaultValue={testCaseState.testCaseInput?.expectedResult ?? ''} placeholder="e.g., If the Bonus Move is not applied during an allies turn while attacking an enemy, bug it" required rows={2} className="text-base" />
+                  <Textarea onKeyDown={handleKeyDown} id="expected-result" name="expectedResult" defaultValue={testCaseState.testCaseInput?.expectedResult ?? ''} placeholder="If the Bonus Move is not applied during an allies turn while attacking an enemy, bug it" required rows={2} className="text-base" />
                 </div>
                 <div className="grid w-full gap-1.5">
                   <Label htmlFor="unit-details">the 'new_unit ability design'.</Label>
                    <p className="text-xs text-muted-foreground">
                     You can copy and paste the ability details from the design document without naming the unit.
                   </p>
-                  <Textarea onKeyDown={handleKeyDown} id="unit-details" name="unitDetails" defaultValue={testCaseState.testCaseInput?.unitDetails ?? ''} placeholder={`e.g., Basic - Destructive Rotation\nDescription: Deal Special damage to target enemy.\n\nUpgrades:\n\n+5% Damage\nDeal an additional instance of damage\n+5% Damage\nDeal an additional instance of damage\nInflict Defense Down for 1 turn\nDeal an additional instance of damage\nDuring new_unit's turn, Dark Side Bounty Hunter Attackers Stealth for 2 turns\nFinal Text: Deal Special damage to target enemy four times and inflict them with Defense Down for 1 turn.`} required rows={4} className="text-base" />
+                  <Textarea onKeyDown={handleKeyDown} id="unit-details" name="unitDetails" defaultValue={testCaseState.testCaseInput?.unitDetails ?? ''} placeholder={`Basic - Destructive Rotation\nDescription: Deal Special damage to target enemy.\n\nUpgrades:\n\n+5% Damage\nDeal an additional instance of damage\n+5% Damage\nDeal an additional instance of damage\nInflict Defense Down for 1 turn\nDeal an additional instance of damage\nDuring new_unit's turn, Dark Side Bounty Hunter Attackers Stealth for 2 turns\nFinal Text: Deal Special damage to target enemy four times and inflict them with Defense Down for 1 turn.`} required rows={4} className="text-base" />
                 </div>
                  <SubmitButton
                   icon={<TestTube className="mr-2 h-4 w-4" />}
