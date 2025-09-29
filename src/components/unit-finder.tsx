@@ -136,6 +136,9 @@ export function UnitFinder() {
   }, [unitState, toast]);
 
   useEffect(() => {
+    if (squadState.switchToTab) {
+      setActiveTab(squadState.switchToTab);
+    }
     if (squadState.message && squadState.message !== 'success') {
        toast({
           title: squadState.message.includes('found') ? 'Info' : squadState.message.includes('Invalid') ? 'Warning' : 'Error',
@@ -270,32 +273,35 @@ export function UnitFinder() {
   const renderUnitFinderContent = () => {
     const isLoadingFirstTime = isUnitPending && !unitState.units?.length && !unitState.squads?.length;
     const isLoadingMore = isUnitPending && !!unitState.units?.length;
+    
+    // Squad query was made from Unit Finder
+    const units = (activeTab === 'unit-finder' && squadState.switchToTab === 'unit-finder') ? squadState.units : unitState.units;
 
     if (isLoadingFirstTime) {
       return <UnitListSkeleton />;
     }
     
-    // If the query was for a squad, the results will be in unitState, not squadState after action change
+    // If the query was for a squad, the results will be in unitState after action change
     if (unitState.switchToTab === 'squad-builder') {
-      if (isUnitPending) return <SquadListSkeleton />; // Show skeleton while switching and fetching
+      if (isUnitPending) return <SquadListSkeleton />;
       if (unitState.squads && unitState.squads.length > 0) {
         return (
           <SquadList
             squads={unitState.squads}
             savedSquads={savedSquads}
             onToggleSave={handleToggleSaveSquad}
-            title="Generated Squads (from Unit Finder)"
+            title="Generated Squads"
           />
         );
       }
     }
 
-    if (unitState.units && unitState.units.length > 0) {
+    if (units && units.length > 0) {
       const hasMoreUnits = true;
       return (
         <div className="space-y-4">
           <UnitList 
-            units={unitState.units}
+            units={units}
             isLoadingMore={isLoadingMore}
           />
           {hasMoreUnits && unitState.message !== 'No new units found.' && (
@@ -327,16 +333,20 @@ export function UnitFinder() {
   const renderSquadBuilderContent = () => {
     const isLoadingFirstTime = isSquadPending && !squadState.squads?.length;
     const isLoadingMore = isSquadPending && !!squadState.squads?.length;
+    
+    // Unit query was made from Squad Builder
+    const squads = (activeTab === 'squad-builder' && unitState.switchToTab === 'squad-builder') ? unitState.squads : squadState.squads;
 
     if (isLoadingFirstTime) {
       return <SquadListSkeleton />;
     }
-    if (squadState.squads && squadState.squads.length > 0) {
+
+    if (squads && squads.length > 0) {
       const hasMoreSquads = true; // Assume there can always be more
       return (
         <div className="space-y-4">
           <SquadList 
-            squads={squadState.squads}
+            squads={squads}
             isLoadingMore={isLoadingMore}
             savedSquads={savedSquads}
             onToggleSave={handleToggleSaveSquad}

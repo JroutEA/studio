@@ -131,6 +131,17 @@ export async function buildSquad(
   try {
     const result = await squadBuilderAI(input);
 
+    if (result.isUnitQuery) {
+        const unitResult = await unitMatchingAI({ query, count: 10 });
+        return {
+            message: 'success',
+            squadsInput: { query },
+            squads: [], // Clear squads
+            units: unitResult.units, // Populate units
+            switchToTab: 'unit-finder',
+        };
+    }
+
      if (!result.squads || result.squads.length === 0) {
       return { 
         ...prevState,
@@ -186,6 +197,9 @@ export async function generateTestCase(
         };
     } catch (e: unknown) {
         const errorMessage = e instanceof Error ? e.message : String(e);
+        if (errorMessage.includes('503')) {
+          return { ...prevState, testCaseInput: input, message: "The AI model is temporarily unavailable (503 Service Unavailable). Please try again in a few moments." };
+        }
         return { ...prevState, testCaseInput: input, message: `An error occurred: ${errorMessage}` };
     }
 }

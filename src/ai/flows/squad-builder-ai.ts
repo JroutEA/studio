@@ -35,6 +35,7 @@ export type SquadBuilderAIInput = z.infer<typeof SquadBuilderAIInputSchema>;
 
 const SquadBuilderAIOutputSchema = z.object({
   squads: z.array(SquadSchema).describe('A list of suggested squads.'),
+  isUnitQuery: z.boolean().optional().describe('Set to true if the user\'s query is asking for individual units instead of building a squad.'),
 });
 export type SquadBuilderAIOutput = z.infer<typeof SquadBuilderAIOutputSchema>;
 
@@ -50,7 +51,9 @@ const prompt = ai.definePrompt({
   tools: [wikiSearchTool],
   prompt: `You are an expert in Star Wars: Galaxy of Heroes (SWGOH) squad building. Your task is to create effective squads based on a user's query.
 
-You MUST use information from two sources to provide the best possible answer:
+First, determine if the user is asking to find individual units instead of building a squad. A query for an individual unit will NOT contain terms like "team", "squad", "lineup", "beat", "counter", or ask for multiple characters to work together. If it is a query for one or more individual units, set the 'isUnitQuery' flag to true and return an empty 'squads' array.
+
+If it IS a squad query, you MUST use information from two sources to provide the best possible answer:
 1.  Your built-in knowledge of swgoh.gg for character URLs, icon URLs, and team structures.
 2.  The provided \`wikiSearch\` tool to get detailed, up-to-date information on ability synergies, strategies, and counter-play from swgoh.wiki.
 
@@ -88,6 +91,10 @@ const squadBuilderAIFlow = ai.defineFlow(
     if (!output) {
       return { squads: [] };
     }
-    return output;
+    const anyOutput = output as any;
+    const squads = anyOutput.squads || [];
+    const isUnitQuery = anyOutput.isUnitQuery || false;
+
+    return { squads, isUnitQuery };
   }
 );
