@@ -113,15 +113,15 @@ export function UnitFinder() {
   }, []);
   
   useEffect(() => {
+    if (unitState.message && unitState.message !== 'success') {
+      toast({
+        title: unitState.message.includes('found') ? 'Info' : unitState.message.includes('Invalid') ? 'Warning' : 'Error',
+        description: unitState.message,
+        variant: unitState.message.includes('found') || unitState.message.includes('Invalid') ? 'default' : 'destructive',
+      });
+    }
     if (unitState.switchToTab) {
       setActiveTab(unitState.switchToTab);
-    }
-    if (unitState.message && unitState.message !== 'success') {
-        toast({
-          title: unitState.message.includes('found') ? 'Info' : unitState.message.includes('Invalid') ? 'Warning' : 'Error',
-          description: unitState.message,
-          variant: unitState.message.includes('found') || unitState.message.includes('Invalid') ? 'default' : 'destructive',
-        });
     }
     if (unitState.message === 'success' && unitState.query) {
       setUnitHistory(prev => {
@@ -136,15 +136,15 @@ export function UnitFinder() {
   }, [unitState, toast]);
 
   useEffect(() => {
-    if (squadState.switchToTab) {
-      setActiveTab(squadState.switchToTab);
-    }
     if (squadState.message && squadState.message !== 'success') {
        toast({
           title: squadState.message.includes('found') ? 'Info' : squadState.message.includes('Invalid') ? 'Warning' : 'Error',
           description: squadState.message,
           variant: squadState.message.includes('found') || squadState.message.includes('Invalid') ? 'default' : 'destructive',
         });
+    }
+    if (squadState.switchToTab) {
+      setActiveTab(squadState.switchToTab);
     }
     if (squadState.message === 'success' && squadState.squadsInput?.query) {
       setSquadHistory(prev => {
