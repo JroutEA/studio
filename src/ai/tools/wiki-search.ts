@@ -4,21 +4,24 @@ import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
 import { getJson } from 'serpapi';
 
+const SearchResultSchema = z.object({
+  title: z.string(),
+  link: z.string().url(),
+  snippet: z.string().optional(),
+});
+
 export const wikiSearchTool = ai.defineTool(
   {
     name: 'wikiSearch',
-    description: 'Searches the swgoh.wiki site for relevant pages and returns the content.',
+    description: 'Searches the swgoh.wiki site for relevant pages and returns a synthesized answer and source content.',
     inputSchema: z.object({
       query: z.string().describe('The search query for the wiki.'),
     }),
     outputSchema: z.object({
-      results: z.array(
-        z.object({
-          title: z.string(),
-          link: z.string().url(),
-          snippet: z.string(),
-        })
-      ),
+      searchResponse: z.object({
+        ai_answer: z.string().optional().describe("A direct, synthesized answer to the query based on search results. Use this as the primary source of information if available."),
+        results: z.array(SearchResultSchema).describe("A list of search results with titles, links, and snippets. Use this as a fallback if 'ai_answer' is not present."),
+      })
     }),
   },
   async (input) => {
@@ -26,16 +29,17 @@ export const wikiSearchTool = ai.defineTool(
     if (!process.env.SERPAPI_KEY) {
       console.error('SERPAPI_KEY environment variable not set.');
       // Return empty result to AI instead of throwing to allow flow to continue
-      return { results: [] };
+      return { searchResponse: { results: [] } };
     }
 
     try {
       const response = await getJson({
-        engine: 'google',
+        engine: 'google_ai',
         q: `site:swgoh.wiki ${input.query}`,
         api_key: process.env.SERPAPI_KEY,
       });
       
+      const aiAnswer = response.ai_answer?.answer;
       const organicResults = response.organic_results || [];
       
       const results = organicResults.slice(0, 5).map((result: any) => ({
@@ -44,13 +48,18 @@ export const wikiSearchTool = ai.defineTool(
         snippet: result.snippet,
       }));
 
-      console.log(`Wiki search returned ${results.length} results.`);
-      return { results };
+      const searchResponse = {
+        ai_answer: aiAnswer,
+        results: results,
+      }
+
+      console.log(`Wiki search returned. AI Answer present: ${!!aiAnswer}`);
+      return { searchResponse };
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       console.error('Error performing wiki search:', errorMessage);
       // Return an empty result to the AI instead of throwing, so the flow can continue.
-      return { results: [] };
+      return { searchResponse: { results: [] } };
     }
   }
 );

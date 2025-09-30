@@ -70,7 +70,7 @@ First, you must thoroughly analyze the user's input:
 
 Next, you MUST use your deep knowledge of SWGOH by combining information from two sources to design the test:
 1.  Your built-in knowledge of swgoh.gg for character URLs, icon URLs, and team structures.
-2.  The provided \`wikiSearch\` tool to get detailed, up-to-date information on existing character kits, buffs, debuffs, and game mechanics from swgoh.wiki that are relevant to the test conditions.
+2.  The provided \`wikiSearch\` tool to get detailed, up-to-date information on existing character kits, buffs, debuffs, and game mechanics from swgoh.wiki. The tool returns a \`searchResponse\` object. Prioritize using the \`ai_answer\` field if it exists, as it contains a synthesized summary. If it doesn't, use the \`results\` array to find the information you need.
 
 Based on your analysis, you will generate a complete test scenario.
 

@@ -49,7 +49,7 @@ First, you must determine if the user is asking to build a squad or find individ
 
 If it is NOT a squad query, you MUST use information from two sources to provide the best possible answer:
 1. Your built-in knowledge of swgoh.gg for unit URLs, icon URLs, and basic stats. This includes knowing the difference between character and ship pages (e.g., /characters/ vs /ships/).
-2. The provided \`wikiSearch\` tool to get detailed, up-to-date information on abilities, strategies, and synergies from the wiki. The tool returns a list of search result snippets.
+2. The provided \`wikiSearch\` tool to get detailed, up-to-date information on abilities, strategies, and synergies from the wiki. The tool returns a \`searchResponse\` object. Prioritize using the \`ai_answer\` field if it exists, as it contains a synthesized summary. If it doesn't, use the \`results\` array.
 
 Crucially, you must understand the difference between Buffs (positive effects) and Debuffs (negative effects).
 - **Buffs** are beneficial status effects. Examples include: Protection Up, Offense Up, Critical Damage Up, Speed Up, Tenacity Up, Retribution, Advantage.
