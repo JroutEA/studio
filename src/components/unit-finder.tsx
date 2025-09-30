@@ -160,7 +160,7 @@ export function UnitFinder() {
 
   useEffect(() => {
     if (testCaseState.message && testCaseState.message !== 'success') {
-      toast({ variant: 'destructive', title: 'Error', description: testCaseState.message });
+      toast({ variant: 'destructive', title: 'Error generating test case', description: testCaseState.message });
     }
     if (testCaseState.message === 'success' && testCaseState.testCaseInput) {
       const historyValueJSON = JSON.stringify(testCaseState.testCaseInput);
@@ -209,7 +209,7 @@ export function UnitFinder() {
 
   const handleHistoryClick = (query: any) => {
     if (activeTab === 'unit-finder' && unitFormRef.current) {
-      const input = unitFormRef.current.elements.namedItem('query') as HTMLTextAreaElement;
+      const input = unitFormref.current.elements.namedItem('query') as HTMLTextAreaElement;
       if (input) input.value = query;
     } else if (activeTab === 'squad-builder' && squadFormRef.current) {
       const input = squadFormRef.current.elements.namedItem('query') as HTMLTextAreaElement;
