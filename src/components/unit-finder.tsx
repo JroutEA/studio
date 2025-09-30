@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useRef, useState, useActionState } from 'react';
@@ -91,6 +92,7 @@ export function UnitFinder() {
   const [squadHistory, setSquadHistory] = useState<string[]>([]);
   const [testCaseHistory, setTestCaseHistory] = useState<any[]>([]);
   const [savedSquads, setSavedSquads] = useState<Squad[]>([]);
+  const [isClient, setIsClient] = useState(false);
 
   // UI state
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
@@ -102,11 +104,14 @@ export function UnitFinder() {
   const testCaseFormRef = useRef<HTMLFormElement>(null);
   
   useEffect(() => {
+    setIsClient(true);
     try {
-      setUnitHistory(JSON.parse(localStorage.getItem(UNIT_HISTORY_KEY) || '[]'));
-      setSquadHistory(JSON.parse(localStorage.getItem(SQUAD_HISTORY_KEY) || '[]'));
-      setTestCaseHistory(JSON.parse(localStorage.getItem(TEST_CASE_HISTORY_KEY) || '[]'));
-      setSavedSquads(JSON.parse(localStorage.getItem(SAVED_SQUADS_KEY) || '[]'));
+      if (typeof window !== 'undefined') {
+        setUnitHistory(JSON.parse(localStorage.getItem(UNIT_HISTORY_KEY) || '[]'));
+        setSquadHistory(JSON.parse(localStorage.getItem(SQUAD_HISTORY_KEY) || '[]'));
+        setTestCaseHistory(JSON.parse(localStorage.getItem(TEST_CASE_HISTORY_KEY) || '[]'));
+        setSavedSquads(JSON.parse(localStorage.getItem(SAVED_SQUADS_KEY) || '[]'));
+      }
     } catch (error) {
       console.error('Failed to parse data from localStorage', error);
     }
@@ -269,6 +274,10 @@ export function UnitFinder() {
       }
     }
   };
+
+  if (!isClient) {
+    return null;
+  }
 
   const renderUnitFinderContent = () => {
     const isLoadingFirstTime = isUnitPending && !unitState.units?.length && !unitState.squads?.length;
@@ -521,7 +530,7 @@ export function UnitFinder() {
 
             <TabsContent value="test-assistant" className="mt-4">
               <form action={testCaseFormAction} ref={testCaseFormRef} className="space-y-4">
-                <div className="grid w-full gap-1.5">
+                 <div className="grid w-full gap-1.5">
                   <Label htmlFor="unit-details">The 'new_unit ability design'</Label>
                    <p className="text-xs text-muted-foreground">
                     You can copy and paste the ability details from the design document without naming the unit.
@@ -556,3 +565,5 @@ export function UnitFinder() {
     </div>
   );
 }
+
+    
