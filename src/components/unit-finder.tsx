@@ -209,7 +209,7 @@ export function UnitFinder() {
 
   const handleHistoryClick = (query: any) => {
     if (activeTab === 'unit-finder' && unitFormRef.current) {
-      const input = unitFormref.current.elements.namedItem('query') as HTMLTextAreaElement;
+      const input = unitFormRef.current.elements.namedItem('query') as HTMLTextAreaElement;
       if (input) input.value = query;
     } else if (activeTab === 'squad-builder' && squadFormRef.current) {
       const input = squadFormRef.current.elements.namedItem('query') as HTMLTextAreaElement;
