@@ -61,6 +61,9 @@ Here are common examples of this problem:
 - "turn meter": Does the squad need "turn meter *gain*" (defensive) or "turn meter *reduction*" (offensive)?
 - "taunt": Does the squad need a tank that *can taunt*, or a character that *dispels* or *prevents* taunt on enemies?
 - "revive": Does the strategy rely on a character that *can revive* allies, or one that *prevents* revival on the enemy team?
+- "dispel": Is the goal to *dispel* enemy buffs?
+- "stealth": Does the squad need a character that *grants stealth*, or one that *removes* or *ignores* it?
+- "counter": Does the strategy rely on *counter attacks*, or does it need to *prevent* enemy counters?
 
 Analyze the query for verbs and context (e.g., "a squad that *removes* turn meter from raid bosses" vs "a squad that *gains* turn meter when allies are attacked"). Your squad composition should reflect this specific strategic goal.
 

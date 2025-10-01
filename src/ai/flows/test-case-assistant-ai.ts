@@ -71,6 +71,8 @@ When choosing the **opponentSquad**, you must select characters that create the 
 - To test an **anti-evasion** ability, the opponents MUST be characters known for **high Evasion** (e.g., Jedi Master Kenobi, Luminara Unduli).
 - To test an ability that **dispels taunt**, the opponent squad MUST have a character that **can taunt** (e.g., Sun Fac, General Kenobi).
 - To test an ability that **inflicts heal immunity**, the opponent squad should ideally have a **healer** to confirm that healing is blocked (e.g., Barriss Offee).
+- To test an ability that *reduces cooldowns*, the opponent might need to have long cooldowns or abilities that can be reset.
+- To test an ability that *prevents stealth*, the opponent squad should have characters that can *grant or gain stealth*.
 
 Your primary goal is to pick opponents that allow the new unit's ability to be triggered and its outcome to be clearly observed.
 

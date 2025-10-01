@@ -56,6 +56,14 @@ Here are common examples of this problem:
 - "taunt": Does the user want a unit that *can taunt*, or one that *dispels* or *prevents* taunt?
 - "revive": Does the user want a unit that *can revive* allies, or one that *prevents* revival?
 - "buff immunity": Does the user want a unit that *applies* buff immunity, or one that *cleanses* it?
+- "dispel": Does the user want a unit that *can dispel* buffs, or one that is just immune to dispel?
+- "stealth": Does the user want a unit that *grants stealth*, or one that *removes* or *ignores* stealth?
+- "protection up": Does the user want a unit that *gives protection up*, or just one that gets it conditionally?
+- "counter": Does the user want a unit that *has a high counter chance*, or one that *prevents* counter attacks?
+- "stagger": Does the user want a unit that *applies* Stagger, or one that *resists* or *cleanses* it?
+- "daze": Does the user want a unit that *applies* Daze, or one that is immune to it?
+- "buff" or "debuff": Is the user asking for a unit that *applies* a buff/debuff, or one that *copies*, *cleanses*, or *prevents* it?
+- "cooldowns": Is the user asking for a unit that *reduces allied cooldowns*, or one that *increases enemy cooldowns*?
 
 Analyze the query for verbs and context (e.g., "units that *give* turn meter" vs "units that *remove* turn meter"). If the intent is ambiguous, make a logical assumption and state it in your description (e.g., "This unit can apply Taunt, which was assumed from your query.").
 
