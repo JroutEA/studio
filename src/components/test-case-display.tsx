@@ -10,6 +10,7 @@ import { SquadList } from './squad-list';
 import { Button } from './ui/button';
 import { useToast } from '@/hooks/use-toast';
 
+const FONT_URL = "https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Staatliches&display=swap";
 
 type TestCaseDisplayProps = {
   testCase: TestCaseAssistantAIOutput;
@@ -25,10 +26,15 @@ export function TestCaseDisplay({ testCase }: TestCaseDisplayProps) {
     }
 
     try {
+      // Fetch the font CSS and pass it to the toPng function to avoid CORS issues.
+      const fontResponse = await fetch(FONT_URL);
+      const fontCss = await fontResponse.text();
+
       const dataUrl = await toPng(ref.current, {
         cacheBust: true,
         pixelRatio: 2, // for HD quality
         backgroundColor: 'hsl(224 71% 4%)', // Using dark background HSL
+        fontEmbedCSS: fontCss,
       });
 
       const link = document.createElement('a');
