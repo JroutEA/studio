@@ -4,7 +4,7 @@ import { useRef } from 'react';
 import type { SquadBuilderAIOutput } from '@/ai/flows/squad-builder-ai';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import Link from 'next/link';
-import { Crown, UserPlus, Star } from 'lucide-react';
+import { Crown, UserPlus, Star, Terminal } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { cn } from '@/lib/utils';
 import { SquadListSkeleton } from './squad-list-skeleton';
@@ -85,7 +85,15 @@ export function SquadList({ squads, title, isLoadingMore = false, savedSquads = 
   
   return (
     <div ref={contentRef} className="space-y-8 bg-background p-4 sm:p-8 rounded-lg">
-       {title && <h2 className="text-2xl font-bold tracking-tight font-headline text-center">{title}: "{query}"</h2>}
+       {query && (
+          <div className="flex items-start gap-3 rounded-lg border border-primary/20 bg-card p-4">
+              <Terminal className="h-5 w-5 flex-shrink-0 text-primary" />
+              <div className="flex-1">
+                  <p className="text-sm font-semibold text-primary">{title ? `${title} Prompt` : 'Squad Builder Prompt'}</p>
+                  <p className="text-muted-foreground italic">"{query}"</p>
+              </div>
+          </div>
+       )}
       {squads.map((squad, index) => (
         <Card key={index} className="shadow-md">
           <CardHeader>
