@@ -3,7 +3,7 @@
 import { useRef } from 'react';
 import type { TestCaseAssistantAIOutput } from '@/ai/flows/test-case-assistant-ai';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
-import { CheckCircle, XCircle, AlertCircle } from 'lucide-react';
+import { CheckCircle, XCircle, AlertCircle, Terminal } from 'lucide-react';
 import { SquadList } from './squad-list';
 import { useDownloadImage } from '@/hooks/use-download-image';
 
@@ -18,7 +18,14 @@ export function TestCaseDisplay({ testCase, triggerRef }: TestCaseDisplayProps) 
 
   return (
     <div ref={contentRef} className="space-y-8 bg-background p-4 sm:p-8 rounded-lg">
-      <h2 className="text-2xl font-bold tracking-tight font-headline text-center">{testCase.scenarioTitle}</h2>
+      
+      <div className="flex items-start gap-3 rounded-lg border border-primary/20 bg-card p-4">
+          <Terminal className="h-5 w-5 flex-shrink-0 text-primary" />
+          <div className="flex-1">
+              <p className="text-sm font-semibold text-primary">Test Scenario</p>
+              <p className="text-muted-foreground italic">"{testCase.scenarioTitle}"</p>
+          </div>
+      </div>
       
       <Card>
         <CardHeader>
