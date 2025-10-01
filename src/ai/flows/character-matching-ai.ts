@@ -49,21 +49,23 @@ const prompt = ai.definePrompt({
 **CRITICAL: AVOID HALLUCINATIONS BY UNDERSTANDING INTENT**
 A simple keyword match is not enough. You must understand the user's INTENT. For any given game mechanic, the user might want a unit that **applies** it, **removes** it, **prevents** it, or is **immune** to it. Your answer must match the user's specific request.
 
-Here are common examples of this problem:
+Here are common examples of this problem for both **characters and ships**:
 - "cleanse": Does the user want a unit that *removes debuffs* (cleanses) or a unit that is merely mentioned in a cleanse-related ability?
 - "heal immunity": Does the user want a unit that *inflicts* heal immunity, or one that *removes* it?
-- "turn meter": Does the user want "turn meter *gain*" (defensive) or "turn meter *reduction*" (offensive)? Be specific.
-- "taunt": Does the user want a unit that *can taunt*, or one that *dispels* or *prevents* taunt?
-- "revive": Does the user want a unit that *can revive* allies, or one that *prevents* revival?
+- "turn meter": Does the user want "turn meter *gain*" (defensive) or "turn meter *reduction*" (offensive)? Be specific. This applies to ships as well (e.g. gain on reinforcement).
+- "taunt": Does the user want a unit that *can taunt*, or one that *dispels* or *prevents* taunt? For ships, this includes conditional taunts or taunts gained as a reinforcement bonus.
+- "revive": Does the user want a unit that *can revive* allies, or one that *prevents* revival? For ships, this includes interactions like blocking or preventing revives.
+- "assist": Does the user want a unit that *calls an assist*, or one that just benefits from them?
 - "buff immunity": Does the user want a unit that *applies* buff immunity, or one that *cleanses* it?
-- "dispel": Does the user want a unit that *can dispel* buffs, or one that is just immune to dispel?
+- "dispel": Does the user want a unit that *can dispel* buffs, or one that is just immune to dispel or dispels on death?
 - "stealth": Does the user want a unit that *grants stealth*, or one that *removes* or *ignores* stealth?
-- "protection up": Does the user want a unit that *gives protection up*, or just one that gets it conditionally?
+- "protection up": Does the user want a unit that *gives protection up*, or just one that gets it conditionally or on reinforcement?
 - "counter": Does the user want a unit that *has a high counter chance*, or one that *prevents* counter attacks?
 - "stagger": Does the user want a unit that *applies* Stagger, or one that *resists* or *cleanses* it?
 - "daze": Does the user want a unit that *applies* Daze, or one that is immune to it?
 - "buff" or "debuff": Is the user asking for a unit that *applies* a buff/debuff, or one that *copies*, *cleanses*, or *prevents* it?
 - "cooldowns": Is the user asking for a unit that *reduces allied cooldowns*, or one that *increases enemy cooldowns*?
+- **Ship-Specific Mechanics**: Be extra careful with Reinforcement effects, bonus turns, healing, and special damage types. A ship's kit might mention these as a passive or on-entry effect, not an active ability.
 
 Analyze the query for verbs and context (e.g., "units that *give* turn meter" vs "units that *remove* turn meter"). If the intent is ambiguous, make a logical assumption and state it in your description (e.g., "This unit can apply Taunt, which was assumed from your query.").
 
