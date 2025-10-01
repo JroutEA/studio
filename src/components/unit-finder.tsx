@@ -28,7 +28,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { History, Users, TestTube, Trash2, Star } from 'lucide-react';
+import { History, Users, TestTube, Trash2, Star, BrainCircuit } from 'lucide-react';
 import { UnitList } from './unit-list';
 import { UnitListSkeleton } from './unit-list-skeleton';
 import { SquadList } from './squad-list';
@@ -104,16 +104,16 @@ export function UnitFinder() {
   const testCaseFormRef = useRef<HTMLFormElement>(null);
   
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      setIsClient(true);
-      try {
-        setUnitHistory(JSON.parse(localStorage.getItem(UNIT_HISTORY_KEY) || '[]'));
-        setSquadHistory(JSON.parse(localStorage.getItem(SQUAD_HISTORY_KEY) || '[]'));
-        setTestCaseHistory(JSON.parse(localStorage.getItem(TEST_CASE_HISTORY_KEY) || '[]'));
-        setSavedSquads(JSON.parse(localStorage.getItem(SAVED_SQUADS_KEY) || '[]'));
-      } catch (error) {
-        console.error('Failed to parse data from localStorage', error);
-      }
+    // This effect runs once on the client after initial hydration
+    // It's safe to access localStorage here.
+    setIsClient(true);
+    try {
+      setUnitHistory(JSON.parse(localStorage.getItem(UNIT_HISTORY_KEY) || '[]'));
+      setSquadHistory(JSON.parse(localStorage.getItem(SQUAD_HISTORY_KEY) || '[]'));
+      setTestCaseHistory(JSON.parse(localStorage.getItem(TEST_CASE_HISTORY_KEY) || '[]'));
+      setSavedSquads(JSON.parse(localStorage.getItem(SAVED_SQUADS_KEY) || '[]'));
+    } catch (error) {
+      console.error('Failed to parse data from localStorage', error);
     }
   }, []);
   
@@ -132,13 +132,13 @@ export function UnitFinder() {
       setUnitHistory(prev => {
         if (!prev.includes(unitState.query!)) {
           const newHistory = [unitState.query!, ...prev].slice(0, 20);
-          localStorage.setItem(UNIT_HISTORY_KEY, JSON.stringify(newHistory));
+          if (isClient) localStorage.setItem(UNIT_HISTORY_KEY, JSON.stringify(newHistory));
           return newHistory;
         }
         return prev;
       });
     }
-  }, [unitState, toast]);
+  }, [unitState, toast, isClient]);
 
   useEffect(() => {
     if (squadState.message && squadState.message !== 'success') {
@@ -155,13 +155,13 @@ export function UnitFinder() {
       setSquadHistory(prev => {
         if (!prev.includes(squadState.squadsInput!.query)) {
           const newHistory = [squadState.squadsInput!.query, ...prev].slice(0, 20);
-          localStorage.setItem(SQUAD_HISTORY_KEY, JSON.stringify(newHistory));
+          if(isClient) localStorage.setItem(SQUAD_HISTORY_KEY, JSON.stringify(newHistory));
           return newHistory;
         }
         return prev;
       });
     }
-  }, [squadState, toast]);
+  }, [squadState, toast, isClient]);
 
   useEffect(() => {
     if (testCaseState.message && testCaseState.message !== 'success') {
@@ -172,13 +172,13 @@ export function UnitFinder() {
       setTestCaseHistory(prev => {
         if (!prev.find(h => JSON.stringify(h) === historyValueJSON)) {
           const newHistory = [testCaseState.testCaseInput, ...prev].slice(0, 20);
-          localStorage.setItem(TEST_CASE_HISTORY_KEY, JSON.stringify(newHistory));
+          if(isClient) localStorage.setItem(TEST_CASE_HISTORY_KEY, JSON.stringify(newHistory));
           return newHistory;
         }
         return prev;
       });
     }
-  }, [testCaseState, toast]);
+  }, [testCaseState, toast, isClient]);
 
   const handleToggleSaveSquad = (squad: Squad) => {
     setSavedSquads(prevSavedSquads => {
@@ -191,7 +191,7 @@ export function UnitFinder() {
         newSavedSquads = [...prevSavedSquads, squad];
         toast({ title: "Squad Saved!", description: `"${squad.name}" has been added to your saved squads.` });
       }
-      localStorage.setItem(SAVED_SQUADS_KEY, JSON.stringify(newSavedSquads));
+      if (isClient) localStorage.setItem(SAVED_SQUADS_KEY, JSON.stringify(newSavedSquads));
       return newSavedSquads;
     });
   };
@@ -255,7 +255,7 @@ export function UnitFinder() {
       return;
     }
 
-    localStorage.setItem(storageKey, JSON.stringify(updatedHistory));
+    if (isClient) localStorage.setItem(storageKey, JSON.stringify(updatedHistory));
   };
   
   const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -276,7 +276,38 @@ export function UnitFinder() {
   };
 
   if (!isClient) {
-    return null;
+    // Render a skeleton or null on the server to avoid flash of unstyled content and hydration errors
+    return (
+      <div className="space-y-12">
+        <Card className="max-w-3xl mx-auto shadow-lg border-primary/20 bg-card/80 backdrop-blur-sm">
+           <CardHeader>
+              <div className="flex justify-between items-start">
+                <div className='flex items-center gap-3'>
+                  <div className="p-2 bg-primary text-primary-foreground rounded-lg">
+                      <HolocronIcon className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <CardTitle className="font-headline text-3xl">The AI Holocron</CardTitle>
+                    <CardDescription>
+                      This IS the droid you're looking for... to test your units.
+                    </CardDescription>
+                  </div>
+                </div>
+              </div>
+           </CardHeader>
+           <CardContent>
+              <Tabs defaultValue="unit-finder" className="w-full">
+                <TabsList className="grid w-full grid-cols-3">
+                  <TabsTrigger value="unit-finder">Unit Finder</TabsTrigger>
+                  <TabsTrigger value="squad-builder">Squad Builder</TabsTrigger>
+                  <TabsTrigger value="test-assistant">Test Assistant</TabsTrigger>
+                </TabsList>
+              </Tabs>
+           </CardContent>
+        </Card>
+        <div className="max-w-4xl mx-auto"><UnitListSkeleton /></div>
+      </div>
+    );
   }
 
   const renderUnitFinderContent = () => {
@@ -546,7 +577,7 @@ export function UnitFinder() {
                   <Textarea onKeyDown={handleKeyDown} id="expected-result" name="expectedResult" defaultValue={testCaseState.testCaseInput?.expectedResult ?? ''} placeholder="If the Bonus Move is not applied during an allies turn while attacking an enemy, bug it" required rows={2} className="text-base" />
                 </div>
                  <SubmitButton
-                  icon={<TestTube className="mr-2 h-4 w-4" />}
+                  icon={<BrainCircuit className="mr-2 h-4 w-4" />}
                   pendingText="Generating..."
                   text="Help Me Test This"
                   isPending={isTestCasePending}
