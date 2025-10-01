@@ -52,10 +52,25 @@ const prompt = ai.definePrompt({
   tools: [wikiSearchTool],
   prompt: `You are an expert in Star Wars: Galaxy of Heroes (SWGOH) squad building. Your task is to create effective squads based on a user's query. You must understand and correctly interpret common SWGOH abbreviations and specific game terminology.
 
+**CRITICAL: AVOID HALLUCINATIONS BY UNDERSTANDING INTENT**
+When selecting characters, a simple keyword match is not enough. You must understand the user's INTENT. For any given game mechanic, the user might want a unit that **applies** it, **removes** it, **prevents** it, or is **immune** to it. Your character choices must match the user's specific request for the squad's strategy.
+
+Here are common examples of this problem:
+- "cleanse": Does the strategy require a unit that *removes debuffs* (cleanses) for the team?
+- "heal immunity": Is the goal to *inflict* heal immunity on the enemy, or *cleanse* it from your own squad?
+- "turn meter": Does the squad need "turn meter *gain*" (defensive) or "turn meter *reduction*" (offensive)?
+- "taunt": Does the squad need a tank that *can taunt*, or a character that *dispels* or *prevents* taunt on enemies?
+- "revive": Does the strategy rely on a character that *can revive* allies, or one that *prevents* revival on the enemy team?
+
+Analyze the query for verbs and context (e.g., "a squad that *removes* turn meter from raid bosses" vs "a squad that *gains* turn meter when allies are attacked"). Your squad composition should reflect this specific strategic goal.
+
 **IMPORTANT SWGOH KEYWORDS:**
-- **Character Roles:** Attacker, Tank, Support, Healer
-- **Special Tags:** Leader, Fleet Commander, Galactic Legend, Legendary
-- **Factions:** 501st, Bad Batch, Bounty Hunter, Clone Trooper, Droid, Empire, Ewok, First Order, Galactic Republic, Geonosian, Gungan, Hutt Cartel, Imperial Remnant, Imperial Trooper, Inquisitorius, Jedi, Jedi Vanguard, Mandalorian, Mercenary, Nightsister, Old Republic, Order 66 Raid, Phoenix, Pirate, Rebel, Rebel Fighter, Resistance, Rogue One, Scoundrel, Separatist, Sith, Sith Empire, Smuggler, Spectre, Tusken, Unaligned Force User, Wookiee, Jawa.
+- **Character Role Types:** Attacker, Tank, Support, Healer
+- **Leadership Tag:** Leader
+- **Factions:** 501st, Bad Batch, Bounty Hunter, Clone Trooper, Droid, Empire, Ewok, First Order, Galactic Legend, Galactic Republic, Geonosian, Gungan, Hutt Cartel, Imperial Remnant, Imperial Trooper, Inquisitorius, Jedi, Jedi Vanguard, Mandalorian, Mercenary, Nightsister, Old Republic, Order 66 Raid, Phoenix, Pirate, Rebel, Rebel Fighter, Resistance, Rogue One, Scoundrel, Separatist, Sith, Sith Empire, Smuggler, Spectre, Tusken, Unaligned Force User, Wookiee, Jawa.
+- **Fleet Tag:** Fleet Commander
+- **Special Mechanic Tags:** Smuggler, Unaligned Force User, Jedi Vanguard, Order 66 Raid, Mercenary, Pirate
+- **Rarity and Progression:** Relics, Legendary, Galactic Legend
 - **Common Abbreviations:** 'JML' for 'Jedi Master Luke Skywalker', 'AoE' for 'Area of Effect', 'TM' for 'Turn Meter', 'CD' for 'Critical Damage'.
 - **Unit Versions:** Pay close attention to different versions of the same character, like "Ahsoka Tano" vs "Ahsoka Tano (Fulcrum)". High-value tags like "Galactic Legend" are critical for late-game content.
 
@@ -80,7 +95,7 @@ For each character, you MUST provide:
 
 For each squad, you MUST provide:
 1. A name for the squad.
-2. A concise, one-sentence description of the squad's strategy and why it fits the query.
+2. A concise, one-sentence description of the squad's strategy and why it fits the query, reflecting the specific intent you identified.
 3. The designated leader.
 4. Exactly four members.
 5. An optional recommended ally.

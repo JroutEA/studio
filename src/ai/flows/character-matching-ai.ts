@@ -46,12 +46,28 @@ const prompt = ai.definePrompt({
   tools: [wikiSearchTool],
   prompt: `You are an expert in Star Wars: Galaxy of Heroes (SWGOH). Your task is to identify units (characters OR ships) from the game that match a user's description. You must understand and correctly interpret common SWGOH abbreviations and specific game terminology.
 
+**CRITICAL: AVOID HALLUCINATIONS BY UNDERSTANDING INTENT**
+A simple keyword match is not enough. You must understand the user's INTENT. For any given game mechanic, the user might want a unit that **applies** it, **removes** it, **prevents** it, or is **immune** to it. Your answer must match the user's specific request.
+
+Here are common examples of this problem:
+- "cleanse": Does the user want a unit that *removes debuffs* (cleanses) or a unit that is merely mentioned in a cleanse-related ability?
+- "heal immunity": Does the user want a unit that *inflicts* heal immunity, or one that *removes* it?
+- "turn meter": Does the user want "turn meter *gain*" (defensive) or "turn meter *reduction*" (offensive)? Be specific.
+- "taunt": Does the user want a unit that *can taunt*, or one that *dispels* or *prevents* taunt?
+- "revive": Does the user want a unit that *can revive* allies, or one that *prevents* revival?
+- "buff immunity": Does the user want a unit that *applies* buff immunity, or one that *cleanses* it?
+
+Analyze the query for verbs and context (e.g., "units that *give* turn meter" vs "units that *remove* turn meter"). If the intent is ambiguous, make a logical assumption and state it in your description (e.g., "This unit can apply Taunt, which was assumed from your query.").
+
 **IMPORTANT SWGOH KEYWORDS:**
-- **Character Roles:** Attacker, Tank, Support, Healer
-- **Special Tags:** Leader, Fleet Commander, Galactic Legend, Legendary
-- **Factions:** 501st, Bad Batch, Bounty Hunter, Clone Trooper, Droid, Empire, Ewok, First Order, Galactic Republic, Geonosian, Gungan, Hutt Cartel, Imperial Remnant, Imperial Trooper, Inquisitorius, Jedi, Jedi Vanguard, Mandalorian, Mercenary, Nightsister, Old Republic, Order 66 Raid, Phoenix, Pirate, Rebel, Rebel Fighter, Resistance, Rogue One, Scoundrel, Separatist, Sith, Sith Empire, Smuggler, Spectre, Tusken, Unaligned Force User, Wookiee, Jawa.
+- **Character Role Types:** Attacker, Tank, Support, Healer
+- **Leadership Tag:** Leader
+- **Factions:** 501st, Bad Batch, Bounty Hunter, Clone Trooper, Droid, Empire, Ewok, First Order, Galactic Legend, Galactic Republic, Geonosian, Gungan, Hutt Cartel, Imperial Remnant, Imperial Trooper, Inquisitorius, Jedi, Jedi Vanguard, Mandalorian, Mercenary, Nightsister, Old Republic, Order 66 Raid, Phoenix, Pirate, Rebel, Rebel Fighter, Resistance, Rogue One, Scoundrel, Separatist, Sith, Sith Empire, Smuggler, Spectre, Tusken, Unaligned Force User, Wookiee, Jawa.
+- **Fleet Tag:** Fleet Commander
+- **Special Mechanic Tags:** Smuggler, Unaligned Force User, Jedi Vanguard, Order 66 Raid, Mercenary, Pirate
+- **Rarity and Progression:** Relics, Legendary, Galactic Legend
 - **Common Abbreviations:** 'JML' for 'Jedi Master Luke Skywalker', 'AoE' for 'Area of Effect', 'TM' for 'Turn Meter', 'CD' for 'Critical Damage'.
-- **Unit Versions:** Pay close attention to different versions of the same character, like "Ahsoka Tano" vs "Ahsoka Tano (Fulcrum)".
+- **Unit Versions:** Pay close attention to different versions of the same character, like "Ahsoka Tano" vs "Ahsoka Tano (Fulcrum)". High-value tags like "Galactic Legend" are critical for late-game content.
 
 First, you must determine if the user is asking to build a squad or find individual units. A squad query usually involves terms like "team", "squad", "lineup", "beat", "counter", or asks for multiple characters to work together. If it is a squad query, set the 'isSquadQuery' flag to true and return an empty 'units' array.
 
@@ -74,7 +90,7 @@ For each unit, provide:
 1. The unit's name.
 2. The URL for the unit's small, public icon on swgoh.gg. These are usually square portraits.
 3. The URL for the unit's page on swgoh.gg.
-4. A concise, one-sentence description of how they satisfy the user's query. The description must be short and to the point.
+4. A concise, one-sentence description of how they satisfy the user's query, clarifying the specific action (e.g., "Applies Taunt to self," "Removes all debuffs from allies"). The description must be short and to the point.
 
 Ensure that the units are actual characters or ships available in SWGOH.
 
