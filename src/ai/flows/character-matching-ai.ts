@@ -75,13 +75,18 @@ Analyze the query for verbs and context (e.g., "units that *give* turn meter" vs
 - **Special Mechanic Tags:** Smuggler, Unaligned Force User, Jedi Vanguard, Order 66 Raid, Mercenary, Pirate
 - **Rarity and Progression:** Relics, Legendary, Galactic Legend
 - **Common Abbreviations:** 'JML' for 'Jedi Master Luke Skywalker', 'AoE' for 'Area of Effect', 'TM' for 'Turn Meter', 'CD' for 'Critical Damage'.
-- **Unit Versions:** Pay close attention to different versions of the same character, like "Ahsoka Tano" vs "Ahsoka Tano (Fulcrum)". High-value tags like "Galactic Legend" are critical for late-game content.
 
 First, you must determine if the user is asking to build a squad or find individual units. A squad query usually involves terms like "team", "squad", "lineup", "beat", "counter", or asks for multiple characters to work together. If it is a squad query, set the 'isSquadQuery' flag to true and return an empty 'units' array.
 
 If it is NOT a squad query, you MUST use information from two sources to provide the best possible answer:
-1. Your built-in knowledge of swgoh.gg for unit URLs, icon URLs, and basic stats. This includes knowing the difference between character and ship pages (e.g., /characters/ vs /ships/).
-2. The provided \`wikiSearch\` tool to get detailed, up-to-date information on abilities, strategies, and synergies from the wiki. The tool returns a \`searchResponse\` object. Prioritize using the \`ai_answer\` field if it exists, as it contains a synthesized summary. If it doesn't, use the \`results\` array.
+1. The provided \`wikiSearch\` tool to get detailed, up-to-date information on abilities, strategies, and synergies from the wiki. The tool returns a \`searchResponse\` object. Prioritize using the \`ai_answer\` field if it exists, as it contains a synthesized summary. If it doesn't, use the \`results\` array.
+2. Your built-in knowledge of swgoh.gg for unit icon URLs.
+
+**CRITICAL: GETTING UNIT NAMES AND URLS CORRECT**
+You MUST NOT invent or guess character names or swgoh.gg URLs. Your internal knowledge may be out of date.
+- The name of a unit MUST be exactly as it appears in the game. For example, "Anakin Skywalker" is incorrect. The correct name is "Jedi Knight Anakin".
+- The URL for a unit MUST be taken from the \`wikiSearch\` tool results or be constructed from the precise, correct unit name. Do not guess.
+- Pay close attention to different versions of the same character, like "Ahsoka Tano" vs "Ahsoka Tano (Fulcrum)". High-value tags like "Galactic Legend" are critical for late-game content.
 
 Crucially, you must understand the difference between Buffs (positive effects) and Debuffs (negative effects).
 - **Buffs** are beneficial status effects. Examples include: Protection Up, Offense Up, Critical Damage Up, Speed Up, Tenacity Up, Retribution, Advantage.
@@ -95,7 +100,7 @@ You MUST find different units than the ones you found for the previous query: "{
 {{/if}}
 
 For each unit, provide:
-1. The unit's name.
+1. The unit's correct and full name.
 2. The URL for the unit's small, public icon on swgoh.gg. These are usually square portraits.
 3. The URL for the unit's page on swgoh.gg.
 4. A concise, one-sentence description of how they satisfy the user's query, clarifying the specific action (e.g., "Applies Taunt to self," "Removes all debuffs from allies"). The description must be short and to the point.

@@ -104,16 +104,16 @@ export function UnitFinder() {
   const testCaseFormRef = useRef<HTMLFormElement>(null);
   
   useEffect(() => {
-    setIsClient(true);
-    try {
-      if (typeof window !== 'undefined') {
+    if (typeof window !== 'undefined') {
+      setIsClient(true);
+      try {
         setUnitHistory(JSON.parse(localStorage.getItem(UNIT_HISTORY_KEY) || '[]'));
         setSquadHistory(JSON.parse(localStorage.getItem(SQUAD_HISTORY_KEY) || '[]'));
         setTestCaseHistory(JSON.parse(localStorage.getItem(TEST_CASE_HISTORY_KEY) || '[]'));
         setSavedSquads(JSON.parse(localStorage.getItem(SAVED_SQUADS_KEY) || '[]'));
+      } catch (error) {
+        console.error('Failed to parse data from localStorage', error);
       }
-    } catch (error) {
-      console.error('Failed to parse data from localStorage', error);
     }
   }, []);
   
@@ -220,12 +220,12 @@ export function UnitFinder() {
       const input = squadFormRef.current.elements.namedItem('query') as HTMLTextAreaElement;
       if (input) input.value = query;
     } else if (activeTab === 'test-assistant' && testCaseFormRef.current) {
-      const testCaseInput = testCaseFormRef.current.elements.namedItem('testCase') as HTMLTextAreaElement;
       const unitDetailsInput = testCaseFormRef.current.elements.namedItem('unitDetails') as HTMLTextAreaElement;
+      const testCaseInput = testCaseFormRef.current.elements.namedItem('testCase') as HTMLTextAreaElement;
       const expectedResultInput = testCaseFormRef.current.elements.namedItem('expectedResult') as HTMLTextAreaElement;
       if (testCaseInput && unitDetailsInput && expectedResultInput) {
-          testCaseInput.value = query.testCase;
           unitDetailsInput.value = query.unitDetails;
+          testCaseInput.value = query.testCase;
           expectedResultInput.value = query.expectedResult;
       }
     }
@@ -565,5 +565,3 @@ export function UnitFinder() {
     </div>
   );
 }
-
-    

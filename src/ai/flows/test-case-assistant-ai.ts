@@ -26,8 +26,8 @@ const SquadSchema = z.object({
 });
 
 const TestCaseAssistantAIInputSchema = z.object({
-  testCase: z.string().describe('The ability or feature that is under test.'),
   unitDetails: z.string().describe("All details of the new unit's abilities, conditions, buffs, debuffs, zeta, and omicrons."),
+  testCase: z.string().describe('The ability or feature that is under test.'),
   expectedResult: z.string().describe('The expected outcome of the test case.'),
 });
 export type TestCaseAssistantAIInput = z.infer<typeof TestCaseAssistantAIInputSchema>;
@@ -86,13 +86,19 @@ Your primary goal is to pick opponents that allow the new unit's ability to be t
 - **Common Abbreviations:** 'JML' for 'Jedi Master Luke Skywalker', 'AoE' for 'Area of Effect', 'TM' for 'Turn Meter', 'CD' for 'Critical Damage'.
 
 First, you must thoroughly analyze the user's input:
-1.  **Test Case / Ability Under Test**: {{{testCase}}}
-2.  **New Unit Details**: {{{unitDetails}}}
+1.  **New Unit Details**: {{{unitDetails}}}
+2.  **Test Case / Ability Under Test**: {{{testCase}}}
 3.  **Expected Result**: {{{expectedResult}}}
 
 Next, you MUST use your deep knowledge of SWGOH by combining information from two sources to design the test:
-1.  Your built-in knowledge of swgoh.gg for character URLs, icon URLs, and team structures.
-2.  The provided \`wikiSearch\` tool to get detailed, up-to-date information on existing character kits, buffs, debuffs, and game mechanics from swgoh.wiki. The tool returns a \`searchResponse\` object. Prioritize using the \`ai_answer\` field if it exists, as it contains a synthesized summary. If it doesn't, use the \`results\` array to find the information you need.
+1.  The provided \`wikiSearch\` tool to get detailed, up-to-date information on existing character kits, buffs, debuffs, and game mechanics from swgoh.wiki. The tool returns a \`searchResponse\` object. Prioritize using the \`ai_answer\` field if it exists, as it contains a synthesized summary. If it doesn't, use the \`results\` array to find the information you need.
+2.  Your built-in knowledge of swgoh.gg for character icon URLs and team structures.
+
+**CRITICAL: GETTING UNIT NAMES AND URLS CORRECT**
+You MUST NOT invent or guess character names or swgoh.gg URLs. Your internal knowledge may be out of date.
+- The name of a unit MUST be exactly as it appears in the game. For example, "Anakin Skywalker" is incorrect. The correct name is "Jedi Knight Anakin".
+- The URL for a unit MUST be taken from the \`wikiSearch\` tool results or be constructed from the precise, correct unit name. Do not guess.
+- Pay close attention to different versions of the same character, like "Ahsoka Tano" vs "Ahsoka Tano (Fulcrum)".
 
 Based on your analysis, you will generate a complete test scenario.
 
@@ -107,7 +113,7 @@ Your output MUST include:
 8.  **notApplicableCriteria**: An optional field for conditions that would make the test result invalid (e.g., "The opponent is defeated before the ability can be used.").
 
 For all characters in the allied and opponent squads, you MUST provide:
-- The character's name.
+- The character's correct and full name.
 - The URL for the character's small, public icon on swgoh.gg.
 - The URL for the character's page on swgoh.gg.
 
