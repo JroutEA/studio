@@ -1,60 +1,24 @@
 'use client';
 
-import { useRef, useCallback } from 'react';
-import { toPng } from 'html-to-image';
+import { useRef } from 'react';
 import type { TestCaseAssistantAIOutput } from '@/ai/flows/test-case-assistant-ai';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
-import { Badge } from './ui/badge';
 import { CheckCircle, XCircle, AlertCircle, Download } from 'lucide-react';
 import { SquadList } from './squad-list';
 import { Button } from './ui/button';
-import { useToast } from '@/hooks/use-toast';
-
-const FONT_URL = "https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Staatliches&display=swap";
+import { useDownloadImage } from '@/hooks/use-download-image';
 
 type TestCaseDisplayProps = {
   testCase: TestCaseAssistantAIOutput;
+  triggerRef?: React.RefObject<HTMLButtonElement>;
 };
 
-export function TestCaseDisplay({ testCase }: TestCaseDisplayProps) {
-  const ref = useRef<HTMLDivElement>(null);
-  const { toast } = useToast();
-
-  const handleDownloadImage = useCallback(async () => {
-    if (ref.current === null) {
-      return;
-    }
-
-    try {
-      // Fetch the font CSS and pass it to the toPng function to avoid CORS issues.
-      const fontResponse = await fetch(FONT_URL);
-      const fontCss = await fontResponse.text();
-
-      const dataUrl = await toPng(ref.current, {
-        cacheBust: true,
-        pixelRatio: 2, // for HD quality
-        backgroundColor: 'hsl(224 71% 4%)', // Using dark background HSL
-        fontEmbedCSS: fontCss,
-      });
-
-      const link = document.createElement('a');
-      link.download = `${testCase.scenarioTitle.replace(/ /g, '_')}.png`;
-      link.href = dataUrl;
-      link.click();
-      link.remove();
-    } catch (err) {
-      console.error('Failed to download image', err);
-      toast({
-        variant: 'destructive',
-        title: 'Download Failed',
-        description: 'Could not generate the image. Please try again.',
-      });
-    }
-  }, [ref, testCase.scenarioTitle, toast]);
-
+export function TestCaseDisplay({ testCase, triggerRef }: TestCaseDisplayProps) {
+  const contentRef = useRef<HTMLDivElement>(null);
+  useDownloadImage(contentRef, triggerRef, `${testCase.scenarioTitle.replace(/ /g, '_')}`);
 
   return (
-    <div ref={ref} className="space-y-8 bg-background p-4 sm:p-8 rounded-lg">
+    <div ref={contentRef} className="space-y-8 bg-background p-4 sm:p-8 rounded-lg">
       <Card>
         <CardHeader>
           <div className="flex justify-between items-start gap-4">
@@ -62,10 +26,7 @@ export function TestCaseDisplay({ testCase }: TestCaseDisplayProps) {
               <CardTitle className="text-2xl font-headline">{testCase.scenarioTitle}</CardTitle>
               <CardDescription>{testCase.scenarioDescription}</CardDescription>
             </div>
-            <Button onClick={handleDownloadImage} size="icon" variant="outline" className="shrink-0">
-              <Download className="w-4 h-4" />
-              <span className="sr-only">Download as Image</span>
-            </Button>
+            {/* The download button is now in the main component, but we can keep a placeholder if needed */}
           </div>
         </CardHeader>
       </Card>

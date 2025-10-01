@@ -1,5 +1,6 @@
 'use client';
 
+import { useRef } from 'react';
 import type { UnitMatchingAIOutput } from '@/ai/flows/character-matching-ai';
 import {
   Table,
@@ -14,10 +15,13 @@ import Link from 'next/link';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { cn } from '@/lib/utils';
 import { Skeleton } from './ui/skeleton';
+import { useDownloadImage } from '@/hooks/use-download-image';
 
 type UnitListProps = {
   units: NonNullable<UnitMatchingAIOutput['units']>;
   isLoadingMore?: boolean;
+  triggerRef?: React.RefObject<HTMLButtonElement>;
+  query?: string;
 };
 
 function getInitials(name: string): string {
@@ -63,52 +67,55 @@ const LoadingRows = ({ count = 5 }: { count?: number }) => (
 );
 
 
-export function UnitList({ units, isLoadingMore }: UnitListProps) {
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Matching Units</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-[64px]">Icons with Links</TableHead>
-              <TableHead className="w-[200px]">Unit(s)</TableHead>
-              <TableHead>How They Match</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {units.map((unit, index) => {
-              const borderColorClass = borderColors[index % borderColors.length];
+export function UnitList({ units, isLoadingMore, triggerRef, query }: UnitListProps) {
+  const contentRef = useRef<HTMLDivElement>(null);
+  useDownloadImage(contentRef, triggerRef, query || 'unit_list');
 
-              return (
-              <TableRow key={index}>
-                <TableCell>
-                  {unit.imageUrl && (
-                     <Link href={unit.url} target="_blank" className="relative group">
-                        <Avatar className={cn('h-10 w-10 border-2', borderColorClass)}>
-                        <AvatarImage src={unit.imageUrl} alt={unit.name} />
-                        <AvatarFallback>
-                            {getInitials(unit.name)}
-                        </AvatarFallback>
-                        </Avatar>
-                     </Link>
-                  )}
-                </TableCell>
-                <TableCell className="font-medium">{unit.name}</TableCell>
-                <TableCell>
-                  {unit.description}
-                </TableCell>
+  return (
+    <div ref={contentRef}>
+      <Card>
+        <CardHeader>
+          <CardTitle>Matching Units</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[64px]">Icons with Links</TableHead>
+                <TableHead className="w-[200px]">Unit(s)</TableHead>
+                <TableHead>How They Match</TableHead>
               </TableRow>
-              )
-            })}
-            {isLoadingMore && <LoadingRows count={5} />}
-          </TableBody>
-        </Table>
-      </CardContent>
-    </Card>
+            </TableHeader>
+            <TableBody>
+              {units.map((unit, index) => {
+                const borderColorClass = borderColors[index % borderColors.length];
+
+                return (
+                <TableRow key={index}>
+                  <TableCell>
+                    {unit.imageUrl && (
+                      <Link href={unit.url} target="_blank" className="relative group">
+                          <Avatar className={cn('h-10 w-10 border-2', borderColorClass)}>
+                          <AvatarImage src={unit.imageUrl} alt={unit.name} />
+                          <AvatarFallback>
+                              {getInitials(unit.name)}
+                          </AvatarFallback>
+                          </Avatar>
+                      </Link>
+                    )}
+                  </TableCell>
+                  <TableCell className="font-medium">{unit.name}</TableCell>
+                  <TableCell>
+                    {unit.description}
+                  </TableCell>
+                </TableRow>
+                )
+              })}
+              {isLoadingMore && <LoadingRows count={5} />}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
-
-    

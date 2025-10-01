@@ -1,5 +1,6 @@
 'use client';
 
+import { useRef } from 'react';
 import type { SquadBuilderAIOutput } from '@/ai/flows/squad-builder-ai';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import Link from 'next/link';
@@ -8,6 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { cn } from '@/lib/utils';
 import { SquadListSkeleton } from './squad-list-skeleton';
 import { Button } from './ui/button';
+import { useDownloadImage } from '@/hooks/use-download-image';
 
 function getInitials(name: string): string {
     if (name === "New Unit") return "NU";
@@ -39,6 +41,8 @@ type SquadListProps = {
   isLoadingMore?: boolean;
   savedSquads?: Squad[];
   onToggleSave?: (squad: Squad) => void;
+  triggerRef?: React.RefObject<HTMLButtonElement>;
+  query?: string;
 };
 
 const CharacterPortrait = ({ character, isLeader = false, isAlly = false, colorClass = '' }: {
@@ -71,13 +75,16 @@ const CharacterPortrait = ({ character, isLeader = false, isAlly = false, colorC
 );
 
 
-export function SquadList({ squads, title, isLoadingMore = false, savedSquads = [], onToggleSave }: SquadListProps) {
+export function SquadList({ squads, title, isLoadingMore = false, savedSquads = [], onToggleSave, triggerRef, query }: SquadListProps) {
+  const contentRef = useRef<HTMLDivElement>(null);
+  useDownloadImage(contentRef, triggerRef, query || 'squad_list');
+  
   const isSquadSaved = (squad: Squad) => {
     return savedSquads.some(saved => saved.name === squad.name && saved.leader.name === squad.leader.name);
   };
   
   return (
-    <div className="space-y-8">
+    <div ref={contentRef} className="space-y-8 bg-background p-4 sm:p-8 rounded-lg">
        {title && <h2 className="text-2xl font-bold tracking-tight font-headline">{title}</h2>}
       {squads.map((squad, index) => (
         <Card key={index} className="shadow-md">

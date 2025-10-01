@@ -28,7 +28,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { History, Users, TestTube, Trash2, Star, BrainCircuit } from 'lucide-react';
+import { History, Users, TestTube, Trash2, Star, BrainCircuit, Download } from 'lucide-react';
 import { UnitList } from './unit-list';
 import { UnitListSkeleton } from './unit-list-skeleton';
 import { SquadList } from './squad-list';
@@ -102,6 +102,7 @@ export function UnitFinder() {
   const unitFormRef = useRef<HTMLFormElement>(null);
   const squadFormRef = useRef<HTMLFormElement>(null);
   const testCaseFormRef = useRef<HTMLFormElement>(null);
+  const downloadTriggerRef = useRef<HTMLButtonElement>(null);
   
   useEffect(() => {
     // This effect runs once on the client after initial hydration
@@ -275,6 +276,12 @@ export function UnitFinder() {
     }
   };
 
+  const showDownloadButton = 
+    (activeTab === 'unit-finder' && unitState.units && unitState.units.length > 0) ||
+    (activeTab === 'squad-builder' && squadState.squads && squadState.squads.length > 0) ||
+    (activeTab === 'test-assistant' && testCaseState.testCase);
+
+
   if (!isClient) {
     // Render a skeleton or null on the server to avoid flash of unstyled content and hydration errors
     return (
@@ -343,6 +350,8 @@ export function UnitFinder() {
           <UnitList 
             units={units}
             isLoadingMore={isLoadingMore}
+            triggerRef={downloadTriggerRef}
+            query={unitState.query}
           />
           {hasMoreUnits && unitState.message !== 'No new units found.' && (
             <div className="text-center">
@@ -390,6 +399,8 @@ export function UnitFinder() {
             isLoadingMore={isLoadingMore}
             savedSquads={savedSquads}
             onToggleSave={handleToggleSaveSquad}
+            triggerRef={downloadTriggerRef}
+            query={squadState.squadsInput?.query}
           />
           {hasMoreSquads && squadState.message !== 'No new squads found.' && (
             <div className="text-center">
@@ -422,7 +433,7 @@ export function UnitFinder() {
       return <SquadListSkeleton />;
     }
     if (testCaseState.testCase) {
-      return <TestCaseDisplay testCase={testCaseState.testCase} />;
+      return <TestCaseDisplay testCase={testCaseState.testCase} triggerRef={downloadTriggerRef} />;
     }
     return (
       <div className="text-center py-16 text-muted-foreground border-2 border-dashed rounded-lg border-primary/20">
@@ -450,6 +461,12 @@ export function UnitFinder() {
               </div>
             </div>
             <div className="flex items-center gap-2">
+              {showDownloadButton && (
+                <Button ref={downloadTriggerRef} variant="outline" size="icon" className="download-button">
+                  <Download className="h-4 w-4" />
+                  <span className="sr-only">Download as Image</span>
+                </Button>
+              )}
               {activeTab === 'squad-builder' && (
                 <Sheet open={isSavedSquadsOpen} onOpenChange={setIsSavedSquadsOpen}>
                   <SheetTrigger asChild>
