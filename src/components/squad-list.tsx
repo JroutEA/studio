@@ -77,7 +77,7 @@ const CharacterPortrait = ({ character, isLeader = false, isAlly = false, colorC
 
 export function SquadList({ squads, title, isLoadingMore = false, savedSquads = [], onToggleSave, triggerRef, query }: SquadListProps) {
   const contentRef = useRef<HTMLDivElement>(null);
-  useDownloadImage(contentRef, triggerRef, query || 'squad_list');
+  useDownloadImage(contentRef, triggerRef, query || title || 'squad_list');
   
   const isSquadSaved = (squad: Squad) => {
     return savedSquads.some(saved => saved.name === squad.name && saved.leader.name === squad.leader.name);
@@ -85,7 +85,7 @@ export function SquadList({ squads, title, isLoadingMore = false, savedSquads = 
   
   return (
     <div ref={contentRef} className="space-y-8 bg-background p-4 sm:p-8 rounded-lg">
-       {title && <h2 className="text-2xl font-bold tracking-tight font-headline">{title}</h2>}
+       {title && <h2 className="text-2xl font-bold tracking-tight font-headline text-center">{title}: "{query}"</h2>}
       {squads.map((squad, index) => (
         <Card key={index} className="shadow-md">
           <CardHeader>

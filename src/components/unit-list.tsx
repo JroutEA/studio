@@ -10,7 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import Link from 'next/link';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { cn } from '@/lib/utils';
@@ -72,7 +72,8 @@ export function UnitList({ units, isLoadingMore, triggerRef, query }: UnitListPr
   useDownloadImage(contentRef, triggerRef, query || 'unit_list');
 
   return (
-    <div ref={contentRef}>
+    <div ref={contentRef} className="bg-background p-4 sm:p-8 rounded-lg space-y-4">
+      {query && <h2 className="text-2xl font-bold tracking-tight font-headline text-center">Unit Search: "{query}"</h2>}
       <Card>
         <CardHeader>
           <CardTitle>Matching Units</CardTitle>
