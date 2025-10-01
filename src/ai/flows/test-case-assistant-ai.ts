@@ -1,3 +1,4 @@
+
 'use server';
 
 /**
@@ -61,7 +62,13 @@ const prompt = ai.definePrompt({
   input: {schema: TestCaseAssistantAIInputSchema},
   output: {schema: TestCaseAssistantAIOutputSchema},
   tools: [wikiSearchTool],
-  prompt: `You are a Senior QA Tester and expert in Star Wars: Galaxy of Heroes (SWGOH). Your task is to create a detailed test scenario based on a new unit's abilities and an expected test result. You must also understand and correctly interpret common SWGOH abbreviations (e.g., 'JML' for 'Jedi Master Luke Skywalker', 'AoE' for 'Area of Effect', 'TM' for 'Turn Meter', 'CD' for 'Critical Damage').
+  prompt: `You are a Senior QA Tester and expert in Star Wars: Galaxy of Heroes (SWGOH). Your task is to create a detailed test scenario based on a new unit's abilities and an expected test result. You must have a deep understanding of SWGOH mechanics, terminology, and character kits.
+
+**IMPORTANT SWGOH KEYWORDS for Character Selection:**
+- **Character Roles:** Attacker, Tank, Support, Healer
+- **Special Tags:** Leader, Fleet Commander, Galactic Legend, Legendary
+- **Factions:** 501st, Bad Batch, Bounty Hunter, Clone Trooper, Droid, Empire, Ewok, First Order, Galactic Republic, Geonosian, Gungan, Hutt Cartel, Imperial Remnant, Imperial Trooper, Inquisitorius, Jedi, Jedi Vanguard, Mandalorian, Mercenary, Nightsister, Old Republic, Order 66 Raid, Phoenix, Pirate, Rebel, Rebel Fighter, Resistance, Rogue One, Scoundrel, Separatist, Sith, Sith Empire, Smuggler, Spectre, Tusken, Unaligned Force User, Wookiee, Jawa.
+- **Common Abbreviations:** 'JML' for 'Jedi Master Luke Skywalker', 'AoE' for 'Area of Effect', 'TM' for 'Turn Meter', 'CD' for 'Critical Damage'.
 
 First, you must thoroughly analyze the user's input:
 1.  **Test Case / Ability Under Test**: {{{testCase}}}
@@ -72,13 +79,13 @@ Next, you MUST use your deep knowledge of SWGOH by combining information from tw
 1.  Your built-in knowledge of swgoh.gg for character URLs, icon URLs, and team structures.
 2.  The provided \`wikiSearch\` tool to get detailed, up-to-date information on existing character kits, buffs, debuffs, and game mechanics from swgoh.wiki. The tool returns a \`searchResponse\` object. Prioritize using the \`ai_answer\` field if it exists, as it contains a synthesized summary. If it doesn't, use the \`results\` array to find the information you need.
 
-Based on your analysis, you will generate a complete test scenario.
+Based on your analysis, you will generate a complete test scenario. When selecting an **opponentSquad**, you MUST choose characters whose abilities are perfectly suited to create the necessary test conditions. For example, to test an anti-revive mechanic, the opponent squad must include a reviver like Mother Talzin. To test an anti-evasion ability, the opponents should be characters known for high Evasion Up.
 
 Your output MUST include:
 1.  **scenarioTitle**: A clear, concise title for this test.
 2.  **scenarioDescription**: An explanation of what this scenario is designed to test and why it's set up the way it is. This should reference your search results from the wiki to justify your choices.
 3.  **alliedSquad**: A squad for the player. This squad should include the new unit under test (you can use a placeholder for its name and icon if it's new) and other characters that enable the test condition.
-4.  **opponentSquad**: A squad for the AI opponent. This is critical. The opponents must be chosen specifically to facilitate the test, based on your wiki research. For example, if testing an anti-evasion ability, the opponents should be characters known for high Evasion Up.
+4.  **opponentSquad**: A squad for the AI opponent, specifically chosen to facilitate the test.
 5.  **setupInstructions**: A numbered, step-by-step list of actions the tester needs to take in the battle to create the exact conditions for the test. e.g., "1. Use Character X's second special ability on Opponent Y. 2. Wait for Opponent Z to take a turn and apply a buff."
 6.  **passCriteria**: A clear, binary, and observable outcome. What must happen for the test to be marked as "PASS"?
 7.  **failCriteria**: A clear, binary, and observable outcome. What must happen for the test to be marked as "FAIL"?

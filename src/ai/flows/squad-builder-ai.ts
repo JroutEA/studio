@@ -1,3 +1,4 @@
+
 'use server';
 
 /**
@@ -49,18 +50,20 @@ const prompt = ai.definePrompt({
   input: {schema: SquadBuilderAIInputSchema},
   output: {schema: SquadBuilderAIOutputSchema},
   tools: [wikiSearchTool],
-  prompt: `You are an expert in Star Wars: Galaxy of Heroes (SWGOH) squad building. Your task is to create effective squads based on a user's query. You must also understand and correctly interpret common SWGOH abbreviations (e.g., 'JML' for 'Jedi Master Luke Skywalker', 'AoE' for 'Area of Effect', 'TM' for 'Turn Meter', 'CD' for 'Critical Damage').
+  prompt: `You are an expert in Star Wars: Galaxy of Heroes (SWGOH) squad building. Your task is to create effective squads based on a user's query. You must understand and correctly interpret common SWGOH abbreviations and specific game terminology.
+
+**IMPORTANT SWGOH KEYWORDS:**
+- **Character Roles:** Attacker, Tank, Support, Healer
+- **Special Tags:** Leader, Fleet Commander, Galactic Legend, Legendary
+- **Factions:** 501st, Bad Batch, Bounty Hunter, Clone Trooper, Droid, Empire, Ewok, First Order, Galactic Republic, Geonosian, Gungan, Hutt Cartel, Imperial Remnant, Imperial Trooper, Inquisitorius, Jedi, Jedi Vanguard, Mandalorian, Mercenary, Nightsister, Old Republic, Order 66 Raid, Phoenix, Pirate, Rebel, Rebel Fighter, Resistance, Rogue One, Scoundrel, Separatist, Sith, Sith Empire, Smuggler, Spectre, Tusken, Unaligned Force User, Wookiee, Jawa.
+- **Common Abbreviations:** 'JML' for 'Jedi Master Luke Skywalker', 'AoE' for 'Area of Effect', 'TM' for 'Turn Meter', 'CD' for 'Critical Damage'.
+- **Unit Versions:** Pay close attention to different versions of the same character, like "Ahsoka Tano" vs "Ahsoka Tano (Fulcrum)". High-value tags like "Galactic Legend" are critical for late-game content.
 
 First, determine if the user is asking to find individual units instead of building a squad. A query for an individual unit will NOT contain terms like "team", "squad", "lineup", "beat", "counter", or ask for multiple characters to work together. If it is a query for one or more individual units, set the 'isUnitQuery' flag to true and return an empty 'squads' array.
 
 If it IS a squad query, you MUST use information from two sources to provide the best possible answer:
 1.  Your built-in knowledge of swgoh.gg for character URLs, icon URLs, and team structures.
 2.  The provided \`wikiSearch\` tool to get detailed, up-to-date information on ability synergies, strategies, and counter-play from swgoh.wiki. The tool returns a \`searchResponse\` object. Prioritize using the \`ai_answer\` field if it exists, as it contains a synthesized summary. If it doesn't, use the \`results\` array.
-
-Crucially, you must understand the difference between Buffs (positive effects) and Debuffs (negative effects).
-- **Buffs** are beneficial status effects. Examples include: Protection Up, Offense Up, Critical Damage Up, Speed Up, Tenacity Up, Retribution, Advantage.
-- **Debuffs** are detrimental status effects. Examples include: Stun, Daze, Ability Block, Healing Immunity, Potency Down, Shock, Stagger, Target Lock, Fear.
-When a user asks for units that apply buffs, DO NOT provide units that apply debuffs, and vice-versa. Pay close attention to whether the query specifies a particular ability (e.g., basic, special, leader).
 
 A standard squad consists of 5 characters: 1 Leader and 4 Members. You will also suggest a 6th character as a borrowed Ally where appropriate.
 

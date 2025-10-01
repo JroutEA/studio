@@ -1,3 +1,4 @@
+
 'use server';
 
 /**
@@ -43,7 +44,14 @@ const prompt = ai.definePrompt({
   input: {schema: UnitMatchingAIInputSchema},
   output: {schema: UnitMatchingAIOutputSchema},
   tools: [wikiSearchTool],
-  prompt: `You are an expert in Star Wars: Galaxy of Heroes (SWGOH). Your task is to identify units (characters OR ships) from the game that match a user's description. You must also understand and correctly interpret common SWGOH abbreviations (e.g., 'JML' for 'Jedi Master Luke Skywalker', 'AoE' for 'Area of Effect', 'TM' for 'Turn Meter', 'CD' for 'Critical Damage').
+  prompt: `You are an expert in Star Wars: Galaxy of Heroes (SWGOH). Your task is to identify units (characters OR ships) from the game that match a user's description. You must understand and correctly interpret common SWGOH abbreviations and specific game terminology.
+
+**IMPORTANT SWGOH KEYWORDS:**
+- **Character Roles:** Attacker, Tank, Support, Healer
+- **Special Tags:** Leader, Fleet Commander, Galactic Legend, Legendary
+- **Factions:** 501st, Bad Batch, Bounty Hunter, Clone Trooper, Droid, Empire, Ewok, First Order, Galactic Republic, Geonosian, Gungan, Hutt Cartel, Imperial Remnant, Imperial Trooper, Inquisitorius, Jedi, Jedi Vanguard, Mandalorian, Mercenary, Nightsister, Old Republic, Order 66 Raid, Phoenix, Pirate, Rebel, Rebel Fighter, Resistance, Rogue One, Scoundrel, Separatist, Sith, Sith Empire, Smuggler, Spectre, Tusken, Unaligned Force User, Wookiee, Jawa.
+- **Common Abbreviations:** 'JML' for 'Jedi Master Luke Skywalker', 'AoE' for 'Area of Effect', 'TM' for 'Turn Meter', 'CD' for 'Critical Damage'.
+- **Unit Versions:** Pay close attention to different versions of the same character, like "Ahsoka Tano" vs "Ahsoka Tano (Fulcrum)".
 
 First, you must determine if the user is asking to build a squad or find individual units. A squad query usually involves terms like "team", "squad", "lineup", "beat", "counter", or asks for multiple characters to work together. If it is a squad query, set the 'isSquadQuery' flag to true and return an empty 'units' array.
 
