@@ -1,22 +1,66 @@
 'use client';
 
+import { useRef, useCallback } from 'react';
+import { toPng } from 'html-to-image';
 import type { TestCaseAssistantAIOutput } from '@/ai/flows/test-case-assistant-ai';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
-import { CheckCircle, XCircle, AlertCircle } from 'lucide-react';
+import { CheckCircle, XCircle, AlertCircle, Download } from 'lucide-react';
 import { SquadList } from './squad-list';
+import { Button } from './ui/button';
+import { useToast } from '@/hooks/use-toast';
+
 
 type TestCaseDisplayProps = {
   testCase: TestCaseAssistantAIOutput;
 };
 
 export function TestCaseDisplay({ testCase }: TestCaseDisplayProps) {
+  const ref = useRef<HTMLDivElement>(null);
+  const { toast } = useToast();
+
+  const handleDownloadImage = useCallback(async () => {
+    if (ref.current === null) {
+      return;
+    }
+
+    try {
+      const dataUrl = await toPng(ref.current, {
+        cacheBust: true,
+        pixelRatio: 2, // for HD quality
+        backgroundColor: 'hsl(224 71% 4%)', // Using dark background HSL
+      });
+
+      const link = document.createElement('a');
+      link.download = `${testCase.scenarioTitle.replace(/ /g, '_')}.png`;
+      link.href = dataUrl;
+      link.click();
+      link.remove();
+    } catch (err) {
+      console.error('Failed to download image', err);
+      toast({
+        variant: 'destructive',
+        title: 'Download Failed',
+        description: 'Could not generate the image. Please try again.',
+      });
+    }
+  }, [ref, testCase.scenarioTitle, toast]);
+
+
   return (
-    <div className="space-y-8">
+    <div ref={ref} className="space-y-8 bg-background p-4 sm:p-8 rounded-lg">
       <Card>
         <CardHeader>
-          <CardTitle className="text-2xl font-headline">{testCase.scenarioTitle}</CardTitle>
-          <CardDescription>{testCase.scenarioDescription}</CardDescription>
+          <div className="flex justify-between items-start gap-4">
+            <div>
+              <CardTitle className="text-2xl font-headline">{testCase.scenarioTitle}</CardTitle>
+              <CardDescription>{testCase.scenarioDescription}</CardDescription>
+            </div>
+            <Button onClick={handleDownloadImage} size="icon" variant="outline" className="shrink-0">
+              <Download className="w-4 h-4" />
+              <span className="sr-only">Download as Image</span>
+            </Button>
+          </div>
         </CardHeader>
       </Card>
       
