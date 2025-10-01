@@ -22,7 +22,7 @@ const CharacterSchema = z.object({
 const SquadSchema = z.object({
     name: z.string().describe('A name for the squad, e.g., "Test Allies" or "Opponent Squad".'),
     leader: CharacterSchema.describe('The leader of the squad.'),
-    members: z.array(CharacterSchema).max(4).describe('The other members of the squad.'),
+    members: z.array(CharacterSchema).min(1).max(4).describe('The other members of the squad. There must be between 1 and 4 members.'),
 });
 
 const TestCaseAssistantAIInputSchema = z.object({
