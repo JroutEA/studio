@@ -4,18 +4,10 @@ export const HolocronIcon = ({ className, ...props }: React.SVGProps<SVGSVGEleme
   <svg
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
+    fill="currentColor"
     className={cn('w-6 h-6', className)}
     {...props}
   >
-    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.77 5.82 22 7 14.14 2 9.27l6.91-1.01L12 2z"></path>
-    <line x1="12" y1="2" x2="12" y2="22"></line>
-    <line x1="2" y1="9.27" x2="22" y2="9.27"></line>
-    <line x1="5.82" y1="22" x2="18.18" y2="2"></line>
-    <line x1="5.82" y1="2" x2="18.18" y2="22"></line>
+    <path d="M12 2c-3.39 0-6.17 2.76-6.45 6.13-.07.82.25 1.6.83 2.17l.79.79c.4.4.82.78 1.25 1.15l-1.42 1.42C5.45 15.21 4.5 17.5 4.5 20v2h15v-2c0-2.5-1-4.79-2.5-6.34l-1.42-1.42c.43-.37.85-.75 1.25-1.15l.79-.79c.58-.57.9-1.35.83-2.17C18.17 4.76 15.39 2 12 2zm-3 7c0-.55.45-1 1-1h4c.55 0 1 .45 1 1s-.45 1-1 1h-4c-.55 0-1-.45-1-1zm1 2h2c.55 0 1 .45 1 1s-.45 1-1 1h-2c-.55 0-1-.45-1-1s.45-1 1-1z"/>
   </svg>
 );
