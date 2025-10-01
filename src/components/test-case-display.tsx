@@ -3,9 +3,8 @@
 import { useRef } from 'react';
 import type { TestCaseAssistantAIOutput } from '@/ai/flows/test-case-assistant-ai';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
-import { CheckCircle, XCircle, AlertCircle, Download } from 'lucide-react';
+import { CheckCircle, XCircle, AlertCircle } from 'lucide-react';
 import { SquadList } from './squad-list';
-import { Button } from './ui/button';
 import { useDownloadImage } from '@/hooks/use-download-image';
 
 type TestCaseDisplayProps = {
@@ -19,15 +18,12 @@ export function TestCaseDisplay({ testCase, triggerRef }: TestCaseDisplayProps) 
 
   return (
     <div ref={contentRef} className="space-y-8 bg-background p-4 sm:p-8 rounded-lg">
+      <h2 className="text-2xl font-bold tracking-tight font-headline text-center">{testCase.scenarioTitle}</h2>
+      
       <Card>
         <CardHeader>
-          <div className="flex justify-between items-start gap-4">
-            <div>
-              <CardTitle className="text-2xl font-headline">{testCase.scenarioTitle}</CardTitle>
-              <CardDescription>{testCase.scenarioDescription}</CardDescription>
-            </div>
-            {/* The download button is now in the main component, but we can keep a placeholder if needed */}
-          </div>
+          <CardTitle className="text-xl font-headline">Scenario Overview</CardTitle>
+          <CardDescription>{testCase.scenarioDescription}</CardDescription>
         </CardHeader>
       </Card>
       
