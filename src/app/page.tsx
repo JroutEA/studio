@@ -1,5 +1,5 @@
 import { UnitFinder } from '@/components/unit-finder';
-import packageJson from '../../../package.json';
+import packageJson from '../../package.json';
 
 export default function Home() {
   const version = packageJson.version;
