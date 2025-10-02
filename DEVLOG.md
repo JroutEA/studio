@@ -6,6 +6,7 @@ This file tracks the changes made to the AI Holocron application.
 
 ### 2025-10-02
 
+- **v0.1.21**: Fixed a critical error in the Test Assistant where invalid AI responses would crash the tool by making the squad validation schema more flexible.
 - **v0.1.20**: Resolved a runtime error by simplifying the error handling in the `testCaseAssistantAI` flow.
 - **v0.1.19**: Corrected the dates in the DEVLOG.md file to reflect the proper timeline.
 - **v0.1.18**: Corrected the dates in the DEVLOG.md file.
@@ -28,9 +29,3 @@ This file tracks the changes made to the AI Holocron application.
 - **v0.1.4**: Fixed a CORS security error that occurred when downloading images with embedded Google Fonts.
 - **v0.1.3**: Initial project setup and core feature implementation.
 - **v0.1.2**: Initial project setup and core feature implementation.
-
-
-
-
-
-    

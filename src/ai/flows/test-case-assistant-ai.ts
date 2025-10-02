@@ -22,7 +22,7 @@ const CharacterSchema = z.object({
 const SquadSchema = z.object({
     name: z.string().describe('A name for the squad, e.g., "Test Allies" or "Opponent Squad".'),
     leader: CharacterSchema.describe('The leader of the squad.'),
-    members: z.array(CharacterSchema).min(1).max(4).describe('The other members of the squad. There must be between 1 and 4 members.'),
+    members: z.array(CharacterSchema).describe('The other members of the squad. There should be 4 members.'),
 });
 
 const TestCaseAssistantAIInputSchema = z.object({
@@ -35,8 +35,8 @@ export type TestCaseAssistantAIInput = z.infer<typeof TestCaseAssistantAIInputSc
 const TestCaseAssistantAIOutputSchema = z.object({
   scenarioTitle: z.string().describe('A descriptive title for the test scenario.'),
   scenarioDescription: z.string().describe('A brief overview of the test scenario and its goal.'),
-  alliedSquad: SquadSchema.describe('The squad to be used by the player/tester, including the new unit. This squad MUST have a designated leader and between 1 and 4 other members.'),
-  opponentSquad: SquadSchema.describe('The squad the player will face. This squad should be specifically chosen to allow the test conditions to be met. This squad MUST have a designated leader and between 1 and 4 other members.'),
+  alliedSquad: SquadSchema.describe('The squad to be used by the player/tester, including the new unit. This squad MUST have a designated leader and 4 other members.'),
+  opponentSquad: SquadSchema.describe('The squad the player will face. This squad should be specifically chosen to allow the test conditions to be met. This squad MUST have a designated leader and 4 other members.'),
   setupInstructions: z.array(z.string()).describe('A step-by-step guide on how to set up the battle to perform the test. Each step should be a plain string without any numbering.'),
   passCriteria: z.string().describe('The specific, observable outcome that determines if the test case has passed.'),
   failCriteria: z.string().describe('The specific, observable outcome that determines if the test case has failed.'),
@@ -99,8 +99,8 @@ Based on your analysis, you will generate a complete test scenario.
 Your output MUST include:
 1.  **scenarioTitle**: A clear, concise title for this test.
 2.  **scenarioDescription**: An explanation of what this scenario is designed to test and why it's set up the way it is. This should reference your search results from the wiki to justify your choices.
-3.  **alliedSquad**: A squad for the player. This squad MUST include the new unit under test. It MUST have a designated leader and between 1 and 4 other members.
-4.  **opponentSquad**: A squad for the AI opponent, specifically chosen to facilitate the test. This squad MUST have a designated leader and between 1 and 4 other members.
+3.  **alliedSquad**: A squad for the player. This squad MUST include the new unit under test. It MUST have a designated leader and 4 other members.
+4.  **opponentSquad**: A squad for the AI opponent, specifically chosen to facilitate the test. This squad MUST have a designated leader and 4 other members.
 5.  **setupInstructions**: A list of plain string actions for the tester to take. DO NOT add numbers like "1." or "2." to the beginning of each step. The list should be ordered chronologically. e.g., ["Use Character X's second special ability on Opponent Y.", "Wait for Opponent Z to take a turn and apply a buff."].
 6.  **passCriteria**: A clear, binary, and observable outcome. What must happen for the test to be marked as "PASS"?
 7.  **failCriteria**: A clear, binary, and observable outcome. What must happen for the test to be marked as "FAIL"?
@@ -128,5 +128,3 @@ const testCaseAssistantAIFlow = ai.defineFlow(
     return output;
   }
 );
-
-    
