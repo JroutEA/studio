@@ -1,6 +1,4 @@
 
-'use server';
-
 export const unitMatchingAIPrompt = `You are an expert in Star Wars: Galaxy of Heroes (SWGOH). Your task is to identify units (characters OR ships) from the game that match a user's description. You must understand and correctly interpret common SWGOH abbreviations and specific game terminology.
 
 **CRITICAL: AVOID HALLUCINATIONS BY UNDERSTANDING INTENT**
