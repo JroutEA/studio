@@ -6,11 +6,17 @@ This file tracks the changes made to the AI Holocron application.
 
 ### 2025-10-02
 
-- **v0.1.21**: Removed a try/catch block in the `testCaseAssistantAIFlow` to expose more detailed underlying errors from the AI model, aiding in debugging persistent response validation failures.
-- **v0.1.20**: Resolved a runtime error by simplifying the error handling in the `testCaseAssistantAI` flow.
-- **v0.1.19**: Corrected the dates in the DEVLOG.md file to reflect the proper timeline.
-- **v0.1.18**: Corrected the dates in the DEVLOG.md file.
-- **v0.1.17**: Fixed a formatting bug that caused duplicate numbering in the Test Assistant's setup instructions.
+- **v0.1.27**: Removed a try/catch block in the `testCaseAssistantAIFlow` to expose more detailed underlying errors from the AI model, aiding in debugging persistent response validation failures.
+- **v0.1.26**: Fixed a hydration error by adding `suppressHydrationWarning` to the root layout.
+- **v0.1.25**: Implemented a client-side rendering gate to prevent hydration errors caused by `localStorage` access on initial render.
+- **v0.1.24**: Corrected the import path for `package.json` in `src/app/page.tsx` to resolve a build failure.
+- **v0.1.23**: Fixed a server action error by correctly reading the version from `package.json`.
+- **v0.1.22**: Resolved a persistent hydration error by ensuring client-side code only runs after component mounting.
+- **v0.1.21**: Made the `members` array in the `testCaseAssistantAI` schema more flexible to prevent validation failures.
+- **v0.1.20**: Simplified error handling in the `testCaseAssistantAI` flow to better surface root causes.
+- **v0.1.19**: Added robust validation and repair logic to all three AI flows to handle malformed model outputs gracefully.
+- **v0.1.18**: Fixed a formatting bug that caused duplicate numbering in the Test Assistant's setup instructions.
+- **v0.1.17**: Corrected the dates in the DEVLOG.md file to reflect the proper timeline.
 
 ### 2025-10-01
 
@@ -29,5 +35,6 @@ This file tracks the changes made to the AI Holocron application.
 - **v0.1.4**: Fixed a CORS security error that occurred when downloading images with embedded Google Fonts.
 - **v0.1.3**: Initial project setup and core feature implementation.
 - **v0.1.2**: Initial project setup and core feature implementation.
+
 
 
