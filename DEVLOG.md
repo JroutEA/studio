@@ -4,13 +4,15 @@ This file tracks the changes made to the AI Holocron application.
 
 ---
 
-### 2024-07-31
+### 2025-10-02
 
+- **v0.1.19**: Corrected the dates in the DEVLOG.md file to reflect the proper timeline.
+- **v0.1.18**: Corrected the dates in the DEVLOG.md file.
 - **v0.1.17**: Fixed a formatting bug that caused duplicate numbering in the Test Assistant's setup instructions.
 
-### 2024-07-30
+### 2025-10-01
 
-- **v0.1.16**: Created the initial DEVLOG.md file to track project history.
+- **v0.1.16**: Created a more comprehensive DEVLOG.md file to better track project history.
 - **v0.1.15**: Implemented automatic versioning for application updates.
 - **v0.1.14**: Added a static version number to the application footer.
 - **v0.1.13**: Instructed the AI to treat any user-provided new character names as the "New Unit" under test.
