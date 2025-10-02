@@ -4,11 +4,11 @@ This file tracks the changes made to the AI Holocron application.
 
 ---
 
-### 2024-07-30
+### 2024-07-31
 
 - **v0.1.17**: Fixed a formatting bug that caused duplicate numbering in the Test Assistant's setup instructions.
 
-### 2024-07-29
+### 2024-07-30
 
 - **v0.1.16**: Created the initial DEVLOG.md file to track project history.
 - **v0.1.15**: Implemented automatic versioning for application updates.
@@ -25,5 +25,3 @@ This file tracks the changes made to the AI Holocron application.
 - **v0.1.4**: Fixed a CORS security error that occurred when downloading images with embedded Google Fonts.
 - **v0.1.3**: Resolved a runtime error by simplifying the error handling in the `testCaseAssistantAI` flow.
 - **v0.1.2**: Initial project setup and core feature implementation.
-
-    
