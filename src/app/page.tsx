@@ -1,7 +1,8 @@
 import { UnitFinder } from '@/components/unit-finder';
+import packageJson from '../../../package.json';
 
 export default function Home() {
-  const version = "0.1.24";
+  const version = packageJson.version;
   return (
     <div className="flex flex-col min-h-screen bg-background">
       <main className="flex-1 container mx-auto py-8 lg:py-12">
@@ -15,5 +16,3 @@ export default function Home() {
     </div>
   );
 }
-
-    
