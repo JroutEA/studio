@@ -121,45 +121,12 @@ const testCaseAssistantAIFlow = ai.defineFlow(
     outputSchema: TestCaseAssistantAIOutputSchema,
   },
   async input => {
-    try {
-      const { output } = await prompt(input);
-
-      if (!output) {
-        throw new Error('AI model returned no output.');
-      }
-      
-      const validateSquad = (squad: any, squadName: string): z.infer<typeof SquadSchema> => {
-        if (!squad) throw new Error(`${squadName} is missing.`);
-        if (!squad.leader) throw new Error(`${squadName} leader is missing.`);
-        if (!squad.members || !Array.isArray(squad.members)) {
-          squad.members = [];
-        }
-        if (squad.members.length > 4) {
-           squad.members = squad.members.slice(0, 4);
-        }
-         if (squad.members.length === 0) {
-           // Add a placeholder if members are missing to satisfy min(1)
-           squad.members.push({ name: 'Any Ally', imageUrl: 'https://placehold.co/80x80/cccccc/000000/png?text=ANY', url: 'https://swgoh.gg' });
-        }
-        return squad;
-      };
-
-      const validatedOutput: TestCaseAssistantAIOutput = {
-        ...output,
-        alliedSquad: validateSquad(output.alliedSquad, 'Allied Squad'),
-        opponentSquad: validateSquad(output.opponentSquad, 'Opponent Squad'),
-        setupInstructions: output.setupInstructions || [],
-        passCriteria: output.passCriteria || 'Not defined',
-        failCriteria: output.failCriteria || 'Not defined',
-      };
-      
-      return validatedOutput;
-
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      console.error(`Error in testCaseAssistantAIFlow: ${errorMessage}`);
-      // Re-throw a more user-friendly error to be caught by the server action
-      throw new Error(`The AI model returned an invalid response. Raw error: ${errorMessage}`);
+    const { output } = await prompt(input);
+    if (!output) {
+      throw new Error('The AI model returned no output. This may be due to a content filter or an internal error.');
     }
+    return output;
   }
 );
+
+    
