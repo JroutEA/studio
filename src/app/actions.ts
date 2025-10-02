@@ -104,7 +104,7 @@ export async function findUnits(
   } catch (e: unknown) {
     let errorMessage = e instanceof Error ? e.message : String(e);
     if (errorMessage.includes('503')) {
-       return { ...prevState, query, message: "err" };
+       return { ...prevState, query, message: "The AI model is temporarily unavailable (503 Service Unavailable). Please try again in a few moments." };
     }
     if (errorMessage.includes('Schema validation failed')) {
       errorMessage = "The AI model returned an invalid response. This may be due to content filtering or a temporary issue. Please try a different query.";
@@ -169,7 +169,7 @@ export async function buildSquad(
   } catch (e: unknown) {
     let errorMessage = e instanceof Error ? e.message : String(e);
      if (errorMessage.includes('503')) {
-       return { ...prevState, squadsInput: { query }, message: "err" };
+       return { ...prevState, squadsInput: { query }, message: "The AI model is temporarily unavailable (503 Service Unavailable). Please try again in a few moments." };
     }
     if (errorMessage.includes('Schema validation failed')) {
       errorMessage = "The AI model returned an invalid response. This may be due to content filtering or a temporary issue. Please try a different query.";
@@ -205,7 +205,7 @@ export async function generateTestCase(
     } catch (e: unknown) {
         let errorMessage = e instanceof Error ? e.message : String(e);
         if (errorMessage.includes('503')) {
-          return { ...prevState, testCaseInput: input, message: "err" };
+          return { ...prevState, testCaseInput: input, message: "The AI model is temporarily unavailable (503 Service Unavailable). Please try again in a few moments." };
         }
         if (errorMessage.includes('Schema validation failed')) {
           errorMessage = "The AI model returned an invalid response. This may be due to content filtering or a temporary issue. Please try a different query.";
