@@ -38,6 +38,7 @@ import { HolocronIcon } from './holocron-icon';
 import { DarthVaderLoader } from './darth-vader-loader';
 import { SavedSquadsList } from './saved-squads-list';
 import { Skeleton } from './ui/skeleton';
+import { FallbackPromptDisplay } from './fallback-prompt-display';
 
 
 type Squad = NonNullable<SquadBuilderAIOutput['squads']>[0];
@@ -127,7 +128,7 @@ export function UnitFinder() {
   
   useEffect(() => {
     if (!isClient) return;
-    if (unitState.message && unitState.message !== 'success') {
+    if (unitState.message && unitState.message !== 'success' && !unitState.fallbackPrompt) {
       toast({
         title: unitState.message.includes('found') ? 'Info' : unitState.message.includes('Invalid') ? 'Warning' : 'Error',
         description: unitState.message,
@@ -151,7 +152,7 @@ export function UnitFinder() {
 
   useEffect(() => {
     if (!isClient) return;
-    if (squadState.message && squadState.message !== 'success') {
+    if (squadState.message && squadState.message !== 'success' && !squadState.fallbackPrompt) {
        toast({
           title: squadState.message.includes('found') ? 'Info' : squadState.message.includes('Invalid') ? 'Warning' : 'Error',
           description: squadState.message,
@@ -175,7 +176,7 @@ export function UnitFinder() {
 
   useEffect(() => {
     if (!isClient) return;
-    if (testCaseState.message && testCaseState.message !== 'success') {
+    if (testCaseState.message && testCaseState.message !== 'success' && !testCaseState.fallbackPrompt) {
       toast({ variant: 'destructive', title: 'Error generating test case', description: testCaseState.message });
     }
     if (testCaseState.message === 'success' && testCaseState.testCaseInput) {
@@ -361,6 +362,33 @@ export function UnitFinder() {
       </div>
     );
   }
+
+  const renderContent = () => {
+    let currentState = unitState;
+    if (activeTab === 'squad-builder') currentState = squadState;
+    if (activeTab === 'test-assistant') currentState = testCaseState;
+    
+    if (currentState.fallbackPrompt) {
+      return (
+        <FallbackPromptDisplay
+          errorMessage={currentState.message}
+          fallbackPrompt={currentState.fallbackPrompt}
+        />
+      );
+    }
+  
+    switch (activeTab) {
+      case 'unit-finder':
+        return renderUnitFinderContent();
+      case 'squad-builder':
+        return renderSquadBuilderContent();
+      case 'test-assistant':
+        return renderTestAssistantContent();
+      default:
+        return null;
+    }
+  };
+
 
   const renderUnitFinderContent = () => {
     const isLoadingFirstTime = isUnitPending && !unitState.units?.length && !unitState.squads?.length;
@@ -653,14 +681,8 @@ export function UnitFinder() {
       </Card>
 
       <div className="max-w-4xl mx-auto">
-        {activeTab === 'unit-finder' && renderUnitFinderContent()}
-        {activeTab === 'squad-builder' && renderSquadBuilderContent()}
-        {activeTab === 'test-assistant' && renderTestAssistantContent()}
+        {renderContent()}
       </div>
     </div>
   );
 }
-
-    
-
-    

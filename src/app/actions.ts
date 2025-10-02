@@ -18,6 +18,9 @@ import {
   type TestCaseAssistantAIInput,
 } from '@/ai/flows/test-case-assistant-ai';
 
+import { unitMatchingAIPrompt, squadBuilderAIPrompt, testCaseAssistantAIPrompt } from '@/ai/prompts';
+
+
 export type FormState = {
   message: string;
   units?: UnitMatchingAIOutput['units'];
@@ -27,6 +30,7 @@ export type FormState = {
   squadsInput?: SquadBuilderAIInput;
   testCaseInput?: TestCaseAssistantAIInput;
   switchToTab?: string;
+  fallbackPrompt?: string;
 };
 
 const findUnitsSchema = z.object({
@@ -46,6 +50,14 @@ const generateTestCaseSchema = z.object({
     unitDetails: z.string().min(20, { message: 'Unit details must be at least 20 characters.' }),
     expectedResult: z.string().min(10, { message: 'Expected result must be at least 10 characters.' }),
 });
+
+function generatePrompt(basePrompt: string, data: Record<string, any>): string {
+    return basePrompt.replace(/{{{\s*(\w+)\s*}}}/g, (match, key) => {
+        return data[key] || '';
+    }).replace(/{{#if (\w+)\s*}}([\s\S]*?){{\/if}}/g, (match, key, content) => {
+        return data[key] ? content : '';
+    });
+}
 
 export async function findUnits(
   prevState: FormState,
@@ -104,12 +116,15 @@ export async function findUnits(
   } catch (e: unknown) {
     let errorMessage = e instanceof Error ? e.message : String(e);
     if (errorMessage.includes('503')) {
-       return { ...prevState, query, message: "The AI model is temporarily unavailable (503 Service Unavailable). Please try again in a few moments." };
+       errorMessage = "The AI model is temporarily unavailable (503 Service Unavailable). Please try again in a few moments.";
     }
     if (errorMessage.includes('Schema validation failed')) {
       errorMessage = "The AI model returned an invalid response. This may be due to content filtering or a temporary issue. Please try a different query.";
     }
-    return { ...prevState, query, message: `An error occurred: ${errorMessage}` };
+
+    const fallbackPrompt = generatePrompt(unitMatchingAIPrompt, input);
+    
+    return { ...prevState, query, message: `An error occurred: ${errorMessage}`, fallbackPrompt };
   }
 }
 
@@ -169,12 +184,14 @@ export async function buildSquad(
   } catch (e: unknown) {
     let errorMessage = e instanceof Error ? e.message : String(e);
      if (errorMessage.includes('503')) {
-       return { ...prevState, squadsInput: { query }, message: "The AI model is temporarily unavailable (503 Service Unavailable). Please try again in a few moments." };
+       errorMessage = "The AI model is temporarily unavailable (503 Service Unavailable). Please try again in a few moments.";
     }
     if (errorMessage.includes('Schema validation failed')) {
       errorMessage = "The AI model returned an invalid response. This may be due to content filtering or a temporary issue. Please try a different query.";
     }
-    return { ...prevState, squadsInput: { query }, message: `An error occurred while building the squad: ${errorMessage}` };
+    const fallbackPrompt = generatePrompt(squadBuilderAIPrompt, input);
+
+    return { ...prevState, squadsInput: { query }, message: `An error occurred while building the squad: ${errorMessage}`, fallbackPrompt };
   }
 }
 
@@ -205,13 +222,12 @@ export async function generateTestCase(
     } catch (e: unknown) {
         let errorMessage = e instanceof Error ? e.message : String(e);
         if (errorMessage.includes('503')) {
-          return { ...prevState, testCaseInput: input, message: "The AI model is temporarily unavailable (503 Service Unavailable). Please try again in a few moments." };
+          errorMessage = "The AI model is temporarily unavailable (503 Service Unavailable). Please try again in a few moments.";
         }
         if (errorMessage.includes('Schema validation failed')) {
           errorMessage = "The AI model returned an invalid response. This may be due to content filtering or a temporary issue. Please try a different query.";
         }
-        return { ...prevState, testCaseInput: input, message: `An error occurred: ${errorMessage}` };
+        const fallbackPrompt = generatePrompt(testCaseAssistantAIPrompt, input);
+        return { ...prevState, testCaseInput: input, message: `An error occurred: ${errorMessage}`, fallbackPrompt };
     }
 }
-
-    
