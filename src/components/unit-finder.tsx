@@ -283,7 +283,7 @@ export function UnitFinder() {
 
 
   if (!isClient) {
-    // Render a skeleton or null on the server to avoid flash of unstyled content and hydration errors
+    // Render a skeleton on the server to avoid flash of unstyled content and hydration errors
     return (
       <div className="space-y-12">
         <Card className="max-w-3xl mx-auto shadow-lg border-primary/20 bg-card/80 backdrop-blur-sm">
