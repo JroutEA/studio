@@ -10,7 +10,6 @@
  */
 
 import {ai} from '@/ai/genkit';
-import { googleAI } from '@genkit-ai/googleai';
 import { wikiSearchTool } from '@/ai/tools/wiki-search';
 import {z} from 'genkit';
 import { testCaseAssistantAIPrompt } from '@/ai/prompts';
@@ -57,7 +56,7 @@ const prompt = ai.definePrompt({
   input: {schema: TestCaseAssistantAIInputSchema},
   output: {schema: TestCaseAssistantAIOutputSchema},
   tools: [wikiSearchTool],
-  model: googleAI.model('gemini-2.5-pro'),
+  model: 'googleai/gemini-2.5-pro',
 });
 
 const testCaseAssistantAIFlow = ai.defineFlow(
