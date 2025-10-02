@@ -37,6 +37,8 @@ import { TestCaseDisplay } from './test-case-display';
 import { HolocronIcon } from './holocron-icon';
 import { DarthVaderLoader } from './darth-vader-loader';
 import { SavedSquadsList } from './saved-squads-list';
+import { Skeleton } from './ui/skeleton';
+
 
 type Squad = NonNullable<SquadBuilderAIOutput['squads']>[0];
 
@@ -105,8 +107,6 @@ export function UnitFinder() {
   const downloadTriggerRef = useRef<HTMLButtonElement>(null);
   
   useEffect(() => {
-    // This effect runs once on the client after initial hydration
-    // It's safe to access localStorage here.
     setIsClient(true);
     try {
       setUnitHistory(JSON.parse(localStorage.getItem(UNIT_HISTORY_KEY) || '[]'));
@@ -119,6 +119,7 @@ export function UnitFinder() {
   }, []);
   
   useEffect(() => {
+    if (!isClient) return;
     if (unitState.message && unitState.message !== 'success') {
       toast({
         title: unitState.message.includes('found') ? 'Info' : unitState.message.includes('Invalid') ? 'Warning' : 'Error',
@@ -133,7 +134,7 @@ export function UnitFinder() {
       setUnitHistory(prev => {
         if (!prev.includes(unitState.query!)) {
           const newHistory = [unitState.query!, ...prev].slice(0, 20);
-          if (isClient) localStorage.setItem(UNIT_HISTORY_KEY, JSON.stringify(newHistory));
+          localStorage.setItem(UNIT_HISTORY_KEY, JSON.stringify(newHistory));
           return newHistory;
         }
         return prev;
@@ -142,6 +143,7 @@ export function UnitFinder() {
   }, [unitState, toast, isClient]);
 
   useEffect(() => {
+    if (!isClient) return;
     if (squadState.message && squadState.message !== 'success') {
        toast({
           title: squadState.message.includes('found') ? 'Info' : squadState.message.includes('Invalid') ? 'Warning' : 'Error',
@@ -156,7 +158,7 @@ export function UnitFinder() {
       setSquadHistory(prev => {
         if (!prev.includes(squadState.squadsInput!.query)) {
           const newHistory = [squadState.squadsInput!.query, ...prev].slice(0, 20);
-          if(isClient) localStorage.setItem(SQUAD_HISTORY_KEY, JSON.stringify(newHistory));
+          localStorage.setItem(SQUAD_HISTORY_KEY, JSON.stringify(newHistory));
           return newHistory;
         }
         return prev;
@@ -165,6 +167,7 @@ export function UnitFinder() {
   }, [squadState, toast, isClient]);
 
   useEffect(() => {
+    if (!isClient) return;
     if (testCaseState.message && testCaseState.message !== 'success') {
       toast({ variant: 'destructive', title: 'Error generating test case', description: testCaseState.message });
     }
@@ -173,7 +176,7 @@ export function UnitFinder() {
       setTestCaseHistory(prev => {
         if (!prev.find(h => JSON.stringify(h) === historyValueJSON)) {
           const newHistory = [testCaseState.testCaseInput, ...prev].slice(0, 20);
-          if(isClient) localStorage.setItem(TEST_CASE_HISTORY_KEY, JSON.stringify(newHistory));
+          localStorage.setItem(TEST_CASE_HISTORY_KEY, JSON.stringify(newHistory));
           return newHistory;
         }
         return prev;
@@ -192,7 +195,7 @@ export function UnitFinder() {
         newSavedSquads = [...prevSavedSquads, squad];
         toast({ title: "Squad Saved!", description: `"${squad.name}" has been added to your saved squads.` });
       }
-      if (isClient) localStorage.setItem(SAVED_SQUADS_KEY, JSON.stringify(newSavedSquads));
+      localStorage.setItem(SAVED_SQUADS_KEY, JSON.stringify(newSavedSquads));
       return newSavedSquads;
     });
   };
@@ -256,7 +259,7 @@ export function UnitFinder() {
       return;
     }
 
-    if (isClient) localStorage.setItem(storageKey, JSON.stringify(updatedHistory));
+    localStorage.setItem(storageKey, JSON.stringify(updatedHistory));
   };
   
   const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -283,7 +286,6 @@ export function UnitFinder() {
 
 
   if (!isClient) {
-    // Render a skeleton on the server to avoid flash of unstyled content and hydration errors
     return (
       <div className="space-y-12">
         <Card className="max-w-3xl mx-auto shadow-lg border-primary/20 bg-card/80 backdrop-blur-sm">
@@ -299,6 +301,10 @@ export function UnitFinder() {
                       This IS the droid you're looking for... to test your units.
                     </CardDescription>
                   </div>
+                </div>
+                 <div className="flex items-center gap-2">
+                    <Skeleton className="h-10 w-10" />
+                    <Skeleton className="h-10 w-10" />
                 </div>
               </div>
            </CardHeader>
@@ -613,3 +619,5 @@ export function UnitFinder() {
     </div>
   );
 }
+
+    
