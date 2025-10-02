@@ -6,6 +6,7 @@ This file tracks the changes made to the AI Holocron application.
 
 ### 2025-10-02
 
+- **v0.1.23**: Resolved a Next.js hydration warning caused by browser extensions like Dark Reader modifying the DOM before hydration. Added `suppressHydrationWarning` to the root `<html>` element.
 - **v0.1.22**: Fixed a Next.js hydration error caused by accessing `localStorage` on the server. Moved all `localStorage` calls into a `useEffect` hook to ensure they only run on the client-side.
 - **v0.1.21**: Fixed a critical error in the Test Assistant where invalid AI responses would crash the tool by making the squad validation schema more flexible.
 - **v0.1.20**: Resolved a runtime error by simplifying the error handling in the `testCaseAssistantAI` flow.
