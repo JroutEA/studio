@@ -122,6 +122,8 @@ const squadBuilderAIFlow = ai.defineFlow(
     if (!output) {
       throw new Error('The AI model failed to generate a valid squad. This could be due to a content filter or an internal error. Please try a different query.');
     }
+
+    // Gracefully handle cases where the model returns no squads array.
     const anyOutput = output as any;
     const squads = anyOutput.squads || [];
     const isUnitQuery = anyOutput.isUnitQuery || false;

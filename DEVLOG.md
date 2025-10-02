@@ -6,6 +6,7 @@ This file tracks the changes made to the AI Holocron application.
 
 ### 2025-10-02
 
+- **v0.1.26**: Implemented a robust fix across all AI flows to gracefully handle and repair malformed model responses, preventing schema validation errors.
 - **v0.1.25**: Fixed a build error by correcting the import path for `package.json` in `page.tsx` to properly resolve the module.
 - **v0.1.24**: Implemented a more robust fix for Next.js hydration errors by gating client-side-only components and data fetching behind a `isClient` state check. This ensures server-rendered HTML matches the initial client render.
 - **v0.1.23**: Resolved a Next.js hydration warning caused by browser extensions like Dark Reader modifying the DOM before hydration. Added `suppressHydrationWarning` to the root `<html>` element.

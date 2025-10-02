@@ -125,6 +125,7 @@ const unitMatchingAIFlow = ai.defineFlow(
       throw new Error('The AI model failed to generate a valid response. This could be due to a content filter or an internal error. Please try a different query.');
     }
     
+    // Gracefully handle cases where the model returns 'characters' instead of 'units' or nothing at all
     const anyOutput = output as any;
     const units = anyOutput.units || anyOutput.characters || [];
     const isSquadQuery = anyOutput.isSquadQuery || false;
