@@ -121,10 +121,47 @@ const testCaseAssistantAIFlow = ai.defineFlow(
     outputSchema: TestCaseAssistantAIOutputSchema,
   },
   async input => {
-    const { output } = await prompt(input);
-    if (!output) {
-      throw new Error('The AI model returned no output. This may be due to a content filter or an internal error.');
+    try {
+      const { output } = await prompt(input);
+      if (!output) {
+        throw new Error('The AI model returned no output. This may be due to a content filter or an internal error.');
+      }
+      
+      // Repair logic to ensure schema is met
+      const repairedOutput = {...output};
+
+      // Ensure squads exist
+      if (!repairedOutput.alliedSquad) {
+        repairedOutput.alliedSquad = { name: 'Allied Squad', leader: { name: 'New Unit', imageUrl: 'https://placehold.co/80x80/000000/FFFFFF/png?text=NEW', url: '#' }, members: [] };
+      }
+      if (!repairedOutput.opponentSquad) {
+        repairedOutput.opponentSquad = { name: 'Opponent Squad', leader: { name: 'Unknown', imageUrl: '', url: '#' }, members: [] };
+      }
+      
+      // Ensure members arrays exist
+      if (!repairedOutput.alliedSquad.members) {
+        repairedOutput.alliedSquad.members = [];
+      }
+      if (!repairedOutput.opponentSquad.members) {
+        repairedOutput.opponentSquad.members = [];
+      }
+
+      // Ensure instructions array exists
+      if (!repairedOutput.setupInstructions) {
+        repairedOutput.setupInstructions = [];
+      }
+
+      // Ensure required string fields are not empty
+      if (!repairedOutput.scenarioTitle) repairedOutput.scenarioTitle = "Untitled Test Scenario";
+      if (!repairedOutput.scenarioDescription) repairedOutput.scenarioDescription = "No description provided.";
+      if (!repairedOutput.passCriteria) repairedOutput.passCriteria = "Not specified.";
+      if (!repairedOutput.failCriteria) repairedOutput.failCriteria = "Not specified.";
+
+      return repairedOutput;
+    } catch (e: unknown) {
+      // Re-throw the original error if it's not a simple validation issue
+      // This helps in debugging if the error is from the model/API itself
+      throw e;
     }
-    return output;
   }
 );
