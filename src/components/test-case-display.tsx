@@ -3,14 +3,45 @@
 import { useRef } from 'react';
 import type { TestCaseAssistantAIOutput } from '@/ai/flows/test-case-assistant-ai';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
-import { CheckCircle, XCircle, AlertCircle, Terminal } from 'lucide-react';
-import { SquadList } from './squad-list';
+import { CheckCircle, XCircle, AlertCircle, Terminal, Users } from 'lucide-react';
 import { useDownloadImage } from '@/hooks/use-download-image';
+import Link from 'next/link';
+import { cn } from '@/lib/utils';
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
+
 
 type TestCaseDisplayProps = {
   testCase: TestCaseAssistantAIOutput;
   triggerRef?: React.RefObject<HTMLButtonElement>;
 };
+
+type Squad = TestCaseAssistantAIOutput['alliedSquad'];
+
+const SimpleSquadList = ({ squad, title }: { squad: Squad; title: string }) => (
+    <Card>
+        <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+                <Users className="h-5 w-5 text-primary" />
+                {title}
+            </CardTitle>
+        </CardHeader>
+        <CardContent>
+            <div className="space-y-2">
+                 <p className="font-semibold">{squad.leader.name} (Leader)</p>
+                 <ul className="list-disc list-inside pl-2 space-y-1 text-muted-foreground">
+                    {squad.members.map((member, index) => (
+                        <li key={index}>
+                            <Link href={member.url} target="_blank" className="hover:underline hover:text-primary">
+                                {member.name}
+                            </Link>
+                        </li>
+                    ))}
+                 </ul>
+            </div>
+        </CardContent>
+    </Card>
+);
+
 
 export function TestCaseDisplay({ testCase, triggerRef }: TestCaseDisplayProps) {
   const contentRef = useRef<HTMLDivElement>(null);
@@ -34,8 +65,8 @@ export function TestCaseDisplay({ testCase, triggerRef }: TestCaseDisplayProps) 
         </CardHeader>
       </Card>
       
-      <SquadList squads={[testCase.alliedSquad]} title="Allied Squad" />
-      <SquadList squads={[testCase.opponentSquad]} title="Opponent Squad" />
+      <SimpleSquadList squad={testCase.alliedSquad} title="Allied Squad" />
+      <SimpleSquadList squad={testCase.opponentSquad} title="Opponent Squad" />
 
       <Card>
         <CardHeader>
