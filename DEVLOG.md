@@ -29,3 +29,4 @@ This file tracks the changes made to the AI Holocron application.
 - **v0.1.3**: Initial project setup and core feature implementation.
 - **v0.1.2**: Initial project setup and core feature implementation.
 
+
