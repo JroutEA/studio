@@ -6,6 +6,7 @@ This file tracks the changes made to the AI Holocron application.
 
 ### 2025-10-02
 
+- **v0.1.30**: Upgraded the Test Assistant AI flow to use the more powerful `gemini-2.5-pro` model. The previous `gemini-2.5-flash` model was likely hitting token limits on this complex task, causing consistent failures. This targeted upgrade should improve reliability without affecting the cost of other features.
 - **v0.1.29**: Implemented a fallback mechanism. When an AI flow fails for any reason, it now returns a detailed, copyable prompt that the user can take to another Generative AI app, ensuring they are never blocked by an internal error.
 - **v0.1.28**: Added a robust validation and repair layer to the `testCaseAssistantAIFlow`. This intercepts the AI's output and fixes common structural inconsistencies on the fly, dramatically increasing the reliability of the Test Assistant feature and preventing schema validation errors.
 - **v0.1.27**: Removed a try/catch block in the `testCaseAssistantAIFlow` to expose more detailed underlying errors from the AI model, aiding in debugging persistent response validation failures.
