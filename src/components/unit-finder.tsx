@@ -80,7 +80,7 @@ function SubmitButton({
 }
 
 export function UnitFinder() {
-  const { toast } = useToast();
+  const { toast, dismiss } = useToast();
   const [activeTab, setActiveTab] = useState('unit-finder');
   
   const [unitState, unitFormAction, isUnitPending] = useActionState(findUnits, initialUnitState);
@@ -99,6 +99,7 @@ export function UnitFinder() {
   // UI state
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [isSavedSquadsOpen, setIsSavedSquadsOpen] = useState(false);
+  const deletionTimerRef = useRef<NodeJS.Timeout | null>(null);
   
   // Form refs
   const unitFormRef = useRef<HTMLFormElement>(null);
@@ -237,29 +238,62 @@ export function UnitFinder() {
   };
   
   const handleDeleteHistoryItem = (index: number) => {
-    let updatedHistory;
-    let storageKey;
-
-    if (activeTab === 'unit-finder') {
-        updatedHistory = [...unitHistory];
+    let currentHistory: any[], setHistory: React.Dispatch<React.SetStateAction<any[]>>, storageKey: string;
+    
+    switch (activeTab) {
+      case 'unit-finder':
+        currentHistory = [...unitHistory];
+        setHistory = setUnitHistory;
         storageKey = UNIT_HISTORY_KEY;
-        updatedHistory.splice(index, 1);
-        setUnitHistory(updatedHistory);
-    } else if (activeTab === 'squad-builder') {
-        updatedHistory = [...squadHistory];
+        break;
+      case 'squad-builder':
+        currentHistory = [...squadHistory];
+        setHistory = setSquadHistory;
         storageKey = SQUAD_HISTORY_KEY;
-        updatedHistory.splice(index, 1);
-        setSquadHistory(updatedHistory);
-    } else if (activeTab === 'test-assistant') {
-        updatedHistory = [...testCaseHistory];
+        break;
+      case 'test-assistant':
+        currentHistory = [...testCaseHistory];
+        setHistory = setTestCaseHistory;
         storageKey = TEST_CASE_HISTORY_KEY;
-        updatedHistory.splice(index, 1);
-        setTestCaseHistory(updatedHistory);
-    } else {
-      return;
+        break;
+      default:
+        return;
     }
 
-    localStorage.setItem(storageKey, JSON.stringify(updatedHistory));
+    const itemToDelete = currentHistory[index];
+    const temporaryHistory = currentHistory.filter((_, i) => i !== index);
+    setHistory(temporaryHistory);
+
+    if (deletionTimerRef.current) {
+      clearTimeout(deletionTimerRef.current);
+    }
+    dismiss();
+
+    const { id } = toast({
+      title: "History item deleted",
+      description: "You can undo this action.",
+      duration: 5000,
+      action: (
+        <Button
+          variant="outline"
+          onClick={() => {
+            if (deletionTimerRef.current) {
+              clearTimeout(deletionTimerRef.current);
+              deletionTimerRef.current = null;
+            }
+            setHistory(currentHistory); // Restore original history
+            dismiss(id);
+          }}
+        >
+          Undo
+        </Button>
+      ),
+    });
+
+    deletionTimerRef.current = setTimeout(() => {
+      localStorage.setItem(storageKey, JSON.stringify(temporaryHistory));
+      deletionTimerRef.current = null;
+    }, 5000);
   };
   
   const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
