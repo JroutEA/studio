@@ -6,6 +6,10 @@ This file tracks the changes made to the AI Holocron application.
 
 ### 2025-10-02
 
+- **v0.1.32**: Added a robust validation and repair layer to the `testCaseAssistantAIFlow`. This intercepts the AI's output and fixes common structural inconsistencies on the fly, dramatically increasing the reliability of the Test Assistant feature and preventing schema validation errors.
+- **v0.1.31**: Removed a try/catch block in the `testCaseAssistantAIFlow` to expose more detailed underlying errors from the AI model, aiding in debugging persistent response validation failures.
+- **v0.1.30**: Upgraded the Test Assistant AI flow to use the more powerful `gemini-2.5-pro` model to handle its complex generation task and avoid token limits.
+- **v0.1.29**: Implemented a fallback mechanism to display the full, copy-able AI prompt when a generation error occurs, ensuring users are never blocked.
 - **v0.1.28**: Added a robust validation and repair layer to the `testCaseAssistantAIFlow`. This intercepts the AI's output and fixes common structural inconsistencies on the fly, dramatically increasing the reliability of the Test Assistant feature and preventing schema validation errors.
 - **v0.1.27**: Removed a try/catch block in the `testCaseAssistantAIFlow` to expose more detailed underlying errors from the AI model, aiding in debugging persistent response validation failures.
 - **v0.1.26**: Fixed a hydration error by adding `suppressHydrationWarning` to the root layout.
