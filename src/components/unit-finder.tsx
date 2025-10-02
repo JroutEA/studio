@@ -108,6 +108,7 @@ export function UnitFinder() {
   const downloadTriggerRef = useRef<HTMLButtonElement>(null);
   
   useEffect(() => {
+    // This effect runs once on the client to safely access localStorage
     setIsClient(true);
     try {
       setUnitHistory(JSON.parse(localStorage.getItem(UNIT_HISTORY_KEY) || '[]'));
@@ -116,6 +117,11 @@ export function UnitFinder() {
       setSavedSquads(JSON.parse(localStorage.getItem(SAVED_SQUADS_KEY) || '[]'));
     } catch (error) {
       console.error('Failed to parse data from localStorage', error);
+      // In case of corrupted data, clear it
+      localStorage.removeItem(UNIT_HISTORY_KEY);
+      localStorage.removeItem(SQUAD_HISTORY_KEY);
+      localStorage.removeItem(TEST_CASE_HISTORY_KEY);
+      localStorage.removeItem(SAVED_SQUADS_KEY);
     }
   }, []);
   
@@ -260,7 +266,6 @@ export function UnitFinder() {
         return;
     }
 
-    const itemToDelete = currentHistory[index];
     const temporaryHistory = currentHistory.filter((_, i) => i !== index);
     setHistory(temporaryHistory);
 
@@ -507,7 +512,7 @@ export function UnitFinder() {
                   <span className="sr-only">Download as Image</span>
                 </Button>
               )}
-              {activeTab === 'squad-builder' && (
+              {isClient && activeTab === 'squad-builder' && (
                 <Sheet open={isSavedSquadsOpen} onOpenChange={setIsSavedSquadsOpen}>
                   <SheetTrigger asChild>
                     <Button variant="outline" size="icon">
@@ -531,46 +536,48 @@ export function UnitFinder() {
                   </SheetContent>
                 </Sheet>
               )}
-              <Sheet open={isHistoryOpen} onOpenChange={setIsHistoryOpen}>
-                <SheetTrigger asChild>
-                  <Button variant="outline" size="icon" disabled={isPending}>
-                    <History className="h-4 w-4" />
-                    <span className="sr-only">View query history</span>
-                  </Button>
-                </SheetTrigger>
-                <SheetContent>
-                  <SheetHeader>
-                    <SheetTitle>Query History</SheetTitle>
-                  </SheetHeader>
-                  <div className="mt-4 space-y-2">
-                    {(activeTab === 'unit-finder' ? unitHistory : activeTab === 'squad-builder' ? squadHistory : testCaseHistory).length > 0 ? (
-                      (activeTab === 'unit-finder' ? unitHistory : activeTab === 'squad-builder' ? squadHistory : testCaseHistory).map((query, index) => (
-                        <div key={index} className="flex items-center justify-between p-3 border rounded-md hover:bg-accent group">
-                          <div
-                              className="flex-grow cursor-pointer text-sm group-hover:text-accent-foreground"
-                              onClick={() => handleHistoryClick(query)}
-                          >
-                              {typeof query === 'string' ? query : query.testCase}
+              {isClient && (
+                <Sheet open={isHistoryOpen} onOpenChange={setIsHistoryOpen}>
+                  <SheetTrigger asChild>
+                    <Button variant="outline" size="icon" disabled={isPending}>
+                      <History className="h-4 w-4" />
+                      <span className="sr-only">View query history</span>
+                    </Button>
+                  </SheetTrigger>
+                  <SheetContent>
+                    <SheetHeader>
+                      <SheetTitle>Query History</SheetTitle>
+                    </SheetHeader>
+                    <div className="mt-4 space-y-2">
+                      {(activeTab === 'unit-finder' ? unitHistory : activeTab === 'squad-builder' ? squadHistory : testCaseHistory).length > 0 ? (
+                        (activeTab === 'unit-finder' ? unitHistory : activeTab === 'squad-builder' ? squadHistory : testCaseHistory).map((query, index) => (
+                          <div key={index} className="flex items-center justify-between p-3 border rounded-md hover:bg-accent group">
+                            <div
+                                className="flex-grow cursor-pointer text-sm group-hover:text-accent-foreground"
+                                onClick={() => handleHistoryClick(query)}
+                            >
+                                {typeof query === 'string' ? query : query.testCase}
+                            </div>
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 shrink-0 text-muted-foreground group-hover:text-accent-foreground"
+                                onClick={() => handleDeleteHistoryItem(index)}
+                            >
+                                <Trash2 className="h-4 w-4" />
+                                <span className="sr-only">Delete query</span>
+                            </Button>
                           </div>
-                          <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8 shrink-0 text-muted-foreground group-hover:text-accent-foreground"
-                              onClick={() => handleDeleteHistoryItem(index)}
-                          >
-                              <Trash2 className="h-4 w-4" />
-                              <span className="sr-only">Delete query</span>
-                          </Button>
-                        </div>
-                      ))
-                    ) : (
-                      <p className="text-sm text-muted-foreground">
-                        Your past queries will appear here.
-                      </p>
-                    )}
-                  </div>
-                </SheetContent>
-              </Sheet>
+                        ))
+                      ) : (
+                        <p className="text-sm text-muted-foreground">
+                          Your past queries will appear here.
+                        </p>
+                      )}
+                    </div>
+                  </SheetContent>
+                </Sheet>
+              )}
             </div>
           </div>
         </CardHeader>
@@ -653,5 +660,7 @@ export function UnitFinder() {
     </div>
   );
 }
+
+    
 
     
