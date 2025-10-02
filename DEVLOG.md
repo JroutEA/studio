@@ -6,7 +6,11 @@ This file tracks the changes made to the AI Holocron application.
 
 ### 2025-10-02
 
-- **v0.1.28**: Added a robust validation and repair layer to the `testCaseAssistantAIFlow`. This intercepts the AI's output and fixes common structural inconsistencies on the fly, dramatically increasing the reliability of the Test Assistant feature and preventing schema validation errors.
+- **v0.1.32**: Added a robust validation and repair layer to the `testCaseAssistantAIFlow`. This intercepts the AI's output and fixes common structural inconsistencies on the fly, dramatically increasing the reliability of the Test Assistant feature and preventing schema validation errors.
+- **v0.1.31**: Removed a try/catch block in the `testCaseAssistantAIFlow` to expose more detailed underlying errors from the AI model, aiding in debugging persistent response validation failures.
+- **v0.1.30**: Upgraded the Test Assistant AI flow to use the more powerful `gemini-2.5-pro` model to handle its complex generation task and avoid token limits.
+- **v0.1.29**: Implemented a fallback mechanism to display the full, copy-able AI prompt when a generation error occurs, ensuring users are never blocked.
+- **v0.1.28**: Reverted an incorrect error message change, restoring a more descriptive 503 error message for better user feedback.
 - **v0.1.27**: Removed a try/catch block in the `testCaseAssistantAIFlow` to expose more detailed underlying errors from the AI model, aiding in debugging persistent response validation failures.
 - **v0.1.26**: Fixed a hydration error by adding `suppressHydrationWarning` to the root layout.
 - **v0.1.25**: Implemented a client-side rendering gate to prevent hydration errors caused by `localStorage` access on initial render.
@@ -36,6 +40,7 @@ This file tracks the changes made to the AI Holocron application.
 - **v0.1.4**: Fixed a CORS security error that occurred when downloading images with embedded Google Fonts.
 - **v0.1.3**: Initial project setup and core feature implementation.
 - **v0.1.2**: Initial project setup and core feature implementation.
+
 
 
 
