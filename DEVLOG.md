@@ -10,7 +10,7 @@ This file tracks the changes made to the AI Holocron application.
 - **v0.1.15**: Implemented automatic versioning for application updates.
 - **v0.1.14**: Added a static version number to the application footer.
 - **v0.1.13**: Instructed the AI to treat any user-provided new character names as the "New Unit" under test.
-- **v0.1.12**: Optimized AI token usage by switching the default model to the more cost-effective `gemini-2.5-flash`.
+- **vO.1.12**: Optimized AI token usage by switching the default model to the more cost-effective `gemini-2.5-flash`.
 - **v0.1.11**: Refined the Test Assistant AI prompt to be more explicit about squad structure requirements, improving reliability.
 - **v0.1.10**: Further improved the Test Assistant prompt to prevent invalid AI responses.
 - **v0.1.9**: Added a contextual prompt title to the Test Assistant's downloadable image.
