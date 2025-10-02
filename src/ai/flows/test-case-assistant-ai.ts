@@ -81,6 +81,9 @@ First, you must thoroughly analyze the user's input:
 2.  **Test Case / Ability Under Test**: {{{testCase}}}
 3.  **Expected Result**: {{{expectedResult}}}
 
+**IDENTIFYING THE NEW UNIT**
+The user may provide a name for the new, unreleased unit within the 'unitDetails' or 'testCase' descriptions (e.g., "Darth Revan (Redeemed)"). You must identify this unreleased character as the unit under test. In your output, this unit MUST always be named "New Unit" and use the specified placeholder icon.
+
 Next, you MUST use your deep knowledge of SWGOH by combining information from two sources to design the test:
 1.  The provided \`wikiSearch\` tool to get detailed, up-to-date information on existing character kits, buffs, debuffs, and game mechanics from swgoh.wiki. The tool returns a \`searchResponse\` object. Prioritize using the \`ai_answer\` field if it exists, as it contains a synthesized summary. If it doesn't, use the \`results\` array to find the information you need.
 2.  Your built-in knowledge of swgoh.gg for character icon URLs and team structures.
@@ -96,7 +99,7 @@ Based on your analysis, you will generate a complete test scenario.
 Your output MUST include:
 1.  **scenarioTitle**: A clear, concise title for this test.
 2.  **scenarioDescription**: An explanation of what this scenario is designed to test and why it's set up the way it is. This should reference your search results from the wiki to justify your choices.
-3.  **alliedSquad**: A squad for the player. This squad MUST include the new unit under test (you can use a placeholder for its name and icon if it's new) and other characters that enable the test condition. It MUST have a designated leader and between 1 and 4 other members.
+3.  **alliedSquad**: A squad for the player. This squad MUST include the new unit under test. It MUST have a designated leader and between 1 and 4 other members.
 4.  **opponentSquad**: A squad for the AI opponent, specifically chosen to facilitate the test. This squad MUST have a designated leader and between 1 and 4 other members.
 5.  **setupInstructions**: A numbered, step-by-step list of actions the tester needs to take in the battle to create the exact conditions for the test. e.g., "1. Use Character X's second special ability on Opponent Y. 2. Wait for Opponent Z to take a turn and apply a buff."
 6.  **passCriteria**: A clear, binary, and observable outcome. What must happen for the test to be marked as "PASS"?
