@@ -66,47 +66,48 @@ const testCaseAssistantAIFlow = ai.defineFlow(
     outputSchema: TestCaseAssistantAIOutputSchema,
   },
   async input => {
-    try {
-      const { output } = await prompt(input);
-      if (!output) {
-        throw new Error('The AI model returned no output. This may be due to a content filter or an internal error.');
-      }
-      
-      // Repair logic to ensure schema is met
-      const repairedOutput = {...output};
-
-      // Ensure squads exist
-      if (!repairedOutput.alliedSquad) {
-        repairedOutput.alliedSquad = { name: 'Allied Squad', leader: { name: 'New Unit', imageUrl: 'https://placehold.co/80x80/000000/FFFFFF/png?text=NEW', url: '#' }, members: [] };
-      }
-      if (!repairedOutput.opponentSquad) {
-        repairedOutput.opponentSquad = { name: 'Opponent Squad', leader: { name: 'Unknown', imageUrl: '', url: '#' }, members: [] };
-      }
-      
-      // Ensure members arrays exist
-      if (!repairedOutput.alliedSquad.members) {
-        repairedOutput.alliedSquad.members = [];
-      }
-      if (!repairedOutput.opponentSquad.members) {
-        repairedOutput.opponentSquad.members = [];
-      }
-
-      // Ensure instructions array exists
-      if (!repairedOutput.setupInstructions) {
-        repairedOutput.setupInstructions = [];
-      }
-
-      // Ensure required string fields are not empty
-      if (!repairedOutput.scenarioTitle) repairedOutput.scenarioTitle = "Untitled Test Scenario";
-      if (!repairedOutput.scenarioDescription) repairedOutput.scenarioDescription = "No description provided.";
-      if (!repairedOutput.passCriteria) repairedOutput.passCriteria = "Not specified.";
-      if (!repairedOutput.failCriteria) repairedOutput.failCriteria = "Not specified.";
-
-      return repairedOutput;
-    } catch (e: unknown) {
-      // Re-throw the original error if it's not a simple validation issue
-      // This helps in debugging if the error is from the model/API itself
-      throw e;
+    const { output } = await prompt(input);
+    
+    if (!output) {
+      throw new Error('The AI model returned no output. This may be due to a content filter or an internal error.');
     }
+    
+    // Advanced Repair Logic to handle common AI inconsistencies.
+    const repairedOutput = { ...output } as any;
+
+    // 1. Ensure squads are objects and have required fields
+    for (const squadKey of ['alliedSquad', 'opponentSquad']) {
+      if (typeof repairedOutput[squadKey] !== 'object' || repairedOutput[squadKey] === null) {
+        repairedOutput[squadKey] = {};
+      }
+      const squad = repairedOutput[squadKey];
+      if (!squad.name) squad.name = squadKey === 'alliedSquad' ? 'Allied Squad' : 'Opponent Squad';
+      if (typeof squad.leader !== 'object' || squad.leader === null) {
+        squad.leader = { name: squadKey === 'alliedSquad' ? 'New Unit' : 'Unknown', imageUrl: squadKey === 'alliedSquad' ? 'https://placehold.co/80x80/000000/FFFFFF/png?text=NEW' : '', url: '#' };
+      }
+      if (!Array.isArray(squad.members)) {
+        squad.members = [];
+      }
+    }
+
+    // 2. Ensure setupInstructions is an array of strings
+    if (!Array.isArray(repairedOutput.setupInstructions)) {
+      repairedOutput.setupInstructions = [];
+    } else {
+      // Filter out any non-string elements just in case
+      repairedOutput.setupInstructions = repairedOutput.setupInstructions.filter((i: any) => typeof i === 'string');
+    }
+
+    // 3. Ensure required string fields are present and not empty
+    const requiredStrings = ['scenarioTitle', 'scenarioDescription', 'passCriteria', 'failCriteria'];
+    for (const key of requiredStrings) {
+      if (typeof repairedOutput[key] !== 'string' || !repairedOutput[key]) {
+        repairedOutput[key] = `No ${key} provided.`;
+      }
+    }
+
+    // The final validated output will be returned by the flow.
+    // If it still fails, the error will be more specific.
+    return repairedOutput as TestCaseAssistantAIOutput;
   }
 );
