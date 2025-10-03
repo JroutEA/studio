@@ -36,7 +36,7 @@ export type FormState = {
 const findUnitsSchema = z.object({
   query: z.string().min(5, { message: 'Query must be at least 5 characters long.' }),
   loadMoreQuery: z.string().optional(),
-  count: z.coerce.number().optional().default(10),
+  count: z.coerce.number().optional().default(6),
 });
 
 const buildSquadSchema = z.object({
@@ -151,7 +151,7 @@ export async function buildSquad(
     const result = await squadBuilderAI(input);
 
     if (result.isUnitQuery) {
-        const unitResult = await unitMatchingAI({ query, count: 10 });
+        const unitResult = await unitMatchingAI({ query, count: 6 });
         return {
             message: 'success',
             squadsInput: { query },

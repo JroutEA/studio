@@ -17,7 +17,7 @@ import { unitMatchingAIPrompt } from '@/ai/prompts';
 
 const UnitMatchingAIInputSchema = z.object({
   query: z.string().describe('The query describing the desired unit (character or ship) characteristics.'),
-  count: z.number().optional().default(10).describe('The number of units to find.'),
+  count: z.number().optional().default(6).describe('The number of units to find.'),
   loadMoreQuery: z.string().optional().describe('An optional previous query to ensure new results are returned when loading more.'),
 });
 export type UnitMatchingAIInput = z.infer<typeof UnitMatchingAIInputSchema>;

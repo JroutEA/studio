@@ -21,17 +21,13 @@ export function UnitListSkeleton() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[64px]">Icons with Links</TableHead>
-              <TableHead className="w-[200px]">Unit(s)</TableHead>
+              <TableHead className="w-[250px]">Unit</TableHead>
               <TableHead>How They Match</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {[...Array(10)].map((_, i) => (
+            {[...Array(6)].map((_, i) => (
               <TableRow key={i}>
-                <TableCell>
-                  <Skeleton className="h-10 w-10 rounded-full" />
-                </TableCell>
                 <TableCell>
                   <Skeleton className="h-5 w-3/4" />
                 </TableCell>

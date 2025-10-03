@@ -57,17 +57,15 @@ function SubmitButton({
   pendingText,
   text,
   isPending,
-  isFormPending,
 }: {
   icon: React.ReactNode;
   pendingText: string;
   text: string;
   isPending: boolean;
-  isFormPending: boolean;
 }) {
   return (
     <Button type="submit" disabled={isPending} className="w-full sm:w-auto">
-      {isFormPending ? (
+      {isPending ? (
         <>
           <DarthVaderLoader className="mr-2 h-4 w-4" />
           {pendingText}
@@ -216,7 +214,7 @@ export function UnitFinder() {
     if (activeTab === 'unit-finder' && unitFormRef.current && unitState.query) {
       const form = unitFormRef.current;
       (form.elements.namedItem('loadMoreQuery') as HTMLInputElement).value = unitState.query;
-      (form.elements.namedItem('count') as HTMLInputElement).value = '5';
+      (form.elements.namedItem('count') as HTMLInputElement).value = '3';
       form.requestSubmit();
     } else if (activeTab === 'squad-builder' && squadFormRef.current && squadState.squadsInput?.query) {
       const form = squadFormRef.current;
@@ -314,7 +312,7 @@ export function UnitFinder() {
         if(loadMoreInput) loadMoreInput.value = '';
 
         const countInput = form.elements.namedItem('count') as HTMLInputElement;
-        if(countInput) countInput.value = (activeTab === 'unit-finder' ? '10' : '3');
+        if(countInput) countInput.value = (activeTab === 'unit-finder' ? '6' : '3');
         
         form.requestSubmit();
       }
@@ -431,13 +429,13 @@ export function UnitFinder() {
           {hasMoreUnits && unitState.message !== 'No new units found.' && (
             <div className="text-center">
               <Button onClick={handleLoadMore} disabled={isPending}>
-                {isLoadingMore ? (
+                {isUnitPending ? (
                   <>
                     <DarthVaderLoader className="mr-2 h-4 w-4" />
                     Loading...
                   </>
                 ) : (
-                  'Load 5 More'
+                  'Load 3 More'
                 )}
               </Button>
             </div>
@@ -480,7 +478,7 @@ export function UnitFinder() {
           {hasMoreSquads && squadState.message !== 'No new squads found.' && (
             <div className="text-center">
               <Button onClick={handleLoadMore} disabled={isPending}>
-                {isLoadingMore ? (
+                {isSquadPending ? (
                   <>
                     <DarthVaderLoader className="mr-2 h-4 w-4" />
                     Loading...
@@ -545,7 +543,7 @@ export function UnitFinder() {
               {isClient && activeTab === 'squad-builder' && (
                 <Sheet open={isSavedSquadsOpen} onOpenChange={setIsSavedSquadsOpen}>
                   <SheetTrigger asChild>
-                    <Button variant="outline" size="icon">
+                    <Button variant="outline" size="icon" disabled={isPending}>
                       <Star className="h-4 w-4" />
                       <span className="sr-only">View saved squads</span>
                     </Button>
@@ -625,14 +623,13 @@ export function UnitFinder() {
                   <Label htmlFor="unit-query">Your Query</Label>
                   <Textarea onKeyDown={handleKeyDown} id="unit-query" name="query" defaultValue={unitState.query ?? ''} placeholder="e.g., 'A Rebel ship with an AOE attack' or 'A Jedi tank with counterattack'" required rows={3} className="text-base" />
                   <input type="hidden" name="loadMoreQuery" />
-                  <input type="hidden" name="count" defaultValue="10" />
+                  <input type="hidden" name="count" defaultValue="6" />
                 </div>
                 <SubmitButton
                   icon={<HolocronIcon className="mr-2 h-4 w-4" />}
                   pendingText="Searching..."
                   text="Find Units"
                   isPending={isPending}
-                  isFormPending={isUnitPending}
                 />
               </form>
             </TabsContent>
@@ -650,7 +647,6 @@ export function UnitFinder() {
                   pendingText="Building..."
                   text="Build Squad"
                   isPending={isPending}
-                  isFormPending={isSquadPending}
                 />
               </form>
             </TabsContent>
@@ -677,7 +673,6 @@ export function UnitFinder() {
                   pendingText="Generating..."
                   text="Help Me Test This"
                   isPending={isPending}
-                  isFormPending={isTestCasePending}
                 />
               </form>
             </TabsContent>
