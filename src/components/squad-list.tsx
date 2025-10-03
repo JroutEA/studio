@@ -4,7 +4,7 @@ import { useRef } from 'react';
 import type { SquadBuilderAIOutput } from '@/ai/flows/squad-builder-ai';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import Link from 'next/link';
-import { Crown, UserPlus, Star, Terminal } from 'lucide-react';
+import { Crown, UserPlus, Star, Terminal, AlertTriangle } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { cn } from '@/lib/utils';
 import { SquadListSkeleton } from './squad-list-skeleton';
@@ -84,7 +84,7 @@ export function SquadList({ squads, title, isLoadingMore = false, savedSquads = 
   };
   
   return (
-    <div ref={contentRef} className="space-y-8 bg-background p-4 sm:p-8 rounded-lg">
+    <div ref={contentRef} className="space-y-4 bg-background p-4 sm:p-8 rounded-lg">
        {query && (
           <div className="flex items-start gap-3 rounded-lg border border-primary/20 bg-card p-4">
               <Terminal className="h-5 w-5 flex-shrink-0 text-primary" />
@@ -94,41 +94,47 @@ export function SquadList({ squads, title, isLoadingMore = false, savedSquads = 
               </div>
           </div>
        )}
-      {squads.map((squad, index) => (
-        <Card key={index} className="shadow-md">
-          <CardHeader>
-            <div className="flex justify-between items-start">
-              <div>
-                <CardTitle>{squad.name}</CardTitle>
-                {squad.description && <CardDescription>{squad.description}</CardDescription>}
+       <div className="space-y-8">
+        {squads.map((squad, index) => (
+          <Card key={index} className="shadow-md">
+            <CardHeader>
+              <div className="flex justify-between items-start">
+                <div>
+                  <CardTitle>{squad.name}</CardTitle>
+                  {squad.description && <CardDescription>{squad.description}</CardDescription>}
+                </div>
+                {onToggleSave && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => onToggleSave(squad)}
+                    className="shrink-0"
+                  >
+                    <Star className={cn("w-5 h-5", isSquadSaved(squad) ? 'text-yellow-400 fill-yellow-400' : 'text-muted-foreground')} />
+                    <span className="sr-only">Save Squad</span>
+                  </Button>
+                )}
               </div>
-              {onToggleSave && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => onToggleSave(squad)}
-                  className="shrink-0"
-                >
-                  <Star className={cn("w-5 h-5", isSquadSaved(squad) ? 'text-yellow-400 fill-yellow-400' : 'text-muted-foreground')} />
-                  <span className="sr-only">Save Squad</span>
-                </Button>
-              )}
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-wrap items-start gap-4">
-              <CharacterPortrait character={squad.leader} isLeader colorClass={borderColors[0]} />
-              {squad.members.map((member, memberIndex) => (
-                <CharacterPortrait key={memberIndex} character={member} colorClass={borderColors[(memberIndex + 1) % borderColors.length]} />
-              ))}
-              {squad.ally && (
-                 <CharacterPortrait character={squad.ally} isAlly colorClass={borderColors[5 % borderColors.length]} />
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      ))}
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-wrap items-start gap-4">
+                <CharacterPortrait character={squad.leader} isLeader colorClass={borderColors[0]} />
+                {squad.members.map((member, memberIndex) => (
+                  <CharacterPortrait key={memberIndex} character={member} colorClass={borderColors[(memberIndex + 1) % borderColors.length]} />
+                ))}
+                {squad.ally && (
+                   <CharacterPortrait character={squad.ally} isAlly colorClass={borderColors[5 % borderColors.length]} />
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+       </div>
       {isLoadingMore && <SquadListSkeleton />}
+      <div className="flex items-center justify-center gap-2 pt-4 text-xs text-muted-foreground">
+        <AlertTriangle className="h-4 w-4" />
+        <span>This result is AI-generated and may make mistakes.</span>
+      </div>
     </div>
   );
 }

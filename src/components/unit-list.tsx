@@ -16,7 +16,7 @@ import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { cn } from '@/lib/utils';
 import { Skeleton } from './ui/skeleton';
 import { useDownloadImage } from '@/hooks/use-download-image';
-import { Terminal } from 'lucide-react';
+import { Terminal, AlertTriangle } from 'lucide-react';
 
 type UnitListProps = {
   units: NonNullable<UnitMatchingAIOutput['units']>;
@@ -126,6 +126,10 @@ export function UnitList({ units, isLoadingMore, triggerRef, query }: UnitListPr
           </Table>
         </CardContent>
       </Card>
+      <div className="flex items-center justify-center gap-2 pt-4 text-xs text-muted-foreground">
+        <AlertTriangle className="h-4 w-4" />
+        <span>This result is AI-generated and may make mistakes.</span>
+      </div>
     </div>
   );
 }

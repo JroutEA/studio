@@ -3,7 +3,7 @@
 import { useRef } from 'react';
 import type { TestCaseAssistantAIOutput } from '@/ai/flows/test-case-assistant-ai';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
-import { CheckCircle, XCircle, AlertCircle, Terminal, Users } from 'lucide-react';
+import { CheckCircle, XCircle, AlertCircle, Terminal, Users, AlertTriangle } from 'lucide-react';
 import { useDownloadImage } from '@/hooks/use-download-image';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
@@ -119,6 +119,11 @@ export function TestCaseDisplay({ testCase, triggerRef }: TestCaseDisplayProps) 
             </CardContent>
         </Card>
       )}
+
+      <div className="flex items-center justify-center gap-2 pt-4 text-xs text-muted-foreground">
+        <AlertTriangle className="h-4 w-4" />
+        <span>This result is AI-generated and may make mistakes.</span>
+      </div>
     </div>
   );
 }
