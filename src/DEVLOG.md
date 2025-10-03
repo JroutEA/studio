@@ -5,6 +5,10 @@ This file tracks the changes made to the AI Holocron application.
 
 ---
 
+### 2025-10-03
+
+- **v0.1.33**: Optimized the Unit Finder and Squad Builder for token usage and UI clarity. Unit Finder now shows 6 units initially, loads 3 more, and uses a streamlined text-based list. Squad Builder now loads 1 squad at a time, uses a text-only list with clear labels, and no longer generates a squad name. Added a disclaimer about AI-generated content to all results. Disabled query buttons during AI processing to prevent concurrent requests.
+
 ### 2025-10-02
 
 - **v0.1.32**: Added a robust validation and repair layer to the `testCaseAssistantAIFlow`. This intercepts the AI's output and fixes common structural inconsistencies on the fly, dramatically increasing the reliability of the Test Assistant feature and preventing schema validation errors.

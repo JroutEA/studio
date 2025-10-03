@@ -31,13 +31,13 @@ The core purpose of the AI Holocron is to solve specific bottlenecks faced by th
 ### a. Unit Finder
 
 - **Purpose:** To help users find specific characters or ships by describing their abilities, faction, or role in natural language.
-- **Functionality:** Users can input queries like _"Rebel attackers that apply debuffs"_ or _"Sith ships with an AoE attack"_. The AI uses its integrated knowledge of SWGOH and real-time wiki searches to return a list of matching units, complete with descriptions, icons, and links to their `swgoh.gg` pages.
+- **Functionality:** Users can input queries like _"Rebel attackers that apply debuffs"_ or _"Sith ships with an AoE attack"_. The AI uses its integrated knowledge of SWGOH and real-time wiki searches to return a list of matching units. Results are displayed in a clean, text-based table where each unit's name is a direct hyperlink to its `swgoh.gg` page, accompanied by a concise description of how it matches the query.
 - **Benefit for Unit Testing:** While primarily a player tool, the Unit Finder is invaluable for QA testers. It allows them to quickly identify existing characters with specific mechanics needed for a test scenario. For example, a tester can find characters with high Evasion to test a "can't be evaded" ability, or find all units that can apply a specific buff like "Tenacity Up".
 
 ### b. Squad Builder
 
 - **Purpose:** To generate effective 5-character squads tailored to a user's strategic goal, such as countering a specific team or completing a particular game mode.
-- **Functionality:** Users can describe their objective, such as _"a team to beat the Geonosian squad in Territory War"_ or _"a Phoenix squad for a beginner"_. The AI designs multiple squad options, each with a leader, four members, an optional ally, a squad name, and a concise strategy description.
+- **Functionality:** Users can describe their objective, such as _"a team to beat the Geonosian squad in Territory War"_ or _"a Phoenix squad for a beginner"_. The AI designs multiple squad options. Each result includes a concise strategy description and a clear, text-based list of characters, with the **Leader** and optional **Ally** explicitly labeled.
 - **Benefit for Galactic Challenges (GCs):** Galactic Challenges often require using specific factions and countering unique gameplay modifiers (e.g., enemies gain massive stats when they receive a buff). The Squad Builder is extremely helpful here:
     - **Feat Completion:** Users can ask for a squad that fulfills specific GC feats, such as _"a Bounty Hunter squad that can inflict Thermal Detonators 20 times."_
     - **Countering Modifiers:** Users can describe the GC's main difficulty and ask for a counter, like _"create a squad that can beat the GC where enemies take reduced damage from debuffed units."_
@@ -63,10 +63,11 @@ By automating the most time-consuming parts of test case design—namely, oppone
 
 Several key features have been implemented to improve usability and handle potential issues gracefully:
 
--   **Download as Image:** All generated results (Unit Lists, Squads, Test Cases) can be downloaded as a high-quality PNG image for easy sharing and documentation.
+-   **Download as Image:** All generated results (Unit Lists, Squads, Test Cases) can be downloaded as a high-quality PNG image for easy sharing and documentation. The downloaded image includes a disclaimer that the content is AI-generated.
 -   **Query History & Saved Squads:** The application maintains a local history of past queries for each tab. Users can also "star" and save their favorite squads for quick access.
 -   **Undo on Delete:** To prevent accidental data loss, deleting an item from the history displays a toast notification with a 5-second "Undo" option.
 -   **AI Fallback Mechanism:** In the event of an AI generation failure (e.g., due to a model timeout or content filter), the application provides a fallback. It displays the full, detailed prompt that was sent to the AI, along with a copy button. This allows the user to take the expert-crafted prompt to another generative AI app, ensuring their workflow is never completely blocked.
+-   **Concurrency Control:** While an AI query is in progress, all submission buttons are disabled to prevent users from accidentally starting multiple requests at once. However, the user can still freely switch between tabs to view other content.
 
 ---
 
