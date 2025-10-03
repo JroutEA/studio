@@ -21,7 +21,6 @@ const CharacterSchema = z.object({
 });
 
 const SquadSchema = z.object({
-  name: z.string().describe('A name for the squad, e.g., "Classic Rebels" or "Sith Empire Trio".'),
   description: z.string().describe('A brief, one-sentence description of the squad and its strategy.'),
   leader: CharacterSchema.describe('The leader of the squad.'),
   members: z.array(CharacterSchema).length(4).describe('The four other members of the squad.'),
@@ -30,7 +29,7 @@ const SquadSchema = z.object({
 
 const SquadBuilderAIInputSchema = z.object({
   query: z.string().describe('The query describing the desired squad characteristics or goal.'),
-  count: z.number().optional().default(3).describe('The number of squads to find.'),
+  count: z.number().optional().default(2).describe('The number of squads to find.'),
   loadMoreQuery: z.string().optional().describe('An optional previous query to ensure new results are returned when loading more.'),
 });
 export type SquadBuilderAIInput = z.infer<typeof SquadBuilderAIInputSchema>;

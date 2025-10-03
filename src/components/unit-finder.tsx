@@ -194,14 +194,14 @@ export function UnitFinder() {
 
   const handleToggleSaveSquad = (squad: Squad) => {
     setSavedSquads(prevSavedSquads => {
-      const isSaved = prevSavedSquads.some(saved => saved.name === squad.name && saved.leader.name === squad.leader.name);
+      const isSaved = prevSavedSquads.some(saved => saved.leader.name === squad.leader.name && saved.description === squad.description);
       let newSavedSquads;
       if (isSaved) {
-        newSavedSquads = prevSavedSquads.filter(saved => saved.name !== squad.name || saved.leader.name !== squad.leader.name);
-        toast({ title: "Squad Unsaved", description: `"${squad.name}" has been removed from your saved squads.` });
+        newSavedSquads = prevSavedSquads.filter(saved => !(saved.leader.name === squad.leader.name && saved.description === squad.description));
+        toast({ title: "Squad Unsaved", description: `The squad has been removed from your saved squads.` });
       } else {
         newSavedSquads = [...prevSavedSquads, squad];
-        toast({ title: "Squad Saved!", description: `"${squad.name}" has been added to your saved squads.` });
+        toast({ title: "Squad Saved!", description: `The squad has been added to your saved squads.` });
       }
       localStorage.setItem(SAVED_SQUADS_KEY, JSON.stringify(newSavedSquads));
       return newSavedSquads;
@@ -219,7 +219,7 @@ export function UnitFinder() {
     } else if (activeTab === 'squad-builder' && squadFormRef.current && squadState.squadsInput?.query) {
       const form = squadFormRef.current;
       (form.elements.namedItem('loadMoreQuery') as HTMLInputElement).value = squadState.squadsInput.query;
-      (form.elements.namedItem('count') as HTMLInputElement).value = '3';
+      (form.elements.namedItem('count') as HTMLInputElement).value = '1';
       form.requestSubmit();
     }
   };
@@ -312,7 +312,7 @@ export function UnitFinder() {
         if(loadMoreInput) loadMoreInput.value = '';
 
         const countInput = form.elements.namedItem('count') as HTMLInputElement;
-        if(countInput) countInput.value = (activeTab === 'unit-finder' ? '6' : '3');
+        if(countInput) countInput.value = (activeTab === 'unit-finder' ? '6' : '2');
         
         form.requestSubmit();
       }
@@ -484,7 +484,7 @@ export function UnitFinder() {
                     Loading...
                   </>
                 ) : (
-                  'Load 3 More'
+                  'Load 1 More'
                 )}
               </Button>
             </div>
@@ -610,7 +610,7 @@ export function UnitFinder() {
           </div>
         </CardHeader>
         <CardContent>
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <Tabs value={activeTab} onValueChange={isPending ? undefined : setActiveTab} className="w-full">
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="unit-finder" disabled={isPending}>Unit Finder</TabsTrigger>
               <TabsTrigger value="squad-builder" disabled={isPending}>Squad Builder</TabsTrigger>
@@ -629,7 +629,7 @@ export function UnitFinder() {
                   icon={<HolocronIcon className="mr-2 h-4 w-4" />}
                   pendingText="Searching..."
                   text="Find Units"
-                  isPending={isPending}
+                  isPending={isUnitPending}
                 />
               </form>
             </TabsContent>
@@ -640,13 +640,13 @@ export function UnitFinder() {
                   <Label htmlFor="squad-query">Your Query</Label>
                   <Textarea onKeyDown={handleKeyDown} id="squad-query" name="query" defaultValue={squadState.squadsInput?.query ?? ''} placeholder="e.g., 'A squad to beat the Sith Triumvirate Raid with Jedi.' or 'A good starter team for Phoenix faction.'" required rows={3} className="text-base" />
                   <input type="hidden" name="loadMoreQuery" />
-                  <input type="hidden" name="count" defaultValue="3" />
+                  <input type="hidden" name="count" defaultValue="2" />
                 </div>
                 <SubmitButton
                   icon={<Users className="mr-2 h-4 w-4" />}
                   pendingText="Building..."
                   text="Build Squad"
-                  isPending={isPending}
+                  isPending={isSquadPending}
                 />
               </form>
             </TabsContent>
@@ -672,7 +672,7 @@ export function UnitFinder() {
                   icon={<BrainCircuit className="mr-2 h-4 w-4" />}
                   pendingText="Generating..."
                   text="Help Me Test This"
-                  isPending={isPending}
+                  isPending={isTestCasePending}
                 />
               </form>
             </TabsContent>
