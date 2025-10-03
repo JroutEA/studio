@@ -7,6 +7,9 @@ This file tracks the changes made to the AI Holocron application.
 
 ### 2025-10-03
 
+- **v0.1.35**: Implemented two reliability improvements:
+  - Fixed a bug in the fallback prompt generation to ensure it always displays correctly on AI error.
+  - Updated the logic to save all submitted queries (both successful and failed) to the history, allowing users to easily retry failed requests.
 - **v0.1.34**: Optimized the Test Assistant feature for significantly lower token usage. Removed the generation of image/page URLs and pass/fail criteria from the AI prompt, and updated the UI to a simpler, text-based squad list. This improves performance and reduces cost.
 - **v0.1.33**: Optimized the Unit Finder and Squad Builder for token usage and UI clarity. Unit Finder now shows 6 units initially, loads 3 more, and uses a streamlined text-based list. Squad Builder now loads 1 squad at a time, uses a text-only list with clear labels, and no longer generates a squad name. Added a disclaimer about AI-generated content to all results. Disabled query buttons during AI processing to prevent concurrent requests.
 
