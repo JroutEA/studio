@@ -13,6 +13,7 @@ import {ai} from '@/ai/genkit';
 import { wikiSearchTool } from '@/ai/tools/wiki-search';
 import {z} from 'genkit';
 import { testCaseAssistantAIPrompt } from '@/ai/prompts';
+import { generateWithFallback } from '../generate-with-fallback';
 
 
 const CharacterSchema = z.object({
@@ -51,7 +52,6 @@ const prompt = ai.definePrompt({
   input: {schema: TestCaseAssistantAIInputSchema},
   output: {schema: TestCaseAssistantAIOutputSchema},
   tools: [wikiSearchTool],
-  model: 'openai:gpt-4o-mini',
 });
 
 const testCaseAssistantAIFlow = ai.defineFlow(
@@ -61,7 +61,8 @@ const testCaseAssistantAIFlow = ai.defineFlow(
     outputSchema: TestCaseAssistantAIOutputSchema,
   },
   async input => {
-    const { output } = await prompt(input);
+    const response = await generateWithFallback(prompt, input);
+    const output = response.output();
     
     if (!output) {
       throw new Error('The AI model returned no output. This may be due to a content filter or an internal error.');

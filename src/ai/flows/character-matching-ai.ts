@@ -13,6 +13,7 @@ import {ai} from '@/ai/genkit';
 import { wikiSearchTool } from '@/ai/tools/wiki-search';
 import {z} from 'genkit';
 import { unitMatchingAIPrompt } from '@/ai/prompts';
+import { generateWithFallback } from '@/ai/generate-with-fallback';
 
 
 const UnitMatchingAIInputSchema = z.object({
@@ -47,7 +48,6 @@ const prompt = ai.definePrompt({
   input: {schema: UnitMatchingAIInputSchema},
   output: {schema: UnitMatchingAIOutputSchema},
   tools: [wikiSearchTool],
-  model: 'openai:gpt-4o-mini',
 });
 
 const unitMatchingAIFlow = ai.defineFlow(
@@ -57,7 +57,8 @@ const unitMatchingAIFlow = ai.defineFlow(
     outputSchema: UnitMatchingAIOutputSchema,
   },
   async input => {
-    const {output} = await prompt(input);
+    const response = await generateWithFallback(prompt, input);
+    const output = response.output();
     
     if (!output) {
       throw new Error('The AI model failed to generate a valid response. This could be due to a content filter or an internal error. Please try a different query.');

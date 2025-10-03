@@ -13,6 +13,7 @@ import {ai} from '@/ai/genkit';
 import { wikiSearchTool } from '@/ai/tools/wiki-search';
 import {z} from 'genkit';
 import { squadBuilderAIPrompt } from '@/ai/prompts';
+import { generateWithFallback } from '@/ai/generate-with-fallback';
 
 const CharacterSchema = z.object({
   name: z.string().describe('The name of the character.'),
@@ -51,7 +52,6 @@ const prompt = ai.definePrompt({
   input: {schema: SquadBuilderAIInputSchema},
   output: {schema: SquadBuilderAIOutputSchema},
   tools: [wikiSearchTool],
-  model: 'openai:gpt-4o-mini',
 });
 
 const squadBuilderAIFlow = ai.defineFlow(
@@ -61,7 +61,8 @@ const squadBuilderAIFlow = ai.defineFlow(
     outputSchema: SquadBuilderAIOutputSchema,
   },
   async input => {
-    const {output} = await prompt(input);
+    const response = await generateWithFallback(prompt, input);
+    const output = response.output();
     if (!output) {
       throw new Error('The AI model failed to generate a valid squad. This could be due to a content filter or an internal error. Please try a different query.');
     }
