@@ -30,7 +30,6 @@ export type FormState = {
   squadsInput?: SquadBuilderAIInput;
   testCaseInput?: TestCaseAssistantAIInput;
   switchToTab?: string;
-  fallbackPrompt?: string;
 };
 
 const findUnitsSchema = z.object({

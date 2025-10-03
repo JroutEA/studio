@@ -13,7 +13,6 @@ import {ai} from '@/ai/genkit';
 import { wikiSearchTool } from '@/ai/tools/wiki-search';
 import {z} from 'genkit';
 import { unitMatchingAIPrompt as promptTemplate } from '@/ai/prompts';
-import { generate } from 'genkit/generate';
 
 
 const UnitMatchingAIInputSchema = z.object({
@@ -39,7 +38,7 @@ const UnitMatchingAIOutputSchema = z.object({
 export type UnitMatchingAIOutput = z.infer<typeof UnitMatchingAIOutputSchema>;
 
 // Define the fallback order for the models.
-const models: string[] = ['openai:gpt-4o', 'openai:gpt-4o-mini', 'openai:gpt-4-turbo'];
+const models: string[] = ['openai:gpt-4o-mini', 'openai:gpt-4-turbo'];
 
 export async function unitMatchingAI(input: UnitMatchingAIInput): Promise<UnitMatchingAIOutput> {
   let lastError: any;

@@ -41,7 +41,7 @@ const TestCaseAssistantAIOutputSchema = z.object({
 export type TestCaseAssistantAIOutput = z.infer<typeof TestCaseAssistantAIOutputSchema>;
 
 // Define the fallback order for the models.
-const models: string[] = ['openai:gpt-4o', 'openai:gpt-4o-mini', 'openai:gpt-4-turbo'];
+const models: string[] = ['openai:gpt-4o-mini', 'openai:gpt-4-turbo'];
 
 export async function testCaseAssistantAI(input: TestCaseAssistantAIInput): Promise<TestCaseAssistantAIOutput> {
     let lastError: any;
