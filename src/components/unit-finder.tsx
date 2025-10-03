@@ -57,15 +57,17 @@ function SubmitButton({
   pendingText,
   text,
   isPending,
+  isFormPending,
 }: {
   icon: React.ReactNode;
   pendingText: string;
   text: string;
   isPending: boolean;
+  isFormPending: boolean;
 }) {
   return (
     <Button type="submit" disabled={isPending} className="w-full sm:w-auto">
-      {isPending ? (
+      {isFormPending ? (
         <>
           <DarthVaderLoader className="mr-2 h-4 w-4" />
           {pendingText}
@@ -612,9 +614,9 @@ export function UnitFinder() {
         <CardContent>
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="unit-finder">Unit Finder</TabsTrigger>
-              <TabsTrigger value="squad-builder">Squad Builder</TabsTrigger>
-              <TabsTrigger value="test-assistant">Test Assistant</TabsTrigger>
+              <TabsTrigger value="unit-finder" disabled={isPending}>Unit Finder</TabsTrigger>
+              <TabsTrigger value="squad-builder" disabled={isPending}>Squad Builder</TabsTrigger>
+              <TabsTrigger value="test-assistant" disabled={isPending}>Test Assistant</TabsTrigger>
             </TabsList>
 
             <TabsContent value="unit-finder" className="mt-4">
@@ -629,7 +631,8 @@ export function UnitFinder() {
                   icon={<HolocronIcon className="mr-2 h-4 w-4" />}
                   pendingText="Searching..."
                   text="Find Units"
-                  isPending={isUnitPending}
+                  isPending={isPending}
+                  isFormPending={isUnitPending}
                 />
               </form>
             </TabsContent>
@@ -646,7 +649,8 @@ export function UnitFinder() {
                   icon={<Users className="mr-2 h-4 w-4" />}
                   pendingText="Building..."
                   text="Build Squad"
-                  isPending={isSquadPending}
+                  isPending={isPending}
+                  isFormPending={isSquadPending}
                 />
               </form>
             </TabsContent>
@@ -672,7 +676,8 @@ export function UnitFinder() {
                   icon={<BrainCircuit className="mr-2 h-4 w-4" />}
                   pendingText="Generating..."
                   text="Help Me Test This"
-                  isPending={isTestCasePending}
+                  isPending={isPending}
+                  isFormPending={isTestCasePending}
                 />
               </form>
             </TabsContent>
