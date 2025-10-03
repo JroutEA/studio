@@ -1,14 +1,11 @@
+
 'use client';
 
 import { useRef } from 'react';
 import type { TestCaseAssistantAIOutput } from '@/ai/flows/test-case-assistant-ai';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
-import { CheckCircle, XCircle, AlertCircle, Terminal, Users, AlertTriangle } from 'lucide-react';
+import { Terminal, Users, AlertTriangle } from 'lucide-react';
 import { useDownloadImage } from '@/hooks/use-download-image';
-import Link from 'next/link';
-import { cn } from '@/lib/utils';
-import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
-
 
 type TestCaseDisplayProps = {
   testCase: TestCaseAssistantAIOutput;
@@ -20,23 +17,19 @@ type Squad = TestCaseAssistantAIOutput['alliedSquad'];
 const SimpleSquadList = ({ squad, title }: { squad: Squad; title: string }) => (
     <Card>
         <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 text-lg">
                 <Users className="h-5 w-5 text-primary" />
                 {title}
             </CardTitle>
         </CardHeader>
         <CardContent>
-            <div className="space-y-2">
-                 <p className="font-semibold">{squad.leader.name} (Leader)</p>
-                 <ul className="list-disc list-inside pl-2 space-y-1 text-muted-foreground">
+            <div className="space-y-1">
+                 <p className="font-semibold">{squad.leader.name} <span className="text-sm text-muted-foreground font-normal">(Leader)</span></p>
+                 <div className="pl-6 space-y-1 text-muted-foreground">
                     {squad.members.map((member, index) => (
-                        <li key={index}>
-                            <Link href={member.url} target="_blank" className="hover:underline hover:text-primary">
-                                {member.name}
-                            </Link>
-                        </li>
+                        <p key={index}>{member.name}</p>
                     ))}
-                 </ul>
+                 </div>
             </div>
         </CardContent>
     </Card>
@@ -65,8 +58,10 @@ export function TestCaseDisplay({ testCase, triggerRef }: TestCaseDisplayProps) 
         </CardHeader>
       </Card>
       
-      <SimpleSquadList squad={testCase.alliedSquad} title="Allied Squad" />
-      <SimpleSquadList squad={testCase.opponentSquad} title="Opponent Squad" />
+      <div className="grid md:grid-cols-2 gap-4">
+        <SimpleSquadList squad={testCase.alliedSquad} title="Allied Squad" />
+        <SimpleSquadList squad={testCase.opponentSquad} title="Opponent Squad" />
+      </div>
 
       <Card>
         <CardHeader>
@@ -80,46 +75,7 @@ export function TestCaseDisplay({ testCase, triggerRef }: TestCaseDisplayProps) 
           </ol>
         </CardContent>
       </Card>
-
-      <div className="grid md:grid-cols-2 gap-8">
-        <Card className="border-green-500">
-            <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                    <CheckCircle className="text-green-500" />
-                    Pass Criteria
-                </CardTitle>
-            </CardHeader>
-            <CardContent>
-                <p>{testCase.passCriteria}</p>
-            </CardContent>
-        </Card>
-         <Card className="border-red-500">
-            <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                    <XCircle className="text-red-500" />
-                    Fail Criteria
-                </CardTitle>
-            </CardHeader>
-            <CardContent>
-                <p>{testCase.failCriteria}</p>
-            </CardContent>
-        </Card>
-      </div>
-
-      {testCase.notApplicableCriteria && (
-        <Card className="border-yellow-500">
-            <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                    <AlertCircle className="text-yellow-500" />
-                    Not Applicable Criteria
-                </CardTitle>
-            </CardHeader>
-            <CardContent>
-                <p>{testCase.notApplicableCriteria}</p>
-            </CardContent>
-        </Card>
-      )}
-
+      
       <div className="flex items-center justify-center gap-2 pt-4 text-xs text-muted-foreground">
         <AlertTriangle className="h-4 w-4" />
         <span>This result is AI-generated and may make mistakes.</span>

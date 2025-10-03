@@ -17,8 +17,6 @@ import { testCaseAssistantAIPrompt } from '@/ai/prompts';
 
 const CharacterSchema = z.object({
   name: z.string().describe('The name of the character.'),
-  imageUrl: z.string().describe("The URL of the character's icon."),
-  url: z.string().url().describe("The URL of the character's page on swgoh.gg."),
 });
 
 const SquadSchema = z.object({
@@ -40,9 +38,6 @@ const TestCaseAssistantAIOutputSchema = z.object({
   alliedSquad: SquadSchema.describe('The squad to be used by the player/tester, including the new unit. This squad MUST have a designated leader and 4 other members.'),
   opponentSquad: SquadSchema.describe('The squad the player will face. This squad should be specifically chosen to allow the test conditions to be met. This squad MUST have a designated leader and 4 other members.'),
   setupInstructions: z.array(z.string()).describe('A step-by-step guide on how to set up the battle to perform the test. Each step should be a plain string without any numbering.'),
-  passCriteria: z.string().describe('The specific, observable outcome that determines if the test case has passed.'),
-  failCriteria: z.string().describe('The specific, observable outcome that determines if the test case has failed.'),
-  notApplicableCriteria: z.string().optional().describe('Conditions under which the test would be considered not applicable or invalid.'),
 });
 export type TestCaseAssistantAIOutput = z.infer<typeof TestCaseAssistantAIOutputSchema>;
 
@@ -83,7 +78,7 @@ const testCaseAssistantAIFlow = ai.defineFlow(
       const squad = repairedOutput[squadKey];
       if (!squad.name) squad.name = squadKey === 'alliedSquad' ? 'Allied Squad' : 'Opponent Squad';
       if (typeof squad.leader !== 'object' || squad.leader === null) {
-        squad.leader = { name: squadKey === 'alliedSquad' ? 'New Unit' : 'Unknown', imageUrl: squadKey === 'alliedSquad' ? 'https://placehold.co/80x80/000000/FFFFFF/png?text=NEW' : '', url: '#' };
+        squad.leader = { name: squadKey === 'alliedSquad' ? 'New Unit' : 'Unknown' };
       }
       if (!Array.isArray(squad.members)) {
         squad.members = [];
@@ -99,7 +94,7 @@ const testCaseAssistantAIFlow = ai.defineFlow(
     }
 
     // 3. Ensure required string fields are present and not empty
-    const requiredStrings = ['scenarioTitle', 'scenarioDescription', 'passCriteria', 'failCriteria'];
+    const requiredStrings = ['scenarioTitle', 'scenarioDescription'];
     for (const key of requiredStrings) {
       if (typeof repairedOutput[key] !== 'string' || !repairedOutput[key]) {
         repairedOutput[key] = `No ${key} provided.`;

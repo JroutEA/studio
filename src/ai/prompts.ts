@@ -156,16 +156,15 @@ First, you must thoroughly analyze the user's input:
 3.  **Expected Result**: {{{expectedResult}}}
 
 **IDENTIFYING THE NEW UNIT**
-The user may provide a name for the new, unreleased unit within the 'unitDetails' or 'testCase' descriptions (e.g., "Darth Revan (Redeemed)"). You must identify this unreleased character as the unit under test. In your output, this unit MUST always be named "New Unit" and use the specified placeholder icon.
+The user may provide a name for the new, unreleased unit within the 'unitDetails' or 'testCase' descriptions (e.g., "Darth Revan (Redeemed)"). You must identify this unreleased character as the unit under test. In your output, this unit MUST always be named "New Unit".
 
 Next, you MUST use your deep knowledge of SWGOH by combining information from two sources to design the test:
 1.  The provided \`wikiSearch\` tool to get detailed, up-to-date information on existing character kits, buffs, debuffs, and game mechanics from swgoh.wiki. The tool returns a \`searchResponse\` object. Prioritize using the \`ai_answer\` field if it exists, as it contains a synthesized summary. If it doesn't, use the \`results\` array to find the information you need.
-2.  Your built-in knowledge of swgoh.gg for character icon URLs and team structures.
+2.  Your built-in knowledge of the game to ensure unit names are correct.
 
-**CRITICAL: GETTING UNIT NAMES AND URLS CORRECT**
-You MUST NOT invent or guess character names or swgoh.gg URLs. Your internal knowledge may be out of date.
+**CRITICAL: GETTING UNIT NAMES CORRECT**
+You MUST NOT invent or guess character names. Your internal knowledge may be out of date.
 - The name of a unit MUST be exactly as it appears in the game. For example, "Anakin Skywalker" is incorrect. The correct name is "Jedi Knight Anakin".
-- The URL for a unit MUST be taken from the \`wikiSearch\` tool results or be constructed from the precise, correct unit name. Do not guess.
 - Pay close attention to different versions of the same character, like "Ahsoka Tano" vs "Ahsoka Tano (Fulcrum)".
 
 Based on your analysis, you will generate a complete test scenario.
@@ -176,13 +175,7 @@ Your output MUST include:
 3.  **alliedSquad**: A squad for the player. This squad MUST include the new unit under test. It MUST have a designated leader and 4 other members.
 4.  **opponentSquad**: A squad for the AI opponent, specifically chosen to facilitate the test. This squad MUST have a designated leader and 4 other members.
 5.  **setupInstructions**: A list of plain string actions for the tester to take. DO NOT add numbers like "1." or "2." to the beginning of each step. The list should be ordered chronologically. e.g., ["Use Character X's second special ability on Opponent Y.", "Wait for Opponent Z to take a turn and apply a buff."].
-6.  **passCriteria**: A clear, binary, and observable outcome. What must happen for the test to be marked as "PASS"?
-7.  **failCriteria**: A clear, binary, and observable outcome. What must happen for the test to be marked as "FAIL"?
-8.  **notApplicableCriteria**: An optional field for conditions that would make the test result invalid (e.g., "The opponent is defeated before the ability can be used.").
 
-For all characters in the allied and opponent squads, you MUST provide:
-- The character's correct and full name.
-- The URL for the character's small, public icon on swgoh.gg.
-- The URL for the character's page on swgoh.gg.
+For all characters in the allied and opponent squads, you MUST provide ONLY the character's correct and full name. DO NOT provide URLs or image URLs.
 
-For the new unit under test, use "New Unit" as the name, and use a placeholder icon URL: 'https://placehold.co/80x80/000000/FFFFFF/png?text=NEW'.`;
+For the new unit under test, use "New Unit" as the name.`;
