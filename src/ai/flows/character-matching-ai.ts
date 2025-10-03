@@ -47,7 +47,7 @@ const prompt = ai.definePrompt({
   input: {schema: UnitMatchingAIInputSchema},
   output: {schema: UnitMatchingAIOutputSchema},
   tools: [wikiSearchTool],
-  model: 'googleai/gemini-2.5-flash',
+  model: 'openai:gpt-4o',
 });
 
 const unitMatchingAIFlow = ai.defineFlow(

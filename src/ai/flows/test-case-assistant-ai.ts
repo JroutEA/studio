@@ -51,7 +51,7 @@ const prompt = ai.definePrompt({
   input: {schema: TestCaseAssistantAIInputSchema},
   output: {schema: TestCaseAssistantAIOutputSchema},
   tools: [wikiSearchTool],
-  model: 'googleai/gemini-2.5-pro',
+  model: 'openai:gpt-4o',
 });
 
 const testCaseAssistantAIFlow = ai.defineFlow(
