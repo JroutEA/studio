@@ -12,8 +12,8 @@
 import {ai} from '@/ai/genkit';
 import { wikiSearchTool } from '@/ai/tools/wiki-search';
 import {z} from 'genkit';
-import { squadBuilderAIPrompt } from '@/ai/prompts';
-import { generateWithFallback } from '@/ai/generate-with-fallback';
+import { squadBuilderAIPrompt as promptTemplate } from '@/ai/prompts';
+
 
 const CharacterSchema = z.object({
   name: z.string().describe('The name of the character.'),
@@ -41,26 +41,55 @@ const SquadBuilderAIOutputSchema = z.object({
 });
 export type SquadBuilderAIOutput = z.infer<typeof SquadBuilderAIOutputSchema>;
 
-const prompt = ai.definePrompt({
-  name: 'squadBuilderAIPrompt',
-  prompt: squadBuilderAIPrompt,
-  input: {schema: SquadBuilderAIInputSchema},
-  output: {schema: SquadBuilderAIOutputSchema},
-  tools: [wikiSearchTool],
-});
-
+// Define the fallback order for the models.
+const models: string[] = ['openai:gpt-4o', 'openai:gpt-4o-mini', 'openai:gpt-4-turbo'];
 
 export async function squadBuilderAI(input: SquadBuilderAIInput): Promise<SquadBuilderAIOutput> {
-    const response = await generateWithFallback(prompt, input);
-    const output = response.output();
-    if (!output) {
-      throw new Error('The AI model failed to generate a valid squad. This could be due to a content filter or an internal error. Please try a different query.');
+    let lastError: any;
+    
+    // Manually template the prompt string
+    let prompt = promptTemplate.replace('{{{count}}}', String(input.count));
+    prompt = prompt.replace('{{{query}}}', input.query);
+    if (input.loadMoreQuery) {
+        prompt = prompt.replace('{{#if loadMoreQuery}}', '');
+        prompt = prompt.replace('{{{loadMoreQuery}}}', input.loadMoreQuery);
+        prompt = prompt.replace('{{/if}}', '');
+    } else {
+        prompt = prompt.replace(/{{#if loadMoreQuery}}[\s\S]*?{{\/if}}/, '');
     }
 
-    // Gracefully handle cases where the model returns no squads array.
-    const anyOutput = output as any;
-    const squads = anyOutput.squads || [];
-    const isUnitQuery = anyOutput.isUnitQuery || false;
+    for (const model of models) {
+        try {
+            console.log(`Attempting to generate with model: ${model}`);
+            const response = await ai.generate({
+                model,
+                prompt,
+                output: {
+                    schema: SquadBuilderAIOutputSchema,
+                },
+                tools: [wikiSearchTool],
+            });
 
-    return { squads, isUnitQuery };
+            const output = response.output();
+            if (!output) {
+                throw new Error('No output generated.');
+            }
+
+            console.log(`Successfully generated with model: ${model}`);
+
+            // Gracefully handle cases where the model returns no squads array.
+            const anyOutput = output as any;
+            const squads = anyOutput.squads || [];
+            const isUnitQuery = anyOutput.isUnitQuery || false;
+
+            return { squads, isUnitQuery };
+
+        } catch (err) {
+            console.error(`Model ${model} failed:`, err);
+            lastError = err;
+        }
+    }
+
+    console.error('All models failed to generate a response.');
+    throw lastError || new Error('The AI model failed to generate a valid squad. This could be due to a content filter or an internal error. Please try a different query.');
 }

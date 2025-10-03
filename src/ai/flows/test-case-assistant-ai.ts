@@ -12,9 +12,7 @@
 import {ai} from '@/ai/genkit';
 import { wikiSearchTool } from '@/ai/tools/wiki-search';
 import {z} from 'genkit';
-import { testCaseAssistantAIPrompt } from '@/ai/prompts';
-import { generateWithFallback } from '../generate-with-fallback';
-
+import { testCaseAssistantAIPrompt as promptTemplate } from '@/ai/prompts';
 
 const CharacterSchema = z.object({
   name: z.string().describe('The name of the character.'),
@@ -42,57 +40,78 @@ const TestCaseAssistantAIOutputSchema = z.object({
 });
 export type TestCaseAssistantAIOutput = z.infer<typeof TestCaseAssistantAIOutputSchema>;
 
-const prompt = ai.definePrompt({
-  name: 'testCaseAssistantAIPrompt',
-  prompt: testCaseAssistantAIPrompt,
-  input: {schema: TestCaseAssistantAIInputSchema},
-  output: {schema: TestCaseAssistantAIOutputSchema},
-  tools: [wikiSearchTool],
-});
+// Define the fallback order for the models.
+const models: string[] = ['openai:gpt-4o', 'openai:gpt-4o-mini', 'openai:gpt-4-turbo'];
 
 export async function testCaseAssistantAI(input: TestCaseAssistantAIInput): Promise<TestCaseAssistantAIOutput> {
-    const response = await generateWithFallback(prompt, input);
-    const output = response.output();
-    
-    if (!output) {
-      throw new Error('The AI model returned no output. This may be due to a content filter or an internal error.');
-    }
-    
-    // Advanced Repair Logic to handle common AI inconsistencies.
-    const repairedOutput = { ...output } as any;
+    let lastError: any;
 
-    // 1. Ensure squads are objects and have required fields
-    for (const squadKey of ['alliedSquad', 'opponentSquad']) {
-      if (typeof repairedOutput[squadKey] !== 'object' || repairedOutput[squadKey] === null) {
-        repairedOutput[squadKey] = {};
-      }
-      const squad = repairedOutput[squadKey];
-      if (!squad.name) squad.name = squadKey === 'alliedSquad' ? 'Allied Squad' : 'Opponent Squad';
-      if (typeof squad.leader !== 'object' || squad.leader === null) {
-        squad.leader = { name: squadKey === 'alliedSquad' ? 'New Unit' : 'Unknown' };
-      }
-      if (!Array.isArray(squad.members)) {
-        squad.members = [];
-      }
+    // Manually template the prompt string
+    let prompt = promptTemplate.replace('{{{unitDetails}}}', input.unitDetails);
+    prompt = prompt.replace('{{{testCase}}}', input.testCase);
+    prompt = prompt.replace('{{{expectedResult}}}', input.expectedResult);
+
+    for (const model of models) {
+        try {
+            console.log(`Attempting to generate with model: ${model}`);
+            const response = await ai.generate({
+                model,
+                prompt,
+                output: {
+                    schema: TestCaseAssistantAIOutputSchema,
+                },
+                tools: [wikiSearchTool],
+            });
+
+            const output = response.output();
+            if (!output) {
+                throw new Error('No output generated.');
+            }
+
+            console.log(`Successfully generated with model: ${model}`);
+            
+            // Advanced Repair Logic to handle common AI inconsistencies.
+            const repairedOutput = { ...output } as any;
+
+            // 1. Ensure squads are objects and have required fields
+            for (const squadKey of ['alliedSquad', 'opponentSquad']) {
+                if (typeof repairedOutput[squadKey] !== 'object' || repairedOutput[squadKey] === null) {
+                    repairedOutput[squadKey] = {};
+                }
+                const squad = repairedOutput[squadKey];
+                if (!squad.name) squad.name = squadKey === 'alliedSquad' ? 'Allied Squad' : 'Opponent Squad';
+                if (typeof squad.leader !== 'object' || squad.leader === null) {
+                    squad.leader = { name: squadKey === 'alliedSquad' ? 'New Unit' : 'Unknown' };
+                }
+                if (!Array.isArray(squad.members)) {
+                    squad.members = [];
+                }
+            }
+
+            // 2. Ensure setupInstructions is an array of strings
+            if (!Array.isArray(repairedOutput.setupInstructions)) {
+                repairedOutput.setupInstructions = [];
+            } else {
+                // Filter out any non-string elements just in case
+                repairedOutput.setupInstructions = repairedOutput.setupInstructions.filter((i: any) => typeof i === 'string');
+            }
+
+            // 3. Ensure required string fields are present and not empty
+            const requiredStrings = ['scenarioTitle', 'scenarioDescription'];
+            for (const key of requiredStrings) {
+                if (typeof repairedOutput[key] !== 'string' || !repairedOutput[key]) {
+                    repairedOutput[key] = `No ${key} provided.`;
+                }
+            }
+            
+            return repairedOutput as TestCaseAssistantAIOutput;
+
+        } catch (err) {
+            console.error(`Model ${model} failed:`, err);
+            lastError = err;
+        }
     }
 
-    // 2. Ensure setupInstructions is an array of strings
-    if (!Array.isArray(repairedOutput.setupInstructions)) {
-      repairedOutput.setupInstructions = [];
-    } else {
-      // Filter out any non-string elements just in case
-      repairedOutput.setupInstructions = repairedOutput.setupInstructions.filter((i: any) => typeof i === 'string');
-    }
-
-    // 3. Ensure required string fields are present and not empty
-    const requiredStrings = ['scenarioTitle', 'scenarioDescription'];
-    for (const key of requiredStrings) {
-      if (typeof repairedOutput[key] !== 'string' || !repairedOutput[key]) {
-        repairedOutput[key] = `No ${key} provided.`;
-      }
-    }
-
-    // The final validated output will be returned by the flow.
-    // If it still fails, the error will be more specific.
-    return repairedOutput as TestCaseAssistantAIOutput;
+    console.error('All models failed to generate a response.');
+    throw lastError || new Error('The AI model returned no output. This may be due to a content filter or an internal error.');
 }

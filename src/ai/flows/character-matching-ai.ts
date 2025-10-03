@@ -12,8 +12,8 @@
 import {ai} from '@/ai/genkit';
 import { wikiSearchTool } from '@/ai/tools/wiki-search';
 import {z} from 'genkit';
-import { unitMatchingAIPrompt } from '@/ai/prompts';
-import { generateWithFallback } from '@/ai/generate-with-fallback';
+import { unitMatchingAIPrompt as promptTemplate } from '@/ai/prompts';
+import { generate } from 'genkit/generate';
 
 
 const UnitMatchingAIInputSchema = z.object({
@@ -38,26 +38,55 @@ const UnitMatchingAIOutputSchema = z.object({
 });
 export type UnitMatchingAIOutput = z.infer<typeof UnitMatchingAIOutputSchema>;
 
-const prompt = ai.definePrompt({
-  name: 'unitMatchingAIPrompt',
-  prompt: unitMatchingAIPrompt,
-  input: {schema: UnitMatchingAIInputSchema},
-  output: {schema: UnitMatchingAIOutputSchema},
-  tools: [wikiSearchTool],
-});
+// Define the fallback order for the models.
+const models: string[] = ['openai:gpt-4o', 'openai:gpt-4o-mini', 'openai:gpt-4-turbo'];
 
 export async function unitMatchingAI(input: UnitMatchingAIInput): Promise<UnitMatchingAIOutput> {
-    const response = await generateWithFallback(prompt, input);
-    const output = response.output();
-    
-    if (!output) {
-      throw new Error('The AI model failed to generate a valid response. This could be due to a content filter or an internal error. Please try a different query.');
-    }
-    
-    // Gracefully handle cases where the model returns 'characters' instead of 'units' or nothing at all
-    const anyOutput = output as any;
-    const units = anyOutput.units || anyOutput.characters || [];
-    const isSquadQuery = anyOutput.isSquadQuery || false;
+  let lastError: any;
+  
+  // Manually template the prompt string
+  let prompt = promptTemplate.replace('{{{count}}}', String(input.count));
+  prompt = prompt.replace('{{{query}}}', input.query);
+  if (input.loadMoreQuery) {
+    prompt = prompt.replace('{{#if loadMoreQuery}}', '');
+    prompt = prompt.replace('{{{loadMoreQuery}}}', input.loadMoreQuery);
+    prompt = prompt.replace('{{/if}}', '');
+  } else {
+    prompt = prompt.replace(/{{#if loadMoreQuery}}[\s\S]*?{{\/if}}/, '');
+  }
 
-    return { units, isSquadQuery };
+  for (const model of models) {
+    try {
+      console.log(`Attempting to generate with model: ${model}`);
+      const response = await ai.generate({
+        model,
+        prompt,
+        output: {
+            schema: UnitMatchingAIOutputSchema,
+        },
+        tools: [wikiSearchTool],
+      });
+      
+      const output = response.output();
+      if (!output) {
+        throw new Error('No output generated.');
+      }
+      
+      console.log(`Successfully generated with model: ${model}`);
+
+      // Gracefully handle cases where the model returns 'characters' instead of 'units' or nothing at all
+      const anyOutput = output as any;
+      const units = anyOutput.units || anyOutput.characters || [];
+      const isSquadQuery = anyOutput.isSquadQuery || false;
+
+      return { units, isSquadQuery };
+
+    } catch (err) {
+      console.error(`Model ${model} failed:`, err);
+      lastError = err;
+    }
+  }
+
+  console.error('All models failed to generate a response.');
+  throw lastError || new Error('The AI model failed to generate a valid response. This could be due to a content filter or an internal error. Please try a different query.');
 }
