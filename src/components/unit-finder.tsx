@@ -342,7 +342,7 @@ export function UnitFinder() {
                       <HolocronIcon className="w-6 h-6" />
                   </div>
                   <div>
-                    <CardTitle className="font-headline text-3xl">The AI Holocron</CardTitle>
+                    <CardTitle className="font-headline text-3xl">Holocron 2.0</CardTitle>
                     <CardDescription>
                       This IS the droid you're looking for... to test your units.
                     </CardDescription>
@@ -533,7 +533,7 @@ export function UnitFinder() {
                   <HolocronIcon className="w-6 h-6" />
               </div>
               <div>
-                <CardTitle className="font-headline text-3xl">The AI Holocron</CardTitle>
+                <CardTitle className="font-headline text-3xl">Holocron 2.0</CardTitle>
                 <CardDescription>
                   This IS the droid you're looking for... to test your units.
                 </CardDescription>

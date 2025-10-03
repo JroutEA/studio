@@ -1,7 +1,7 @@
 
 # Development Log
 
-This file tracks the changes made to the AI Holocron application.
+This file tracks the changes made to the Holocron 2.0 application.
 
 ---
 

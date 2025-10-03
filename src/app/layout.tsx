@@ -3,7 +3,7 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
-  title: 'The AI Holocron',
+  title: 'Holocron 2.0',
   description: "This IS the droid you're looking for... to test your units.",
 };
 

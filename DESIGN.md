@@ -1,8 +1,8 @@
-# The AI Holocron: Design & Features
+# Holocron 2.0: Design & Features
 
 ## 1. Overview
 
-The AI Holocron is an advanced, AI-powered web application designed to assist players and Quality Assurance (QA) testers of the mobile game *Star Wars: Galaxy of Heroes (SWGOH)*. By leveraging generative AI, it provides intelligent tools for finding in-game units, constructing effective squads, and accelerating the quality assurance process for new unit development.
+Holocron 2.0 is an advanced, AI-powered web application designed to assist players and Quality Assurance (QA) testers of the mobile game *Star Wars: Galaxy of Heroes (SWGOH)*. By leveraging generative AI, it provides intelligent tools for finding in-game units, constructing effective squads, and accelerating the quality assurance process for new unit development.
 
 The application is built around three core features, each accessible through a dedicated tab:
 - **Unit Finder:** For discovering specific characters and ships.
@@ -13,7 +13,7 @@ The application is built around three core features, each accessible through a d
 
 ## 2. Problem Statement
 
-The core purpose of the AI Holocron is to solve specific bottlenecks faced by the SWGOH QA team and player community:
+The core purpose of Holocron 2.0 is to solve specific bottlenecks faced by the SWGOH QA team and player community:
 
 -   **For QA Testers:**
     -   **Finding Test Units:** Manually searching for existing in-game units with specific abilities (e.g., "a character that applies 'Evasion Down'") to test a new mechanic is slow and requires deep game knowledge. The **Unit Finder** automates this discovery process.
