@@ -42,7 +42,7 @@ const findUnitsSchema = z.object({
 const buildSquadSchema = z.object({
   query: z.string().min(10, { message: 'Query must be at least 10 characters long.' }),
   loadMoreQuery: z.string().optional(),
-  count: z.coerce.number().optional().default(3),
+  count: z.coerce.number().optional().default(1),
 });
 
 const generateTestCaseSchema = z.object({
@@ -52,11 +52,19 @@ const generateTestCaseSchema = z.object({
 });
 
 function generatePrompt(basePrompt: string, data: Record<string, any>): string {
-    return basePrompt.replace(/{{{\s*(\w+)\s*}}}/g, (match, key) => {
-        return data[key] || '';
-    }).replace(/{{#if (\w+)\s*}}([\s\S]*?){{\/if}}/g, (match, key, content) => {
+    let prompt = basePrompt;
+    
+    // Handle {{#if ...}} ... {{/if}} blocks
+    prompt = prompt.replace(/{{#if (\w+)\s*}}([\s\S]*?){{\/if}}/g, (match, key, content) => {
         return data[key] ? content : '';
     });
+
+    // Handle {{{...}}} variables
+    prompt = prompt.replace(/{{{\s*(\w+)\s*}}}/g, (match, key) => {
+        return data[key] || '';
+    });
+
+    return prompt;
 }
 
 export async function findUnits(
@@ -174,7 +182,7 @@ export async function buildSquad(
         : result.squads;
 
     // Filter out duplicates based on squad name
-    const uniqueSquads = Array.from(new Map(combinedSquads.map(squad => [squad.name, squad])).values());
+    const uniqueSquads = Array.from(new Map(combinedSquads.map(squad => [squad.leader.name + squad.description, squad])).values());
 
     return { 
       message: 'success',
