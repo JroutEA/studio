@@ -51,22 +51,6 @@ const generateTestCaseSchema = z.object({
     expectedResult: z.string().min(10, { message: 'Expected result must be at least 10 characters.' }),
 });
 
-function generatePrompt(basePrompt: string, data: Record<string, any>): string {
-    let prompt = basePrompt;
-    
-    // Handle {{#if ...}} ... {{/if}} blocks
-    prompt = prompt.replace(/{{#if (\w+)\s*}}([\s\S]*?){{\/if}}/g, (match, key, content) => {
-        return data[key] ? content : '';
-    });
-
-    // Handle {{{...}}} variables
-    prompt = prompt.replace(/{{{\s*(\w+)\s*}}}/g, (match, key) => {
-        return data[key] || '';
-    });
-
-    return prompt;
-}
-
 export async function findUnits(
   prevState: FormState,
   formData: FormData
@@ -123,9 +107,7 @@ export async function findUnits(
 
   } catch (e: unknown) {
     const errorMessage = e instanceof Error ? e.message : String(e);
-    // const fallbackPrompt = generatePrompt(unitMatchingAIPrompt, input);
-    
-    return { ...prevState, query, message: `An error occurred: ${errorMessage}` /*, fallbackPrompt*/ };
+    return { ...prevState, query, message: `An error occurred: ${errorMessage}` };
   }
 }
 
@@ -184,9 +166,7 @@ export async function buildSquad(
     };
   } catch (e: unknown) {
     const errorMessage = e instanceof Error ? e.message : String(e);
-    // const fallbackPrompt = generatePrompt(squadBuilderAIPrompt, input);
-
-    return { ...prevState, squadsInput: { query }, message: `An error occurred while building the squad: ${errorMessage}` /*, fallbackPrompt*/ };
+    return { ...prevState, squadsInput: { query }, message: `An error occurred while building the squad: ${errorMessage}` };
   }
 }
 
@@ -216,7 +196,6 @@ export async function generateTestCase(
         };
     } catch (e: unknown) {
         const errorMessage = e instanceof Error ? e.message : String(e);
-        // const fallbackPrompt = generatePrompt(testCaseAssistantAIPrompt, input);
-        return { ...prevState, testCaseInput: input, message: `An error occurred: ${errorMessage}` /*, fallbackPrompt*/ };
+        return { ...prevState, testCaseInput: input, message: `An error occurred: ${errorMessage}` };
     }
 }
