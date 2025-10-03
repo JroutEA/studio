@@ -51,7 +51,7 @@ const prompt = ai.definePrompt({
   input: {schema: SquadBuilderAIInputSchema},
   output: {schema: SquadBuilderAIOutputSchema},
   tools: [wikiSearchTool],
-  model: 'openai:gpt-4o',
+  model: 'openai:gpt-4o-mini',
 });
 
 const squadBuilderAIFlow = ai.defineFlow(
