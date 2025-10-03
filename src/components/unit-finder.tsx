@@ -28,7 +28,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { History, Users, TestTube, Trash2, Star, BrainCircuit, Download } from 'lucide-react';
+import { History, Users, TestTube, Trash2, Star, BrainCircuit, Download, AlertTriangle, Terminal } from 'lucide-react';
 import { UnitList } from './unit-list';
 import { UnitListSkeleton } from './unit-list-skeleton';
 import { SquadList } from './squad-list';
@@ -39,6 +39,7 @@ import { DarthVaderLoader } from './darth-vader-loader';
 import { SavedSquadsList } from './saved-squads-list';
 import { Skeleton } from './ui/skeleton';
 import { FallbackPromptDisplay } from './fallback-prompt-display';
+import { Alert, AlertDescription, AlertTitle } from './ui/alert';
 
 
 type Squad = NonNullable<SquadBuilderAIOutput['squads']>[0];
@@ -140,7 +141,7 @@ export function UnitFinder() {
       });
     }
 
-    if (unitState.message && unitState.message !== 'success' && !unitState.fallbackPrompt) {
+    if (unitState.message && unitState.message !== 'success' && !unitState.message.includes('An error occurred:')) {
       toast({
         title: unitState.message.includes('found') ? 'Info' : unitState.message.includes('Invalid') ? 'Warning' : 'Error',
         description: unitState.message,
@@ -166,7 +167,7 @@ export function UnitFinder() {
       });
     }
 
-    if (squadState.message && squadState.message !== 'success' && !squadState.fallbackPrompt) {
+    if (squadState.message && squadState.message !== 'success' && !squadState.message.includes('An error occurred:')) {
        toast({
           title: squadState.message.includes('found') ? 'Info' : squadState.message.includes('Invalid') ? 'Warning' : 'Error',
           description: squadState.message,
@@ -193,7 +194,7 @@ export function UnitFinder() {
       });
     }
     
-    if (testCaseState.message && testCaseState.message !== 'success' && !testCaseState.fallbackPrompt) {
+    if (testCaseState.message && testCaseState.message !== 'success' && !testCaseState.message.includes('An error occurred:')) {
       toast({ variant: 'destructive', title: 'Error generating test case', description: testCaseState.message });
     }
   }, [testCaseState, toast, isClient]);
@@ -374,12 +375,13 @@ export function UnitFinder() {
     if (activeTab === 'squad-builder') currentState = squadState;
     if (activeTab === 'test-assistant') currentState = testCaseState;
     
-    if (currentState.fallbackPrompt) {
+    if (currentState.message.includes('An error occurred:')) {
       return (
-        <FallbackPromptDisplay
-          errorMessage={currentState.message}
-          fallbackPrompt={currentState.fallbackPrompt}
-        />
+          <Alert variant="destructive">
+            <Terminal className="h-4 w-4" />
+            <AlertTitle>AI Generation Failed</AlertTitle>
+            <AlertDescription>{currentState.message}</AlertDescription>
+          </Alert>
       );
     }
   

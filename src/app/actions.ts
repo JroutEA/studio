@@ -122,17 +122,10 @@ export async function findUnits(
     };
 
   } catch (e: unknown) {
-    let errorMessage = e instanceof Error ? e.message : String(e);
-    if (errorMessage.includes('503')) {
-       errorMessage = "The AI model is temporarily unavailable (503 Service Unavailable). Please try again in a few moments.";
-    }
-    if (errorMessage.includes('Schema validation failed')) {
-      errorMessage = "The AI model returned an invalid response. This may be due to content filtering or a temporary issue. Please try a different query.";
-    }
-
-    const fallbackPrompt = generatePrompt(unitMatchingAIPrompt, input);
+    const errorMessage = e instanceof Error ? e.message : String(e);
+    // const fallbackPrompt = generatePrompt(unitMatchingAIPrompt, input);
     
-    return { ...prevState, query, message: `An error occurred: ${errorMessage}`, fallbackPrompt };
+    return { ...prevState, query, message: `An error occurred: ${errorMessage}` /*, fallbackPrompt*/ };
   }
 }
 
@@ -190,16 +183,10 @@ export async function buildSquad(
       squadsInput: { query }
     };
   } catch (e: unknown) {
-    let errorMessage = e instanceof Error ? e.message : String(e);
-     if (errorMessage.includes('503')) {
-       errorMessage = "The AI model is temporarily unavailable (503 Service Unavailable). Please try again in a few moments.";
-    }
-    if (errorMessage.includes('Schema validation failed')) {
-      errorMessage = "The AI model returned an invalid response. This may be due to content filtering or a temporary issue. Please try a different query.";
-    }
-    const fallbackPrompt = generatePrompt(squadBuilderAIPrompt, input);
+    const errorMessage = e instanceof Error ? e.message : String(e);
+    // const fallbackPrompt = generatePrompt(squadBuilderAIPrompt, input);
 
-    return { ...prevState, squadsInput: { query }, message: `An error occurred while building the squad: ${errorMessage}`, fallbackPrompt };
+    return { ...prevState, squadsInput: { query }, message: `An error occurred while building the squad: ${errorMessage}` /*, fallbackPrompt*/ };
   }
 }
 
@@ -228,14 +215,8 @@ export async function generateTestCase(
             testCaseInput: input
         };
     } catch (e: unknown) {
-        let errorMessage = e instanceof Error ? e.message : String(e);
-        if (errorMessage.includes('503')) {
-          errorMessage = "The AI model is temporarily unavailable (503 Service Unavailable). Please try again in a few moments.";
-        }
-        if (errorMessage.includes('Schema validation failed')) {
-          errorMessage = "The AI model returned an invalid response. This may be due to content filtering or a temporary issue. Please try a different query.";
-        }
-        const fallbackPrompt = generatePrompt(testCaseAssistantAIPrompt, input);
-        return { ...prevState, testCaseInput: input, message: `An error occurred: ${errorMessage}`, fallbackPrompt };
+        const errorMessage = e instanceof Error ? e.message : String(e);
+        // const fallbackPrompt = generatePrompt(testCaseAssistantAIPrompt, input);
+        return { ...prevState, testCaseInput: input, message: `An error occurred: ${errorMessage}` /*, fallbackPrompt*/ };
     }
 }
