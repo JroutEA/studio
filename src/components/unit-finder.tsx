@@ -128,6 +128,18 @@ export function UnitFinder() {
   
   useEffect(() => {
     if (!isClient) return;
+
+    if (unitState.query) { // Save history on any submission, success or fail
+      setUnitHistory(prev => {
+        if (!prev.includes(unitState.query!)) {
+          const newHistory = [unitState.query!, ...prev].slice(0, 20);
+          localStorage.setItem(UNIT_HISTORY_KEY, JSON.stringify(newHistory));
+          return newHistory;
+        }
+        return prev;
+      });
+    }
+
     if (unitState.message && unitState.message !== 'success' && !unitState.fallbackPrompt) {
       toast({
         title: unitState.message.includes('found') ? 'Info' : unitState.message.includes('Invalid') ? 'Warning' : 'Error',
@@ -138,20 +150,22 @@ export function UnitFinder() {
     if (unitState.switchToTab) {
       setActiveTab(unitState.switchToTab);
     }
-    if (unitState.message === 'success' && unitState.query) {
-      setUnitHistory(prev => {
-        if (!prev.includes(unitState.query!)) {
-          const newHistory = [unitState.query!, ...prev].slice(0, 20);
-          localStorage.setItem(UNIT_HISTORY_KEY, JSON.stringify(newHistory));
+  }, [unitState, toast, isClient]);
+
+  useEffect(() => {
+    if (!isClient) return;
+
+    if (squadState.squadsInput?.query) { // Save history on any submission
+      setSquadHistory(prev => {
+        if (!prev.includes(squadState.squadsInput!.query)) {
+          const newHistory = [squadState.squadsInput!.query, ...prev].slice(0, 20);
+          localStorage.setItem(SQUAD_HISTORY_KEY, JSON.stringify(newHistory));
           return newHistory;
         }
         return prev;
       });
     }
-  }, [unitState, toast, isClient]);
 
-  useEffect(() => {
-    if (!isClient) return;
     if (squadState.message && squadState.message !== 'success' && !squadState.fallbackPrompt) {
        toast({
           title: squadState.message.includes('found') ? 'Info' : squadState.message.includes('Invalid') ? 'Warning' : 'Error',
@@ -162,24 +176,12 @@ export function UnitFinder() {
     if (squadState.switchToTab) {
       setActiveTab(squadState.switchToTab);
     }
-    if (squadState.message === 'success' && squadState.squadsInput?.query) {
-      setSquadHistory(prev => {
-        if (!prev.includes(squadState.squadsInput!.query)) {
-          const newHistory = [squadState.squadsInput!.query, ...prev].slice(0, 20);
-          localStorage.setItem(SQUAD_HISTORY_KEY, JSON.stringify(newHistory));
-          return newHistory;
-        }
-        return prev;
-      });
-    }
   }, [squadState, toast, isClient]);
 
   useEffect(() => {
     if (!isClient) return;
-    if (testCaseState.message && testCaseState.message !== 'success' && !testCaseState.fallbackPrompt) {
-      toast({ variant: 'destructive', title: 'Error generating test case', description: testCaseState.message });
-    }
-    if (testCaseState.message === 'success' && testCaseState.testCaseInput) {
+
+    if (testCaseState.testCaseInput) { // Save history on any submission
       const historyValueJSON = JSON.stringify(testCaseState.testCaseInput);
       setTestCaseHistory(prev => {
         if (!prev.find(h => JSON.stringify(h) === historyValueJSON)) {
@@ -189,6 +191,10 @@ export function UnitFinder() {
         }
         return prev;
       });
+    }
+    
+    if (testCaseState.message && testCaseState.message !== 'success' && !testCaseState.fallbackPrompt) {
+      toast({ variant: 'destructive', title: 'Error generating test case', description: testCaseState.message });
     }
   }, [testCaseState, toast, isClient]);
 
@@ -629,7 +635,7 @@ export function UnitFinder() {
                   icon={<HolocronIcon className="mr-2 h-4 w-4" />}
                   pendingText="Searching..."
                   text="Find Units"
-                  isPending={isUnitPending}
+                  isPending={isPending}
                 />
               </form>
             </TabsContent>
@@ -646,7 +652,7 @@ export function UnitFinder() {
                   icon={<Users className="mr-2 h-4 w-4" />}
                   pendingText="Building..."
                   text="Build Squad"
-                  isPending={isSquadPending}
+                  isPending={isPending}
                 />
               </form>
             </TabsContent>
@@ -672,7 +678,7 @@ export function UnitFinder() {
                   icon={<BrainCircuit className="mr-2 h-4 w-4" />}
                   pendingText="Generating..."
                   text="Help Me Test This"
-                  isPending={isTestCasePending}
+                  isPending={isPending}
                 />
               </form>
             </TabsContent>
@@ -686,3 +692,5 @@ export function UnitFinder() {
     </div>
   );
 }
+
+    
