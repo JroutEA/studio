@@ -41,11 +41,6 @@ const SquadBuilderAIOutputSchema = z.object({
 });
 export type SquadBuilderAIOutput = z.infer<typeof SquadBuilderAIOutputSchema>;
 
-
-export async function squadBuilderAI(input: SquadBuilderAIInput): Promise<SquadBuilderAIOutput> {
-  return squadBuilderAIFlow(input);
-}
-
 const prompt = ai.definePrompt({
   name: 'squadBuilderAIPrompt',
   prompt: squadBuilderAIPrompt,
@@ -54,13 +49,8 @@ const prompt = ai.definePrompt({
   tools: [wikiSearchTool],
 });
 
-const squadBuilderAIFlow = ai.defineFlow(
-  {
-    name: 'squadBuilderAIFlow',
-    inputSchema: SquadBuilderAIInputSchema,
-    outputSchema: SquadBuilderAIOutputSchema,
-  },
-  async input => {
+
+export async function squadBuilderAI(input: SquadBuilderAIInput): Promise<SquadBuilderAIOutput> {
     const response = await generateWithFallback(prompt, input);
     const output = response.output();
     if (!output) {
@@ -73,5 +63,4 @@ const squadBuilderAIFlow = ai.defineFlow(
     const isUnitQuery = anyOutput.isUnitQuery || false;
 
     return { squads, isUnitQuery };
-  }
-);
+}

@@ -38,10 +38,6 @@ const UnitMatchingAIOutputSchema = z.object({
 });
 export type UnitMatchingAIOutput = z.infer<typeof UnitMatchingAIOutputSchema>;
 
-export async function unitMatchingAI(input: UnitMatchingAIInput): Promise<UnitMatchingAIOutput> {
-  return unitMatchingAIFlow(input);
-}
-
 const prompt = ai.definePrompt({
   name: 'unitMatchingAIPrompt',
   prompt: unitMatchingAIPrompt,
@@ -50,13 +46,7 @@ const prompt = ai.definePrompt({
   tools: [wikiSearchTool],
 });
 
-const unitMatchingAIFlow = ai.defineFlow(
-  {
-    name: 'unitMatchingAIFlow',
-    inputSchema: UnitMatchingAIInputSchema,
-    outputSchema: UnitMatchingAIOutputSchema,
-  },
-  async input => {
+export async function unitMatchingAI(input: UnitMatchingAIInput): Promise<UnitMatchingAIOutput> {
     const response = await generateWithFallback(prompt, input);
     const output = response.output();
     
@@ -70,5 +60,4 @@ const unitMatchingAIFlow = ai.defineFlow(
     const isSquadQuery = anyOutput.isSquadQuery || false;
 
     return { units, isSquadQuery };
-  }
-);
+}

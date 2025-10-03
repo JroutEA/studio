@@ -42,10 +42,6 @@ const TestCaseAssistantAIOutputSchema = z.object({
 });
 export type TestCaseAssistantAIOutput = z.infer<typeof TestCaseAssistantAIOutputSchema>;
 
-export async function testCaseAssistantAI(input: TestCaseAssistantAIInput): Promise<TestCaseAssistantAIOutput> {
-  return testCaseAssistantAIFlow(input);
-}
-
 const prompt = ai.definePrompt({
   name: 'testCaseAssistantAIPrompt',
   prompt: testCaseAssistantAIPrompt,
@@ -54,13 +50,7 @@ const prompt = ai.definePrompt({
   tools: [wikiSearchTool],
 });
 
-const testCaseAssistantAIFlow = ai.defineFlow(
-  {
-    name: 'testCaseAssistantAIFlow',
-    inputSchema: TestCaseAssistantAIInputSchema,
-    outputSchema: TestCaseAssistantAIOutputSchema,
-  },
-  async input => {
+export async function testCaseAssistantAI(input: TestCaseAssistantAIInput): Promise<TestCaseAssistantAIOutput> {
     const response = await generateWithFallback(prompt, input);
     const output = response.output();
     
@@ -105,5 +95,4 @@ const testCaseAssistantAIFlow = ai.defineFlow(
     // The final validated output will be returned by the flow.
     // If it still fails, the error will be more specific.
     return repairedOutput as TestCaseAssistantAIOutput;
-  }
-);
+}
