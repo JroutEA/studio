@@ -38,7 +38,7 @@ const UnitMatchingAIOutputSchema = z.object({
 export type UnitMatchingAIOutput = z.infer<typeof UnitMatchingAIOutputSchema>;
 
 // Define the fallback order for the models.
-const models: string[] = ['openai:gpt-4o-mini', 'openai:gpt-4-turbo'];
+const models: string[] = ['openai:gpt-4o-mini'];
 
 export async function unitMatchingAI(input: UnitMatchingAIInput): Promise<UnitMatchingAIOutput> {
   let lastError: any;

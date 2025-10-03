@@ -42,7 +42,7 @@ const SquadBuilderAIOutputSchema = z.object({
 export type SquadBuilderAIOutput = z.infer<typeof SquadBuilderAIOutputSchema>;
 
 // Define the fallback order for the models.
-const models: string[] = ['openai:gpt-4o-mini', 'openai:gpt-4-turbo'];
+const models: string[] = ['openai:gpt-4o-mini'];
 
 export async function squadBuilderAI(input: SquadBuilderAIInput): Promise<SquadBuilderAIOutput> {
     let lastError: any;
