@@ -51,6 +51,7 @@ const prompt = ai.definePrompt({
   input: {schema: SquadBuilderAIInputSchema},
   output: {schema: SquadBuilderAIOutputSchema},
   tools: [wikiSearchTool],
+  model: 'googleai/gemini-2.5-flash',
 });
 
 const squadBuilderAIFlow = ai.defineFlow(
