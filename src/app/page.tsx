@@ -1,12 +1,7 @@
 import { UnitFinder } from '@/components/unit-finder';
-import fs from 'fs';
-import path from 'path';
 
 export default function Home() {
-  const packageJsonPath = path.join(process.cwd(), 'package.json');
-  const packageJsonContent = fs.readFileSync(packageJsonPath, 'utf8');
-  const packageJson = JSON.parse(packageJsonContent);
-  const version = packageJson.version;
+  const version = '1.1.1';
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
