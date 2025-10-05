@@ -28,7 +28,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { History, Users, TestTube, Trash2, Star, BrainCircuit, Download, AlertTriangle, Terminal } from 'lucide-react';
+import { History, Users, TestTube, Trash2, Star, BrainCircuit, Download, AlertTriangle, Terminal, Bug } from 'lucide-react';
 import { UnitList } from './unit-list';
 import { UnitListSkeleton } from './unit-list-skeleton';
 import { SquadList } from './squad-list';
@@ -528,7 +528,7 @@ export function UnitFinder() {
     }
     return (
       <div className="text-center py-16 text-muted-foreground border-2 border-dashed rounded-lg border-test-assistant-accent/20">
-        <TestTube className="mx-auto h-12 w-12 text-test-assistant-accent" />
+        <Bug className="mx-auto h-12 w-12 text-test-assistant-accent" />
         <h3 className="text-lg font-semibold mt-2">Your generated test case will appear here</h3>
         <p>Describe the scenario you want to test above.</p>
       </div>
