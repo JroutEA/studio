@@ -1,13 +1,36 @@
 import { cn } from '@/lib/utils';
 
 export const HolocronIcon = ({ className, ...props }: React.SVGProps<SVGSVGElement>) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 24 24"
-    fill="currentColor"
-    className={cn('w-6 h-6', className)}
-    {...props}
-  >
-    <path d="M12 2c-3.39 0-6.17 2.76-6.45 6.13-.07.82.25 1.6.83 2.17l.79.79c.4.4.82.78 1.25 1.15l-1.42 1.42C5.45 15.21 4.5 17.5 4.5 20v2h15v-2c0-2.5-1-4.79-2.5-6.34l-1.42-1.42c.43-.37.85-.75 1.25-1.15l.79-.79c.58-.57.9-1.35.83-2.17C18.17 4.76 15.39 2 12 2zm-3 7c0-.55.45-1 1-1h4c.55 0 1 .45 1 1s-.45 1-1 1h-4c-.55 0-1-.45-1-1zm1 2h2c.55 0 1 .45 1 1s-.45 1-1 1h-2c-.55 0-1-.45-1-1s.45-1 1-1z"/>
-  </svg>
+    <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className={cn('w-6 h-6 text-primary', className)}
+        {...props}
+    >
+        <defs>
+            <radialGradient id="holocron-glow" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+                <stop offset="0%" style={{ stopColor: 'hsl(var(--primary))', stopOpacity: 0.75 }} />
+                <stop offset="100%" style={{ stopColor: 'hsl(var(--primary))', stopOpacity: 0 }} />
+            </radialGradient>
+        </defs>
+        
+        {/* Glow Effect */}
+        <path d="M12 2 L2 8 L12 14 L22 8 L12 2 Z" fill="url(#holocron-glow)" stroke="none" />
+
+        {/* Main Pyramid Structure */}
+        <path d="M12 2 L2 8 L12 14 L22 8 L12 2 Z" fill="hsl(var(--primary))" fillOpacity="0.3" stroke="hsl(var(--primary))" />
+        <path d="M2 8 L2 16 L12 22 L12 14 Z" fill="hsl(var(--primary))" fillOpacity="0.3" stroke="hsl(var(--primary))" />
+        <path d="M22 8 L22 16 L12 22 L12 14 Z" fill="hsl(var(--primary))" fillOpacity="0.3" stroke="hsl(var(--primary))" />
+
+        {/* Etchings/Details */}
+        <path d="M12 4.5 L7 8 L12 11.5 L17 8 L12 4.5 Z" stroke="hsl(var(--primary))" strokeOpacity="0.8" />
+        <path d="M4.5 9.5 L4.5 14.5 L12 18.5 L12 13.5 Z" stroke="hsl(var(--primary))" strokeOpacity="0.8" />
+        <path d="M19.5 9.5 L19.5 14.5 L12 18.5 L12 13.5 Z" stroke="hsl(var(--primary)).5" strokeOpacity="0.8" />
+        <circle cx="12" cy="8" r="0.5" fill="hsl(var(--primary))" stroke="none" />
+    </svg>
 );
