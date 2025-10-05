@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useRef } from 'react';
@@ -23,19 +24,6 @@ type UnitListProps = {
   triggerRef?: React.RefObject<HTMLButtonElement>;
   query?: string;
 };
-
-const textColors = [
-    'text-sky-400',
-    'text-green-400',
-    'text-yellow-400',
-    'text-red-400',
-    'text-purple-400',
-    'text-pink-400',
-    'text-indigo-400',
-    'text-teal-400',
-    'text-orange-400',
-    'text-blue-400',
-  ];
 
 const LoadingRows = ({ count = 3 }: { count?: number }) => (
     <>
@@ -63,10 +51,10 @@ export function UnitList({ units, isLoadingMore, triggerRef, query }: UnitListPr
   return (
     <div ref={contentRef} className="bg-background p-4 sm:p-8 rounded-lg space-y-4">
       {query && (
-          <div className="flex items-start gap-3 rounded-lg border border-primary/20 bg-card p-4">
-              <Terminal className="h-5 w-5 flex-shrink-0 text-primary" />
+          <div className="flex items-start gap-3 rounded-lg border border-unit-finder-accent/20 bg-card p-4">
+              <Terminal className="h-5 w-5 flex-shrink-0 text-unit-finder-accent" />
               <div className="flex-1">
-                  <p className="text-sm font-semibold text-primary">Unit Search Prompt</p>
+                  <p className="text-sm font-semibold text-unit-finder-accent">Unit Search Prompt</p>
                   <p className="text-muted-foreground italic">"{query}"</p>
               </div>
           </div>
@@ -85,12 +73,10 @@ export function UnitList({ units, isLoadingMore, triggerRef, query }: UnitListPr
             </TableHeader>
             <TableBody>
               {units.map((unit, index) => {
-                const textColorClass = textColors[index % textColors.length];
-
                 return (
                 <TableRow key={index}>
                   <TableCell className="font-medium">
-                     <Link href={unit.url} target="_blank" className={cn("hover:underline", textColorClass)}>
+                     <Link href={unit.url} target="_blank" className="hover:underline text-unit-finder-accent">
                         {unit.name}
                      </Link>
                   </TableCell>

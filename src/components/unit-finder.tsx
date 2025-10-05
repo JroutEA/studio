@@ -40,6 +40,7 @@ import { SavedSquadsList } from './saved-squads-list';
 import { Skeleton } from './ui/skeleton';
 import { FallbackPromptDisplay } from './fallback-prompt-display';
 import { Alert, AlertDescription, AlertTitle } from './ui/alert';
+import { cn } from '@/lib/utils';
 
 
 type Squad = NonNullable<SquadBuilderAIOutput['squads']>[0];
@@ -58,14 +59,16 @@ function SubmitButton({
   pendingText,
   text,
   isPending,
+  className
 }: {
   icon: React.ReactNode;
   pendingText: string;
   text: string;
   isPending: boolean;
+  className?: string;
 }) {
   return (
-    <Button type="submit" disabled={isPending} className="w-full sm:w-auto">
+    <Button type="submit" disabled={isPending} className={cn("w-full sm:w-auto", className)}>
       {isPending ? (
         <>
           <DarthVaderLoader className="mr-2 h-4 w-4" />
@@ -397,6 +400,15 @@ export function UnitFinder() {
     }
   };
 
+  const getBorderColor = () => {
+    switch (activeTab) {
+        case 'unit-finder': return 'border-unit-finder-accent/20';
+        case 'squad-builder': return 'border-squad-builder-accent/20';
+        case 'test-assistant': return 'border-test-assistant-accent/20';
+        default: return 'border-primary/20';
+    }
+  }
+
 
   const renderUnitFinderContent = () => {
     const isLoadingFirstTime = isUnitPending && !unitState.units?.length && !unitState.squads?.length;
@@ -436,7 +448,7 @@ export function UnitFinder() {
           />
           {hasMoreUnits && unitState.message !== 'No new units found.' && (
             <div className="text-center">
-              <Button onClick={handleLoadMore} disabled={isPending}>
+              <Button onClick={handleLoadMore} disabled={isPending} className="bg-unit-finder-accent hover:bg-unit-finder-accent/90 text-white dark:text-black">
                 {isUnitPending ? (
                   <>
                     <DarthVaderLoader className="mr-2 h-4 w-4" />
@@ -452,8 +464,8 @@ export function UnitFinder() {
       );
     }
     return (
-      <div className="text-center py-16 text-muted-foreground border-2 border-dashed rounded-lg border-primary/20">
-        <HolocronIcon className="mx-auto h-12 w-12" />
+      <div className="text-center py-16 text-muted-foreground border-2 border-dashed rounded-lg border-unit-finder-accent/20">
+        <HolocronIcon className="mx-auto h-12 w-12 text-unit-finder-accent" />
         <h3 className="text-lg font-semibold mt-2">Your matched units will appear here</h3>
         <p>Enter a description above to get started.</p>
       </div>
@@ -485,7 +497,7 @@ export function UnitFinder() {
           />
           {hasMoreSquads && squadState.message !== 'No new squads found.' && (
             <div className="text-center">
-              <Button onClick={handleLoadMore} disabled={isPending}>
+              <Button onClick={handleLoadMore} disabled={isPending} className="bg-squad-builder-accent hover:bg-squad-builder-accent/90 text-white dark:text-black">
                 {isSquadPending ? (
                   <>
                     <DarthVaderLoader className="mr-2 h-4 w-4" />
@@ -501,8 +513,8 @@ export function UnitFinder() {
       );
     }
     return (
-      <div className="text-center py-16 text-muted-foreground border-2 border-dashed rounded-lg border-primary/20">
-        <Users className="mx-auto h-12 w-12" />
+      <div className="text-center py-16 text-muted-foreground border-2 border-dashed rounded-lg border-squad-builder-accent/20">
+        <Users className="mx-auto h-12 w-12 text-squad-builder-accent" />
         <h3 className="text-lg font-semibold mt-2">Your generated squads will appear here</h3>
         <p>Describe the squad you want to build above.</p>
       </div>
@@ -517,8 +529,8 @@ export function UnitFinder() {
       return <TestCaseDisplay testCase={testCaseState.testCase} triggerRef={downloadTriggerRef} />;
     }
     return (
-      <div className="text-center py-16 text-muted-foreground border-2 border-dashed rounded-lg border-primary/20">
-        <TestTube className="mx-auto h-12 w-12" />
+      <div className="text-center py-16 text-muted-foreground border-2 border-dashed rounded-lg border-test-assistant-accent/20">
+        <TestTube className="mx-auto h-12 w-12 text-test-assistant-accent" />
         <h3 className="text-lg font-semibold mt-2">Your generated test case will appear here</h3>
         <p>Describe the scenario you want to test above.</p>
       </div>
@@ -527,7 +539,7 @@ export function UnitFinder() {
 
   return (
     <div className="space-y-12">
-      <Card className="max-w-3xl mx-auto shadow-lg border-primary/20 bg-card/80 backdrop-blur-sm">
+      <Card className={cn("max-w-3xl mx-auto shadow-lg bg-card/80 backdrop-blur-sm transition-colors", getBorderColor())}>
         <CardHeader>
           <div className="flex justify-between items-start">
             <div className='flex items-center gap-3'>
@@ -623,21 +635,21 @@ export function UnitFinder() {
               <TabsTrigger
                 value="unit-finder"
                 disabled={isPending}
-                className="data-[state=active]:bg-unit-finder-accent/90 data-[state=active]:text-white dark:data-[state=active]:text-black data-[state=inactive]:border-b-2 data-[state=inactive]:border-unit-finder-accent data-[state=inactive]:text-unit-finder-accent"
+                className="data-[state=active]:bg-unit-finder-accent data-[state=active]:text-white dark:data-[state=active]:text-black data-[state=inactive]:border-b-2 data-[state=inactive]:border-unit-finder-accent data-[state=inactive]:text-unit-finder-accent"
               >
                 Unit Finder
               </TabsTrigger>
               <TabsTrigger
                 value="squad-builder"
                 disabled={isPending}
-                className="data-[state=active]:bg-squad-builder-accent/90 data-[state=active]:text-white dark:data-[state=active]:text-black data-[state=inactive]:border-b-2 data-[state=inactive]:border-squad-builder-accent data-[state=inactive]:text-squad-builder-accent"
+                className="data-[state=active]:bg-squad-builder-accent data-[state=active]:text-white dark:data-[state=active]:text-black data-[state=inactive]:border-b-2 data-[state=inactive]:border-squad-builder-accent data-[state=inactive]:text-squad-builder-accent"
               >
                 Squad Builder
               </TabsTrigger>
               <TabsTrigger
                 value="test-assistant"
                 disabled={isPending}
-                className="data-[state=active]:bg-test-assistant-accent/90 data-[state=active]:text-white dark:data-[state=active]:text-black data-[state=inactive]:border-b-2 data-[state=inactive]:border-test-assistant-accent data-[state=inactive]:text-test-assistant-accent"
+                className="data-[state=active]:bg-test-assistant-accent data-[state=active]:text-white dark:data-[state=active]:text-black data-[state=inactive]:border-b-2 data-[state=inactive]:border-test-assistant-accent data-[state=inactive]:text-test-assistant-accent"
               >
                 Test Assistant
               </TabsTrigger>
@@ -656,6 +668,7 @@ export function UnitFinder() {
                   pendingText="Searching..."
                   text="Find Units"
                   isPending={isPending}
+                  className="bg-unit-finder-accent hover:bg-unit-finder-accent/90 text-white dark:text-black"
                 />
               </form>
             </TabsContent>
@@ -673,6 +686,7 @@ export function UnitFinder() {
                   pendingText="Building..."
                   text="Build Squad"
                   isPending={isPending}
+                  className="bg-squad-builder-accent hover:bg-squad-builder-accent/90 text-white dark:text-black"
                 />
               </form>
             </TabsContent>
@@ -699,6 +713,7 @@ export function UnitFinder() {
                   pendingText="Generating..."
                   text="Help Me Test This"
                   isPending={isPending}
+                  className="bg-test-assistant-accent hover:bg-test-assistant-accent/90 text-white dark:text-black"
                 />
               </form>
             </TabsContent>

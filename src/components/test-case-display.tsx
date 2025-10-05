@@ -18,7 +18,7 @@ const SimpleSquadList = ({ squad, title }: { squad: Squad; title: string }) => (
     <Card>
         <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
-                <Users className="h-5 w-5 text-primary" />
+                <Users className="h-5 w-5 text-test-assistant-accent" />
                 {title}
             </CardTitle>
         </CardHeader>
@@ -43,10 +43,10 @@ export function TestCaseDisplay({ testCase, triggerRef }: TestCaseDisplayProps) 
   return (
     <div ref={contentRef} className="space-y-8 bg-background p-4 sm:p-8 rounded-lg">
       
-      <div className="flex items-start gap-3 rounded-lg border border-primary/20 bg-card p-4">
-          <Terminal className="h-5 w-5 flex-shrink-0 text-primary" />
+      <div className="flex items-start gap-3 rounded-lg border border-test-assistant-accent/20 bg-card p-4">
+          <Terminal className="h-5 w-5 flex-shrink-0 text-test-assistant-accent" />
           <div className="flex-1">
-              <p className="text-sm font-semibold text-primary">Test Scenario</p>
+              <p className="text-sm font-semibold text-test-assistant-accent">Test Scenario</p>
               <p className="text-muted-foreground italic">"{testCase.scenarioTitle}"</p>
           </div>
       </div>

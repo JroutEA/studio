@@ -26,7 +26,7 @@ type SquadListProps = {
 
 const CharacterLink = ({ character, label }: { character: Character, label?: string }) => (
     <div className="flex items-baseline gap-2">
-        <Link href={character.url} target="_blank" className="font-medium hover:underline text-primary">
+        <Link href={character.url} target="_blank" className="font-medium hover:underline text-squad-builder-accent">
             {character.name}
         </Link>
         {label && <span className="text-xs text-muted-foreground">({label})</span>}
@@ -45,10 +45,10 @@ export function SquadList({ squads, title, isLoadingMore = false, savedSquads = 
   return (
     <div ref={contentRef} className="space-y-4 bg-background p-4 sm:p-8 rounded-lg">
        {query && (
-          <div className="flex items-start gap-3 rounded-lg border border-primary/20 bg-card p-4">
-              <Terminal className="h-5 w-5 flex-shrink-0 text-primary" />
+          <div className="flex items-start gap-3 rounded-lg border border-squad-builder-accent/20 bg-card p-4">
+              <Terminal className="h-5 w-5 flex-shrink-0 text-squad-builder-accent" />
               <div className="flex-1">
-                  <p className="text-sm font-semibold text-primary">{title ? `${title} Prompt` : 'Squad Builder Prompt'}</p>
+                  <p className="text-sm font-semibold text-squad-builder-accent">{title ? `${title} Prompt` : 'Squad Builder Prompt'}</p>
                   <p className="text-muted-foreground italic">"{query}"</p>
               </div>
           </div>
