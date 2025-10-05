@@ -28,7 +28,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { History, Users, TestTube, Trash2, Star, BrainCircuit, Download, AlertTriangle, Terminal, Bug } from 'lucide-react';
+import { History, Users, TestTube, Trash2, Star, BrainCircuit, Download, AlertTriangle, Bug } from 'lucide-react';
 import { UnitList } from './unit-list';
 import { UnitListSkeleton } from './unit-list-skeleton';
 import { SquadList } from './squad-list';
@@ -541,9 +541,7 @@ export function UnitFinder() {
         <CardHeader>
           <div className="flex justify-between items-start">
             <div className='flex items-center gap-3'>
-              <div className="p-2 bg-primary text-primary-foreground rounded-lg">
-                  <HolocronIcon className="w-6 h-6" />
-              </div>
+              <HolocronIcon className="w-8 h-8 text-primary" />
               <div>
                 <CardTitle className="font-headline text-3xl">Holocron 2.0</CardTitle>
                 <CardDescription>
