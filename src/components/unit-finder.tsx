@@ -620,9 +620,27 @@ export function UnitFinder() {
         <CardContent>
           <Tabs value={activeTab} onValueChange={isPending ? undefined : setActiveTab} className="w-full">
             <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="unit-finder" disabled={isPending}>Unit Finder</TabsTrigger>
-              <TabsTrigger value="squad-builder" disabled={isPending}>Squad Builder</TabsTrigger>
-              <TabsTrigger value="test-assistant" disabled={isPending}>Test Assistant</TabsTrigger>
+              <TabsTrigger
+                value="unit-finder"
+                disabled={isPending}
+                className="data-[state=active]:bg-unit-finder-accent/90 data-[state=active]:text-white dark:data-[state=active]:text-black data-[state=inactive]:border-b-2 data-[state=inactive]:border-unit-finder-accent data-[state=inactive]:text-unit-finder-accent"
+              >
+                Unit Finder
+              </TabsTrigger>
+              <TabsTrigger
+                value="squad-builder"
+                disabled={isPending}
+                className="data-[state=active]:bg-squad-builder-accent/90 data-[state=active]:text-white dark:data-[state=active]:text-black data-[state=inactive]:border-b-2 data-[state=inactive]:border-squad-builder-accent data-[state=inactive]:text-squad-builder-accent"
+              >
+                Squad Builder
+              </TabsTrigger>
+              <TabsTrigger
+                value="test-assistant"
+                disabled={isPending}
+                className="data-[state=active]:bg-test-assistant-accent/90 data-[state=active]:text-white dark:data-[state=active]:text-black data-[state=inactive]:border-b-2 data-[state=inactive]:border-test-assistant-accent data-[state=inactive]:text-test-assistant-accent"
+              >
+                Test Assistant
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="unit-finder" className="mt-4">
@@ -694,5 +712,3 @@ export function UnitFinder() {
     </div>
   );
 }
-
-    

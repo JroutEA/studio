@@ -65,6 +65,9 @@ export default {
           border: 'hsl(var(--sidebar-border))',
           ring: 'hsl(var(--sidebar-ring))',
         },
+        'unit-finder-accent': 'hsl(var(--unit-finder-accent))',
+        'squad-builder-accent': 'hsl(var(--squad-builder-accent))',
+        'test-assistant-accent': 'hsl(var(--test-assistant-accent))',
       },
       borderRadius: {
         lg: 'var(--radius)',

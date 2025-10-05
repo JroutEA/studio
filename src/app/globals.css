@@ -37,6 +37,11 @@
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 262 80% 58%;
+
+    /* Custom Tab Colors */
+    --unit-finder-accent: 210 100% 50%; /* Blue */
+    --squad-builder-accent: 145 63% 42%; /* Green */
+    --test-assistant-accent: 25 95% 53%; /* Orange */
   }
   .dark {
     --background: 224 71% 4%;
@@ -71,6 +76,11 @@
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 262 80% 58%;
+
+    /* Custom Tab Colors */
+    --unit-finder-accent: 210 100% 56%; /* Blue */
+    --squad-builder-accent: 145 63% 49%; /* Green */
+    --test-assistant-accent: 25 95% 58%; /* Orange */
   }
 }
 
