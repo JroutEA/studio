@@ -30,6 +30,7 @@ export type FormState = {
   squadsInput?: SquadBuilderAIInput;
   testCaseInput?: TestCaseAssistantAIInput;
   switchToTab?: string;
+  fallbackPrompt?: string;
 };
 
 const findUnitsSchema = z.object({
@@ -49,6 +50,24 @@ const generateTestCaseSchema = z.object({
     unitDetails: z.string().min(20, { message: 'Unit details must be at least 20 characters.' }),
     expectedResult: z.string().min(10, { message: 'Expected result must be at least 10 characters.' }),
 });
+
+function generatePromptFromTemplate(template: string, replacements: Record<string, string | number | undefined>): string {
+    let prompt = template;
+    for (const key in replacements) {
+        const value = replacements[key];
+        // Handle simple replacement
+        prompt = prompt.replace(new RegExp(`{{{${key}}}}`, 'g'), String(value || ''));
+
+        // Handle conditional block
+        const conditionalRegex = new RegExp(`{{#if ${key}}}([\\s\\S]*?){{\\/if}}`, 'g');
+        if (value) {
+            prompt = prompt.replace(conditionalRegex, '$1');
+        } else {
+            prompt = prompt.replace(conditionalRegex, '');
+        }
+    }
+    return prompt;
+}
 
 export async function findUnits(
   prevState: FormState,
@@ -106,7 +125,8 @@ export async function findUnits(
 
   } catch (e: unknown) {
     const errorMessage = e instanceof Error ? e.message : String(e);
-    return { ...prevState, query, message: `An error occurred: ${errorMessage}` };
+    const fallbackPrompt = generatePromptFromTemplate(unitMatchingAIPrompt, { count, query, loadMoreQuery });
+    return { ...prevState, query, message: `An error occurred: ${errorMessage}`, fallbackPrompt };
   }
 }
 
@@ -165,7 +185,8 @@ export async function buildSquad(
     };
   } catch (e: unknown) {
     const errorMessage = e instanceof Error ? e.message : String(e);
-    return { ...prevState, squadsInput: { query }, message: `An error occurred while building the squad: ${errorMessage}` };
+    const fallbackPrompt = generatePromptFromTemplate(squadBuilderAIPrompt, { count, query, loadMoreQuery });
+    return { ...prevState, squadsInput: { query }, message: `An error occurred while building the squad: ${errorMessage}`, fallbackPrompt };
   }
 }
 
@@ -195,6 +216,7 @@ export async function generateTestCase(
         };
     } catch (e: unknown) {
         const errorMessage = e instanceof Error ? e.message : String(e);
-        return { ...prevState, testCaseInput: input, message: `An error occurred: ${errorMessage}` };
+        const fallbackPrompt = generatePromptFromTemplate(testCaseAssistantAIPrompt, input);
+        return { ...prevState, testCaseInput: input, message: `An error occurred: ${errorMessage}`, fallbackPrompt };
     }
 }

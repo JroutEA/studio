@@ -39,7 +39,6 @@ import { DarthVaderLoader } from './darth-vader-loader';
 import { SavedSquadsList } from './saved-squads-list';
 import { Skeleton } from './ui/skeleton';
 import { FallbackPromptDisplay } from './fallback-prompt-display';
-import { Alert, AlertDescription, AlertTitle } from './ui/alert';
 import { cn } from '@/lib/utils';
 
 
@@ -144,7 +143,7 @@ export function UnitFinder() {
       });
     }
 
-    if (unitState.message && unitState.message !== 'success' && !unitState.message.includes('An error occurred:')) {
+    if (unitState.message && unitState.message !== 'success' && !unitState.fallbackPrompt) {
       toast({
         title: unitState.message.includes('found') ? 'Info' : unitState.message.includes('Invalid') ? 'Warning' : 'Error',
         description: unitState.message,
@@ -170,7 +169,7 @@ export function UnitFinder() {
       });
     }
 
-    if (squadState.message && squadState.message !== 'success' && !squadState.message.includes('An error occurred:')) {
+    if (squadState.message && squadState.message !== 'success' && !squadState.fallbackPrompt) {
        toast({
           title: squadState.message.includes('found') ? 'Info' : squadState.message.includes('Invalid') ? 'Warning' : 'Error',
           description: squadState.message,
@@ -197,7 +196,7 @@ export function UnitFinder() {
       });
     }
     
-    if (testCaseState.message && testCaseState.message !== 'success' && !testCaseState.message.includes('An error occurred:')) {
+    if (testCaseState.message && testCaseState.message !== 'success' && !testCaseState.fallbackPrompt) {
       toast({ variant: 'destructive', title: 'Error generating test case', description: testCaseState.message });
     }
   }, [testCaseState, toast, isClient]);
@@ -330,9 +329,9 @@ export function UnitFinder() {
   };
 
   const showDownloadButton = 
-    (activeTab === 'unit-finder' && unitState.units && unitState.units.length > 0) ||
-    (activeTab === 'squad-builder' && squadState.squads && squadState.squads.length > 0) ||
-    (activeTab === 'test-assistant' && testCaseState.testCase);
+    (activeTab === 'unit-finder' && unitState.units && unitState.units.length > 0 && !unitState.fallbackPrompt) ||
+    (activeTab === 'squad-builder' && squadState.squads && squadState.squads.length > 0 && !squadState.fallbackPrompt) ||
+    (activeTab === 'test-assistant' && testCaseState.testCase && !testCaseState.fallbackPrompt);
 
 
   if (!isClient) {
@@ -374,18 +373,17 @@ export function UnitFinder() {
   }
 
   const renderContent = () => {
-    let currentState = unitState;
+    let currentState: FormState = unitState;
     if (activeTab === 'squad-builder') currentState = squadState;
     if (activeTab === 'test-assistant') currentState = testCaseState;
     
-    if (currentState.message.includes('An error occurred:')) {
-      return (
-          <Alert variant="destructive">
-            <Terminal className="h-4 w-4" />
-            <AlertTitle>AI Generation Failed</AlertTitle>
-            <AlertDescription>{currentState.message}</AlertDescription>
-          </Alert>
-      );
+    if (currentState.fallbackPrompt) {
+        return (
+            <FallbackPromptDisplay
+                errorMessage={currentState.message}
+                fallbackPrompt={currentState.fallbackPrompt}
+            />
+        );
     }
   
     switch (activeTab) {
