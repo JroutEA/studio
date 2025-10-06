@@ -59,7 +59,28 @@ By automating the most time-consuming parts of test case design—namely, oppone
 
 ---
 
-## 4. Additional Features & UX
+## 4. Technology Stack
+
+This project integrates a modern web and AI technology stack to deliver a robust and intelligent user experience.
+
+-   **Framework:** **Next.js 14** with the App Router is used for the core application structure, providing server-side rendering (SSR), efficient routing, and a component-based architecture.
+-   **Language:** **TypeScript** is used throughout the project for strict type safety, which improves code quality and developer experience.
+-   **AI Engine:** **Genkit** serves as the framework for creating and managing the AI flows. It integrates with the **OpenAI API** (via the `genkitx-openai` plugin) to leverage powerful language models like GPT-4o for all generative tasks.
+-   **External Data Source:** **SerpAPI** is used to power the `wikiSearchTool`, enabling the AI to perform real-time Google searches against the `swgoh.wiki` to fetch the most up-to-date character, ship, and ability information. This grounds the AI's responses in factual, current game data.
+-   **UI & Styling:**
+    -   **React** is the foundational library for building the user interface.
+    -   **Tailwind CSS** is used for all styling, providing a utility-first approach for rapid and consistent design.
+    -   **ShadCN UI** provides a set of reusable, accessible, and beautifully designed components (like Cards, Buttons, and Tabs) that form the visual backbone of the application.
+-   **Forms & Validation:**
+    -   **React Hook Form** is used to manage form state and submissions efficiently.
+    -   **Zod** is used for schema declaration and validation, ensuring that all data, both from user input and AI-generated responses, is correctly structured.
+-   **UX Utilities:**
+    -   **`html-to-image`** enables the "Download as Image" feature, allowing users to capture and share AI-generated results.
+    -   **`lucide-react`** provides a library of clean and lightweight icons used throughout the interface.
+
+---
+
+## 5. Additional Features & UX
 
 Several key features have been implemented to improve usability and handle potential issues gracefully:
 
@@ -71,7 +92,7 @@ Several key features have been implemented to improve usability and handle poten
 
 ---
 
-## 5. Technical Challenges & Limitations
+## 6. Technical Challenges & Limitations
 
 The application relies on powerful generative AI models, which introduces several inherent challenges:
 
