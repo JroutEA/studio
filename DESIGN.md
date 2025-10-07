@@ -45,17 +45,17 @@ The core purpose of Holocron 2.0 is to solve specific bottlenecks faced by the S
 
 ### c. Test Assistant
 
-- **Purpose:** To dramatically speed up the QA process by automatically generating detailed test cases for new or updated unit abilities. This is the application's primary function for unit testing.
+- **Purpose:** To dramatically speed up the QA process by assisting testers, especially new live-ops resources, in setting up the environment to validate a given test case. It does not generate test cases; it helps prepare for them.
 - **Functionality:** A QA tester provides three key pieces of information:
     1.  **The 'new_unit ability design':** The full text of the new ability from the design document.
     2.  **The Test Scenario (test_step):** The specific interaction or condition they want to verify.
     3.  **The Expected Result:** The pass/fail condition for the test.
 - **Benefit for Unit Testing:** The AI acts as a senior QA expert and provides a complete, ready-to-use test plan:
     - **Intelligent Squad Selection:** It designs both an **Allied Squad** (including the new unit) and a specific **Opponent Squad** whose abilities are perfectly suited to create the necessary test conditions. For example, to test an anti-revive mechanic, it will create an opponent squad with a reviver like Mother Talzin.
-    - **Step-by-Step Instructions:** It generates a precise, ordered list of actions the tester must perform in-battle to trigger the test scenario correctly.
-    - **Clear Pass/Fail Criteria:** It provides unambiguous, observable outcomes that define whether the test has passed or failed, removing guesswork.
+    - **Step-by-Step Instructions:** It generates a precise, ordered list of actions the tester must perform in-battle to trigger the test scenario correctly. This outlines what to look for while testing the scenario.
+    - **Clear Pre-conditions:** It provides unambiguous, observable outcomes that define whether the test has passed or failed, removing guesswork and ensuring the environment is correctly set up before validation begins.
 
-By automating the most time-consuming parts of test case design—namely, opponent selection and setup procedure—the Test Assistant allows QA teams to increase test coverage and focus on executing tests rather than designing them.
+By automating the most time-consuming parts of test setup—namely, opponent selection and pre-condition procedure—the Test Assistant allows QA teams to increase test coverage and focus on executing and validating tests rather than on laborious preparation.
 
 ---
 
